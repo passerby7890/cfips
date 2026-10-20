@@ -98,7 +98,7 @@ fetch_target() {
   if [[ -n "${CF_API_TOKEN:-}" && -n "${CF_ZONE_ID:-}" && -n "${CF_RECORD_NAME:-}" ]]; then
     echo "[+] 檢測到 Cloudflare DNS 配置，開始同步至 ${CF_RECORD_NAME}..."
     local ip_list
-    ip_list=$(echo "${content}" | grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}$' | head -n 3)
+    ip_list=$(echo "${content}" | cut -d'#' -f1 | tr -d ' ' | grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}$' | head -n 3)
 
     if [[ -z "${ip_list}" ]]; then
       echo "[-] 無合格 IP 可供同步，已略過 DNS 更新" >&2

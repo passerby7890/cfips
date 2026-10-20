@@ -94,16 +94,17 @@ def export_all(
             r for r in passed_results
             if country in r.countries or r.country == country
         ]
-        scored = [score_for_country(r, neighbor_bonus) for r in candidates_for_country]
+        scored = [score_for_country(r, country_code=country, neighbor_bonus=neighbor_bonus) for r in candidates_for_country]
         selected = filter_subnet_diversity(scored, max_per_subnet=max_per_subnet, top_n=top_n)
         by_country[country] = selected
 
-    # 3. 輸出文字檔案 (含防空覆寫保護)
+    # 3. 輸出文字檔案 (格式：IP#國家二字碼，含防空覆寫保護)
     for c_key, items in by_carrier.items():
         file_path = carriers_dir / f"{c_key}.txt"
         if items:
-            file_path.write_text("\n".join(it.ip for it in items) + "\n", encoding="utf-8")
-            log.info("匯出四網 [%s] -> %s (%d 個 IP)", c_key.upper(), file_path, len(items))
+            lines = [f"{it.ip}#{it.country_code}" for it in items]
+            file_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            log.info("匯出四網 [%s] -> %s (%d 個 IP，附標註 #%s)", c_key.upper(), file_path, len(items), items[0].country_code)
         else:
             if anti_empty and file_path.exists() and file_path.stat().st_size > 0:
                 log.warning("四網 [%s] 當次合格 IP 為 0，已啟動防空保護保留前次檔案", c_key.upper())
@@ -113,9 +114,11 @@ def export_all(
 
     for country, items in by_country.items():
         file_path = countries_dir / f"{country}.txt"
+        c_tag = country.upper()
         if items:
-            file_path.write_text("\n".join(it.ip for it in items) + "\n", encoding="utf-8")
-            log.info("匯出地區 [%s] -> %s (%d 個 IP)", country.upper(), file_path, len(items))
+            lines = [f"{it.ip}#{c_tag}" for it in items]
+            file_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            log.info("匯出地區 [%s] -> %s (%d 個 IP，附標註 #%s)", country.upper(), file_path, len(items), c_tag)
         else:
             if anti_empty and file_path.exists() and file_path.stat().st_size > 0:
                 log.warning("地區 [%s] 當次合格 IP 為 0，已啟動防空保護保留前次檔案", country.upper())

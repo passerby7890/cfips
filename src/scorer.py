@@ -35,12 +35,25 @@ class ScoredItem:
     score: float
     carriers: list[str]
     sources: list[str]
+    countries: list[str] = field(default_factory=list)
+
+    @property
+    def country_code(self) -> str:
+        """取得 IP 純國家二字碼（大寫，如 HK, TW, US, JP）。"""
+        if self.country:
+            return str(self.country).upper()
+        if self.loc:
+            return str(self.loc).upper()
+        if self.countries:
+            return str(self.countries[0]).upper()
+        return "US"
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "ip": self.ip,
             "colo": self.colo,
             "country": self.country,
+            "country_code": self.country_code,
             "loc": self.loc,
             "latency_ms": round(self.latency_ms, 2),
             "loss_rate": round(self.loss_rate, 2),
@@ -49,6 +62,7 @@ class ScoredItem:
             "score": round(self.score, 2),
             "carriers": self.carriers,
             "sources": self.sources,
+            "countries": self.countries,
         }
 
 
@@ -109,11 +123,13 @@ def score_for_carrier(
         score=score,
         carriers=sorted(res.carriers),
         sources=sorted(res.sources),
+        countries=sorted(getattr(res, "countries", [])),
     )
 
 
 def score_for_country(
     res: Any,
+    country_code: str | None = None,
     neighbor_bonus: float = 15.0,
 ) -> ScoredItem:
     """為指定國家/地區計算評分（越低越佳）。"""
@@ -133,7 +149,7 @@ def score_for_country(
     return ScoredItem(
         ip=res.ip,
         colo=res.colo,
-        country=res.country,
+        country=country_code or res.country,
         loc=res.loc,
         latency_ms=res.latency_ms,
         loss_rate=loss_rate,
@@ -142,4 +158,5 @@ def score_for_country(
         score=score,
         carriers=sorted(res.carriers),
         sources=sorted(res.sources),
+        countries=sorted(getattr(res, "countries", [])),
     )
