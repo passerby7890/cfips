@@ -1,7 +1,11 @@
-.venv/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-output_dryrun/
+.env
+.venv/
+env/
+venv/
+*.csv
 *.log
+.DS_Store

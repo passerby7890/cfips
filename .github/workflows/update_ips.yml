@@ -1,64 +1,69 @@
-name: Update QuadNet & Country Optimized IPs
+name: Auto Update TriNet & Country IPs
 
 on:
   schedule:
-    # 常規每 4 小時執行一次 (UTC 00:00, 04:00, 08:00, 12:00, 16:00, 20:00)
-    - cron: '0 */4 * * *'
-    # 北京時間晚高峰密集執行 (UTC+8: 19:30, 21:00, 22:30 -> UTC: 11:30, 13:00, 14:30)
-    - cron: '30 11,14 * * *'
-    - cron: '0 13 * * *'
-  workflow_dispatch:
+    # 每 30 分鐘執行一次 (UTC 時間的第 0 與第 30 分鐘)
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # 支援在 GitHub 網頁手動點擊按鈕立即執行測試
   push:
     branches:
       - main
     paths:
       - 'src/**'
-      - 'config/**'
-      - 'data/**'
       - 'main.py'
-      - 'requirements.txt'
+      - 'config/**'
 
+# 關鍵權限：允許 Action 將生成的 output/* 提交並 Push 回倉庫
 permissions:
   contents: write
 
 jobs:
-  run-feed-generator:
+  run-optimizer:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
 
     steps:
-      - name: 檢出專案代碼 (Checkout repository)
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          # 取出完整歷史以避免 push 衝突
+          fetch-depth: 0
 
-      - name: 設定 Python 環境 (Setup Python 3.12)
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.11'
           cache: 'pip'
 
-      - name: 安裝相依套件 (Install dependencies)
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: 執行回源驗證與優選產出 (Run Feed Generator)
+      - name: Run IP Optimizer & Verification
         run: |
+          # 執行測活、回源 101 驗證並產出 output/ 目錄檔案
           python main.py
 
-      - name: 自動提交並推送變更至 GitHub (Commit and Push)
+      - name: Commit and Push Output
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 確保最新程式碼，避免衝突
+          git pull --rebase origin main
+
           # 檢查 output 目錄是否有變更
-          if [[ -n "$(git status --porcelain output/)" ]]; then
-            echo "[+] 檢測到 output 目錄更新，準備提交變更..."
+          if [ -d "output" ]; then
             git add output/
-            git commit -m "chore: auto update quadnet & country optimized IPs [skip ci]"
-            git push
-            echo "[✔] 成功推送最新優選 IP 清單至 GitHub！"
+            # 只有當 output 有檔案異動時才 commit
+            if git status --porcelain | grep -q 'output/'; then
+              git commit -m "chore: auto update optimized IPs [skip ci]"
+              git push origin main
+              echo "✅ IP 庫更新成功並已 Push 至倉庫！"
+            else
+              echo "ℹ️ IP 清單無變動，略過 Commit。"
+            fi
           else
-            echo "[*] output 目錄無變更，略過提交。"
+            echo "⚠️ 未檢測到 output 目錄，請檢查 main.py 執行狀態！"
+            exit 1
           fi
