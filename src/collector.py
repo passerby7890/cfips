@@ -727,10 +727,10 @@ def collect_local_seeds(cfg: dict[str, Any], root_dir: Path) -> list[dict[str, A
 def fetch_mainland_trinet_probes(timeout: float = 6.0) -> list[dict[str, Any]]:
     """從大陸境內實體三網探針 API 拉取當下實測低延遲 IP"""
     results: list[dict[str, Any]] = []
-    # 1. WeTest 大陸三網即時優選 API
+    # 1. WeTest 大陸三網即時優選 API (使用官方永久免費公鑰: o1zrmHAF, type=v4)
     try:
         resp = requests.get(
-            "https://www.wetest.vip/api/cf2dns/get_cloudflare_ip",
+            "https://www.wetest.vip/api/cf2dns/get_cloudflare_ip?key=o1zrmHAF&type=v4",
             headers={"User-Agent": USER_AGENT},
             timeout=timeout,
         )
@@ -742,17 +742,30 @@ def fetch_mainland_trinet_probes(timeout: float = 6.0) -> list[dict[str, Any]]:
                         if isinstance(node, dict):
                             ip = node.get("ip")
                             if ip and IPV4_RE.fullmatch(str(ip).strip()):
+                                ip_str = str(ip).strip()
+                                rtt = float(node.get("rtt_avg") or node.get("latency") or node.get("ping") or 60.0)
+                                raw_spd = float(node.get("speed") or 50.0)
+                                spd_mbps = (raw_spd * 8.0 / 1000.0) if raw_spd > 100 else (raw_spd * 8.0)
+                                loss = float(node.get("loss_rate") or node.get("loss") or 0.0)
+                                colo = str(node.get("colo", "")).strip().upper()
+                                c_tag = get_country_by_colo(colo)
+                                if code == "ct" and (rtt >= 100.0 or colo in ("SJC", "LAX", "SEA", "ORD", "DFW", "IAD", "ATL")):
+                                    c_tag = "US"
                                 results.append({
-                                    "ip": str(ip).strip(),
+                                    "ip": ip_str,
                                     "source": f"wetest_{code}",
                                     "source_carrier": code,
                                     "carrier": code,
-                                    "source_colo": str(node.get("colo", "")).upper(),
-                                    "cn_latency_ms": float(node.get("latency", 60)),
-                                    "cn_speed_mbps": float(node.get("speed", 50)) * 8.0,  # MB/s 轉 Mbps
-                                    "cn_loss_percent": float(node.get("loss", 0.0)),
-                                    "download_speed": float(node.get("speed", 50)) * 8.0,
-                                    "loss_rate": float(node.get("loss", 0.0)),
+                                    "source_colo": colo,
+                                    "source_country": c_tag or ("HK" if rtt < 80 else "US"),
+                                    "country": (c_tag or "cf").lower(),
+                                    "cn_latency_ms": rtt,
+                                    f"cn_{code}_latency_ms": rtt,
+                                    "cn_speed_mbps": round(spd_mbps, 2),
+                                    f"cn_{code}_speed_mbps": round(spd_mbps, 2),
+                                    "cn_loss_percent": loss,
+                                    "download_speed": round(spd_mbps, 2),
+                                    "loss_rate": loss,
                                 })
     except Exception as exc:
         log.debug("fetch_mainland_trinet_probes wetest 略過: %s", exc)
@@ -763,7 +776,7 @@ def fetch_mainland_trinet_probes(timeout: float = 6.0) -> list[dict[str, Any]]:
             "https://api.hostmonit.com/get_optimization_ip",
             json={"key": "iDetkOys"},
             headers={"User-Agent": USER_AGENT},
-            timeout=timeout,
+            timeout=4.0,
         )
         if resp.status_code == 200:
             info = resp.json().get("info", [])
@@ -774,17 +787,29 @@ def fetch_mainland_trinet_probes(timeout: float = 6.0) -> list[dict[str, Any]]:
                         code = "ct" if "CT" in line or "電信" in line or "电信" in line else ("cu" if "CU" in line or "聯通" in line or "联通" in line else "cm")
                         ip = node.get("ip")
                         if ip and IPV4_RE.fullmatch(str(ip).strip()):
+                            ip_str = str(ip).strip()
+                            lat = float(node.get("latency", 60))
+                            spd = float(node.get("speed", 50)) * 8.0
+                            loss = float(node.get("loss", 0.0))
+                            colo = str(node.get("colo", "")).upper()
+                            c_tag = get_country_by_colo(colo)
+                            if code == "ct" and lat >= 100.0:
+                                c_tag = "US"
                             results.append({
-                                "ip": str(ip).strip(),
+                                "ip": ip_str,
                                 "source": f"hostmonit_{code}",
                                 "source_carrier": code,
                                 "carrier": code,
-                                "source_colo": str(node.get("colo", "")).upper(),
-                                "cn_latency_ms": float(node.get("latency", 60)),
-                                "cn_speed_mbps": float(node.get("speed", 50)) * 8.0,
-                                "cn_loss_percent": float(node.get("loss", 0.0)),
-                                "download_speed": float(node.get("speed", 50)) * 8.0,
-                                "loss_rate": float(node.get("loss", 0.0)),
+                                "source_colo": colo,
+                                "source_country": c_tag or ("HK" if lat < 80 else "US"),
+                                "country": (c_tag or "cf").lower(),
+                                "cn_latency_ms": lat,
+                                f"cn_{code}_latency_ms": lat,
+                                "cn_speed_mbps": spd,
+                                f"cn_{code}_speed_mbps": spd,
+                                "cn_loss_percent": loss,
+                                "download_speed": spd,
+                                "loss_rate": loss,
                             })
     except Exception as exc:
         log.debug("fetch_mainland_trinet_probes hostmonit 略過: %s", exc)

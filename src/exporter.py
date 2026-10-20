@@ -48,14 +48,36 @@ def export_single_carrier(
 
     selected_tier = "SNAPSHOT_LOCK"
     filtered_ips: List[Dict[str, Any]] = []
-    blacklist_prefixes = ("104.18.", "104.20.", "104.21.", "104.22.", "172.66.", "172.67.")
+
+    # 運營商專屬高延遲繞美黑名單
+    if carrier == "ct":
+        carrier_blacklist = ("104.16.", "104.17.", "104.18.", "104.19.", "104.2", "172.64.", "172.65.", "172.66.", "172.67.", "173.245.")
+    elif carrier == "cu":
+        carrier_blacklist = ("104.17.", "104.18.", "104.20.", "104.21.", "104.22.", "104.26.", "172.64.", "172.66.", "172.67.")
+    else:
+        carrier_blacklist = ("104.16.", "104.18.", "104.20.", "104.21.", "172.66.", "172.67.")
+
+    def is_carrier_qualified(it: Dict[str, Any]) -> bool:
+        ip_addr = str(it.get("ip", "")).strip()
+        # 聯通特批保留 104.16.50 與 104.16.141 東京直連段
+        if carrier == "cu" and (ip_addr.startswith("104.16.50.") or ip_addr.startswith("104.16.141.")):
+            pass
+        elif ip_addr.startswith(carrier_blacklist):
+            # 若無境內實體探針驗證 < 90ms，嚴禁入選
+            if float(it.get("cn_latency_ms") or 999.0) >= 90.0:
+                return False
+        # 電信嚴格要求：預估境內延遲必須小於 100ms
+        est_lat = float(it.get("est_cn_latency_ms") or it.get("cn_latency_ms") or 150.0)
+        if carrier == "ct" and est_lat >= 100.0:
+            return False
+        return True
 
     # 1. 晚高峰階梯式篩選
     for min_spd, max_los, tier_name in tiers:
         matched = [
             item for item in candidate_pool
             if item.get("ws_handshake_101", False) is True
-            and not str(item.get("ip", "")).startswith(blacklist_prefixes)
+            and is_carrier_qualified(item)
             and float(item.get("speed_mbps", 0.0)) >= min_spd
             and float(item.get("loss_percent", 100.0)) <= max_los
         ]
@@ -67,12 +89,12 @@ def export_single_carrier(
                 it["tier"] = selected_tier
             break
 
-    # 若階梯篩選未能達到足量，但仍有合格回源 IP，回退採計所有 ws 101 合格者
+    # 若階梯篩選未能達到足量，但仍有合格回源 IP，回退採計所有合格回源 IP
     if not filtered_ips:
         matched = [
             item for item in candidate_pool
             if item.get("ws_handshake_101", False) is True
-            and not str(item.get("ip", "")).startswith(blacklist_prefixes)
+            and is_carrier_qualified(item)
         ]
         if matched:
             selected_tier = "FALLBACK_101"
@@ -130,6 +152,9 @@ def export_single_carrier(
         lines = []
         for it in final_selection:
             c_tag = it.get("country_code") or get_country_code(it.get("colo"), it.get("loc"))
+            est_lat = float(it.get("est_cn_latency_ms") or it.get("cn_latency_ms") or 150.0)
+            if est_lat >= 100.0 and c_tag in ("HK", "TW", "JP", "SG", "KR"):
+                c_tag = "US"
             lines.append(f"{it['ip']}#{c_tag}")
         out_p.write_text("\n".join(lines) + "\n", encoding="utf-8")
         log.info("[+] [%s] 成功輸出 %d 筆 IP (狀態: %s) -> %s", carrier.upper(), len(final_selection), selected_tier, out_p.name)

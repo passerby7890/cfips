@@ -195,6 +195,13 @@ def resolve_country_tag(item: Dict[str, Any], runner_trace_colo: str = "") -> st
     ip = str(item.get("ip", "")).strip()
     source_colo = str(item.get("source_colo") or "").strip().upper()
     raw_source_country = item.get("source_country") or ""
+    target_carrier = str(item.get("target_carrier") or "").lower()
+    est_lat = float(item.get("est_cn_latency_ms") or item.get("cn_latency_ms") or 0.0)
+
+    # 針對繞美高延遲段與電信視角的假亞太標籤防禦
+    is_detour_prefix = ip.startswith(("104.16.", "104.17.", "104.18.", "104.19.", "172.64.", "172.66.", "172.67."))
+    if (target_carrier == "ct" and is_detour_prefix and (est_lat >= 90.0 or est_lat == 0.0)) or (est_lat >= 100.0):
+        return "US"
 
     # 1. 優先採計境內探針實測 Colo
     if source_colo and source_colo != "DEFAULT":
