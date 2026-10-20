@@ -175,7 +175,14 @@ async def verify_single_ip(item: Dict[str, Any], origin_cfg: Dict[str, Any], sem
 
 
 class OriginVerifier:
-    def __init__(self, origin_cfg: dict[str, Any], concurrency: int = 40, precheck_timeout: float = 0.6):
+    def __init__(
+        self,
+        origin_cfg: dict[str, Any],
+        concurrency: int = 40,
+        precheck_concurrency: int = 100,
+        handshake_concurrency: int = 50,
+        precheck_timeout: float = 0.6,
+    ):
         self.sni = str(origin_cfg.get("sni", "node1.snowcat77.com")).strip()
         self.host = str(origin_cfg.get("host", self.sni)).strip()
         self.port = int(origin_cfg.get("port", 2053))
@@ -186,7 +193,9 @@ class OriginVerifier:
         self.precheck_timeout = float(precheck_timeout)
         self.rounds = max(2, int(origin_cfg.get("handshake_rounds", 2)))
         self.ssl_ctx = build_ssl_context()
-        self.sem = asyncio.Semaphore(concurrency)
+        self.precheck_sem = asyncio.Semaphore(precheck_concurrency)
+        self.handshake_sem = asyncio.Semaphore(handshake_concurrency or concurrency)
+        self.sem = self.handshake_sem
 
     async def _handshake(self, ip: str) -> tuple[asyncio.StreamReader, asyncio.StreamWriter, float]:
         """建立 TCP 連線並升級 TLS，回傳 (reader, writer, total_ms)。"""
@@ -286,69 +295,115 @@ class OriginVerifier:
             raise ValueError(f"WebSocket 回源握手失敗: {line_str}")
         res.ws_handshake_101 = True
 
-    async def verify_candidate(self, cand: Candidate) -> VerifyResult:
-        async with self.sem:
-            initial_c = cand.source_country.lower() if cand.source_country else None
-            initial_countries = set(cand.countries)
-            if cand.source_country:
-                initial_countries.add(cand.source_country.lower())
+    async def _do_verify_handshake(self, cand: Candidate) -> VerifyResult:
+        """執行 TLS 握手、trace 識別與 WebSocket 101 回源測活"""
+        initial_c = cand.source_country.lower() if cand.source_country else None
+        initial_countries = set(cand.countries)
+        if cand.source_country:
+            initial_countries.add(cand.source_country.lower())
 
-            res = VerifyResult(
+        res = VerifyResult(
+            ip=cand.ip,
+            is_shifted_neighbor=cand.is_shifted_neighbor,
+            carriers=set(cand.carriers),
+            countries=initial_countries,
+            sources=set(cand.sources),
+            loss_rate=cand.loss_rate,
+            loss_percent=cand.loss_rate,
+            download_speed=cand.download_speed,
+            speed_mbps=cand.download_speed,
+            source_country=cand.source_country,
+            source_colo=cand.source_colo,
+            country=initial_c,
+            country_code=cand.source_country.upper() if cand.source_country else "",
+        )
+
+        latencies: list[float] = []
+
+        try:
+            res.stage = "websocket_101"
+            r, w, lat = await self._handshake(cand.ip)
+            latencies.append(lat)
+            try:
+                key = "dGhlIHNhbXBsZSBub25jZQ=="
+                req = (
+                    f"GET {self.ws_path} HTTP/1.1\r\n"
+                    f"Host: {self.host}\r\n"
+                    f"Upgrade: websocket\r\n"
+                    f"Connection: Upgrade\r\n"
+                    f"Sec-WebSocket-Key: {key}\r\n"
+                    f"Sec-WebSocket-Version: 13\r\n"
+                    f"User-Agent: {UA}\r\n\r\n"
+                ).encode()
+                w.write(req)
+                await asyncio.wait_for(w.drain(), timeout=self.timeout)
+
+                status_line = await asyncio.wait_for(r.readline(), timeout=self.timeout)
+                line_str = status_line.decode(errors="replace").strip()
+                res.ws_status_line = line_str
+
+                parts = line_str.split()
+                if len(parts) >= 2:
+                    try:
+                        res.ws_status = int(parts[1])
+                    except ValueError:
+                        pass
+
+                if "101" not in line_str or "Switching Protocols" not in line_str:
+                    raise ValueError(f"WebSocket 回源握手失敗: {line_str}")
+
+                # 自 101 回應標頭 CF-RAY 萃取 Colo (例如: cf-ray: a4d7ba9d5a8aa9c7-TPE)
+                colo_found = ""
+                for _ in range(30):
+                    header_line = await asyncio.wait_for(r.readline(), timeout=self.timeout)
+                    h_str = header_line.decode(errors="replace").strip()
+                    if not h_str:
+                        break
+                    if h_str.lower().startswith("cf-ray:"):
+                        ray_val = h_str.split(":", 1)[1].strip()
+                        if "-" in ray_val:
+                            colo_found = ray_val.split("-")[-1].strip().upper()
+
+                colo = colo_found or "DEFAULT"
+                res.runner_colo = colo
+                if not res.colo or res.colo == "DEFAULT":
+                    res.colo = res.source_colo or (colo if colo != "DEFAULT" else "")
+
+                final_country = resolve_country_tag(res.to_dict(), runner_trace_colo=colo)
+                res.country_code = final_country
+                res.country = final_country.lower()
+
+                res.ws_handshake_101 = True
+                res.ok = True
+                res.stage = "passed"
+            finally:
+                await _close(w)
+
+            res.handshake_latencies = latencies
+            res.latency_ms = lat
+        except asyncio.TimeoutError:
+            res.reason = f"超時 (> {self.timeout}s)"
+        except Exception as exc:
+            res.reason = f"{type(exc).__name__}: {exc}"
+
+        return res
+
+    async def verify_candidate(self, cand: Candidate) -> VerifyResult:
+        """單一候選者完整驗證 (快篩 + 握手)"""
+        if not await fast_precheck(cand.ip, self.port, timeout=self.precheck_timeout):
+            return VerifyResult(
                 ip=cand.ip,
+                stage="fast_precheck",
+                reason=f"TCP 端口 {self.port} 快速快篩未開放 (0.6s 超時)",
                 is_shifted_neighbor=cand.is_shifted_neighbor,
                 carriers=set(cand.carriers),
-                countries=initial_countries,
+                countries=set(cand.countries),
                 sources=set(cand.sources),
-                loss_rate=cand.loss_rate,
-                loss_percent=cand.loss_rate,
-                download_speed=cand.download_speed,
-                speed_mbps=cand.download_speed,
                 source_country=cand.source_country,
                 source_colo=cand.source_colo,
-                country=initial_c,
-                country_code=cand.source_country.upper() if cand.source_country else "",
             )
-
-            # 前置快篩：0.6s 極短超時 TCP 握手
-            if not await fast_precheck(cand.ip, self.port, timeout=self.precheck_timeout):
-                res.stage = "fast_precheck"
-                res.reason = f"TCP 端口 {self.port} 快速快篩未開放 (0.6s 超時)"
-                return res
-
-            latencies: list[float] = []
-
-            try:
-                # 第 1 輪：握手 + trace 識別
-                res.stage = "handshake_1"
-                r1, w1, lat1 = await self._handshake(cand.ip)
-                latencies.append(lat1)
-                try:
-                    res.stage = "trace"
-                    await self._check_trace(r1, w1, res)
-                finally:
-                    await _close(w1)
-
-                # 第 2 輪：握手 + WebSocket 101 回源測活
-                res.stage = "handshake_2"
-                r2, w2, lat2 = await self._handshake(cand.ip)
-                latencies.append(lat2)
-                try:
-                    res.stage = "websocket_101"
-                    await self._check_ws(r2, w2, res)
-                finally:
-                    await _close(w2)
-
-                res.handshake_latencies = latencies
-                res.latency_ms = sum(latencies) / len(latencies)
-                res.ok = True
-                res.ws_handshake_101 = True
-                res.stage = "passed"
-            except asyncio.TimeoutError:
-                res.reason = f"超時 (> {self.timeout}s)"
-            except Exception as exc:
-                res.reason = f"{type(exc).__name__}: {exc}"
-
-            return res
+        async with self.handshake_sem:
+            return await self._do_verify_handshake(cand)
 
     async def verify_all(
         self,
@@ -356,29 +411,91 @@ class OriginVerifier:
         progress: Callable[[int, int, int], None] | None = None,
     ) -> dict[str, VerifyResult]:
         total = len(candidates)
-        done = 0
-        passed = 0
         results: dict[str, VerifyResult] = {}
 
-        async def _run(cand: Candidate) -> None:
+        # 漏斗第一層：高併發 TCP 端口快篩 (掃除未開端口與死 IP)
+        log.info(
+            "漏斗第一層：開始高併發 TCP 端口快篩（共 %d 個候選 IP，端口: %d，併發: %d，超時: %.1fs）",
+            total, self.port, self.precheck_sem._value, self.precheck_timeout,
+        )
+        precheck_passed: list[Candidate] = []
+        precheck_failed = 0
+
+        async def _run_precheck(cand: Candidate) -> None:
+            nonlocal precheck_failed
+            async with self.precheck_sem:
+                ok = await fast_precheck(cand.ip, self.port, timeout=self.precheck_timeout)
+            if ok:
+                precheck_passed.append(cand)
+            else:
+                precheck_failed += 1
+                results[cand.ip] = VerifyResult(
+                    ip=cand.ip,
+                    stage="fast_precheck",
+                    reason=f"TCP 端口 {self.port} 快速快篩未開放 (0.6s 超時)",
+                    is_shifted_neighbor=cand.is_shifted_neighbor,
+                    carriers=set(cand.carriers),
+                    countries=set(cand.countries),
+                    sources=set(cand.sources),
+                    source_country=cand.source_country,
+                    source_colo=cand.source_colo,
+                )
+
+        await asyncio.gather(*[_run_precheck(c) for c in candidates.values()])
+        log.info(
+            "漏斗第一層快篩完成：通過 %d 個（存活率 %.1f%%），淘汰死 IP %d 個",
+            len(precheck_passed), (len(precheck_passed) / total * 100) if total else 0, precheck_failed
+        )
+
+        # 漏斗第二層：TLS + WebSocket 101 回源測活 (僅對端口開放節點進行)
+        done = 0
+        passed = 0
+        log.info(
+            "漏斗第二層：開始端到端 TLS + WebSocket 101 回源握手（共 %d 個存活 IP，併發: %d，超時: %.1fs）",
+            len(precheck_passed), self.handshake_sem._value, self.timeout,
+        )
+
+        async def _run_handshake(cand: Candidate) -> None:
             nonlocal done, passed
-            r = await self.verify_candidate(cand)
+            async with self.handshake_sem:
+                r = await self._do_verify_handshake(cand)
             results[cand.ip] = r
             done += 1
             if r.ok:
                 passed += 1
-            if progress and (done % 10 == 0 or done == total):
-                progress(done, total, passed)
+            if progress and (done % 10 == 0 or done == len(precheck_passed)):
+                progress(done, len(precheck_passed), passed)
 
+        await asyncio.gather(*[_run_handshake(c) for c in precheck_passed])
         log.info(
-            "開始端到端回源驗證 %d 個候選 IP（SNI: %s, 端口: %d, WS: %s, 併發: %d, 快篩: %.1fs）",
-            total, self.sni, self.port, self.ws_path, self.sem._value, self.precheck_timeout,
-        )
-        tasks = [_run(c) for c in candidates.values()]
-        await asyncio.gather(*tasks)
-
-        log.info(
-            "回源驗證完成：%d 個 IP 測試，通過 101 握手: %d 個（通過率 %.1f%%）",
-            total, passed, (passed / total * 100) if total else 0
+            "漏斗第二層握手完成：通過 101 握手: %d 個（通過率 %.1f%%）",
+            passed, (passed / len(precheck_passed) * 100) if precheck_passed else 0
         )
         return results
+
+
+async def batch_verify_101(
+    candidates: list[dict[str, Any]] | dict[str, Candidate],
+    origin_cfg: dict[str, Any] | None = None,
+    concurrency: int = 50,
+) -> list[dict[str, Any]]:
+    """便捷封裝：執行漏斗 101 回源握手並回傳通過清單"""
+    if origin_cfg is None:
+        origin_cfg = {"host": "node1.snowcat77.com", "sni": "node1.snowcat77.com", "port": 2053, "ws_path": "/ws"}
+    verifier = OriginVerifier(origin_cfg, handshake_concurrency=concurrency)
+    if isinstance(candidates, list):
+        cand_dict = {}
+        for it in candidates:
+            c = Candidate(
+                ip=it["ip"],
+                carriers=set(it.get("carriers", [])),
+                countries=set(it.get("countries", [])),
+                sources=set(it.get("sources", [])),
+                source_country=it.get("source_country", ""),
+                source_colo=it.get("source_colo", ""),
+                is_shifted_neighbor=it.get("is_shifted_neighbor", False),
+            )
+            cand_dict[it["ip"]] = c
+        candidates = cand_dict
+    res = await verifier.verify_all(candidates)
+    return [r.to_dict() for r in res.values() if r.ok and r.ws_handshake_101]

@@ -151,11 +151,14 @@ async def run_pipeline(args: argparse.Namespace) -> int:
     cfg_path = (PROJECT_ROOT / args.config).resolve()
     config = load_config(cfg_path)
 
-    # 參數覆寫與調優設定
+    # 參數覆寫與調優設定 (v1.3.0 漏斗過濾管線)
     tuning = config.get("tuning", {})
-    concurrency = args.concurrency or int(tuning.get("concurrency_limit", config.get("concurrency", 40)))
+    precheck_concurrency = int(tuning.get("precheck_concurrency", 100))
+    handshake_concurrency = args.concurrency or int(tuning.get("handshake_concurrency", tuning.get("concurrency_limit", 50)))
     precheck_timeout = float(tuning.get("precheck_timeout_sec", 0.6))
     speedtest_duration = float(tuning.get("speedtest_duration_limit", 2.5))
+    speedtest_limit = int(tuning.get("speedtest_candidates_limit", 80))
+    speedtest_workers = int(tuning.get("speedtest_workers", 4))
 
     if args.no_ecs:
         config.setdefault("collector", {}).setdefault("ecs_doh", {})["enabled"] = False
@@ -167,9 +170,10 @@ async def run_pipeline(args: argparse.Namespace) -> int:
 
     origin_cfg = config.get("origin", {})
     log.info("=" * 65)
-    log.info("CF-Global-QuadNet-Feed v%s 啟動", __version__)
+    log.info("CF-Global-QuadNet-Feed v%s 啟動 (大規模漏斗階梯篩選)", __version__)
     log.info("目標源站：%s:%s (WS: %s, 預期 101)", origin_cfg.get('host'), origin_cfg.get('port'), origin_cfg.get('ws_path'))
-    log.info("調優參數：併發 %d，快篩超時 %.1fs，測速截斷 %.1fs", concurrency, precheck_timeout, speedtest_duration)
+    log.info("調優參數：快篩併發 %d，握手併發 %d，測速精選前 %d 名 (工作線程: %d, 截斷: %.1fs)",
+             precheck_concurrency, handshake_concurrency, speedtest_limit, speedtest_workers, speedtest_duration)
     log.info("=" * 65)
 
     # 1. 階段一：多維度情報收集
@@ -178,21 +182,40 @@ async def run_pipeline(args: argparse.Namespace) -> int:
     # 2. 階段二：同 /24 網段冷門鄰居平移演算法
     expanded_candidates = shift_neighbors(candidates, config.get("neighbor_shifter", {}))
 
-    # 3. 階段三：端到端真實回源測活 (0.6s TCP 快篩 + TLS + trace + WS 101)
-    verifier = OriginVerifier(origin_cfg, concurrency=concurrency, precheck_timeout=precheck_timeout)
+    # 3. 階段三：端到端真實回源測活 (漏斗階梯: 100 併發快篩 + 50 併發 TLS+trace+WS 101)
+    verifier = OriginVerifier(
+        origin_cfg,
+        concurrency=handshake_concurrency,
+        precheck_concurrency=precheck_concurrency,
+        handshake_concurrency=handshake_concurrency,
+        precheck_timeout=precheck_timeout,
+    )
     results = await verifier.verify_all(expanded_candidates)
 
     verified_items = [r.to_dict() for r in results.values() if r.ok and r.ws_handshake_101]
+    log.info("[+] 通過 101 回源握手合格節點: %d 筆", len(verified_items))
 
-    # 4. 階段四：10MB 切片 2.5 秒限時吞吐測速快篩
+    # 4. 階段四：漏斗階梯限速測速 (僅挑選前 80 名精華節點執行 2.5 秒下行吞吐測速，防 Actions 超時)
     if verified_items:
-        verified_items = batch_measure_bandwidth(
-            items=verified_items,
+        # 按初篩握手延遲由低到高排序
+        verified_items.sort(key=lambda x: float(x.get("latency_ms", 999.0)))
+
+        speedtest_targets = verified_items[:speedtest_limit]
+        backup_targets = verified_items[speedtest_limit:]
+
+        log.info(
+            "[*] 階段四：挑選前 %d 名節點進行 %.1f 秒下行吞吐測速 (線程池: %d)，其餘 %d 節點保留基準分作為備援...",
+            len(speedtest_targets), speedtest_duration, speedtest_workers, len(backup_targets)
+        )
+
+        measured_targets = batch_measure_bandwidth(
+            items=speedtest_targets,
             port=int(origin_cfg.get("port", 2053)),
             sni_host=str(origin_cfg.get("sni", "node1.snowcat77.com")),
             duration_limit=speedtest_duration,
-            max_workers=min(20, len(verified_items)),
+            max_workers=speedtest_workers,
         )
+        verified_items = measured_targets + backup_targets
 
     # 5. 階段五：四層階梯降級、EWMA 歷史評分衰減與檔案輸出
     output_dir = PROJECT_ROOT / config.get("exporter", {}).get("output_dir", "output")

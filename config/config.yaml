@@ -12,11 +12,14 @@ origin:
   timeout_sec: 2.5                        # 握手超時上限（秒）
   handshake_rounds: 2                     # 測試次數以計算平均握手延遲
 
-# 系統調優與快篩參數
+# 系統調優與快篩參數 (v1.3.0 大規模 2000+ 漏斗階梯篩選)
 tuning:
   precheck_timeout_sec: 0.6               # 端口快篩極短超時 (秒)
-  concurrency_limit: 40                   # 併發驗證上限
+  precheck_concurrency: 100               # 2000 IP 專用高併發快篩
+  handshake_concurrency: 50               # 101 握手併發數
+  speedtest_workers: 4                    # 下載測速併發工作線程
   speedtest_duration_limit: 2.5           # 測速切片截斷時間 (秒)
+  speedtest_candidates_limit: 80          # 僅挑選前 80 名通過回源者測速 (防 Actions 超時)
   history_decay_ratio: 0.7                # 歷史分權重 70%，當次實測分 30%
   max_ips_per_subnet: 3                   # 同 /24 網段最多收錄 3 個
   max_ips_per_country: 15                 # 國家多樣性保障：單一地區最多收錄 15 個，防單一國家霸榜
@@ -144,8 +147,8 @@ collector:
   # 策略 D: 本地精選種子庫補充
   local_seeds:
     enabled: true
-    sample_per_cidr: 10                   # 每個特選 CIDR 抽樣個數
-    sample_per_cidr_global: 3            # 全量 25 個官方 CIDR 大段抽樣個數
+    sample_per_cidr: 5                    # 每個特選 CIDR 抽樣個數 (維持 2000+ 候選池黃金規模)
+    sample_per_cidr_global: 2            # 全量 25 個官方 CIDR 大段抽樣個數
     files:
       ct: "data/seeds_ct.txt"
       cu: "data/seeds_cu.txt"
@@ -164,7 +167,7 @@ collector:
 # 階段二：同 /24 網段冷門鄰居平移演算法
 neighbor_shifter:
   enabled: true
-  samples_per_ip: 3                       # 每個公開熱門 IP 在同 /24 網段抽取的非公開冷門鄰居數
+  samples_per_ip: 1                       # 每個公開熱門 IP 在同 /24 網段抽取的非公開冷門鄰居數
   bonus_score_ms: 15.0                    # 通過驗證的冷門鄰居獲得的延遲獎勵扣分 (-15ms)
 
 # 輸出控制與容災保護
