@@ -1,833 +1,1059 @@
 {
-  "updated_at": "2026-10-20T13:37:51+08:00",
-  "timestamp": 1792474671,
-  "total_verified_ok": 2102,
+  "updated_at": "2026-10-20T13:52:39+08:00",
+  "timestamp": 1792475559,
+  "total_verified_ok": 2084,
   "by_carrier": {
     "ct": [
       {
-        "ip": "104.21.229.20",
-        "colo": "LAX",
+        "ip": "104.21.233.237",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 24.47,
-        "loss_rate": 0.0,
-        "download_speed": 290.0,
-        "is_shifted_neighbor": true,
-        "score": -60.53,
-        "carriers": [
-          "ct",
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.21.229.228"
-        ]
-      },
-      {
-        "ip": "104.21.233.197",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.88,
+        "latency_ms": 17.85,
         "loss_rate": 0.0,
         "download_speed": 225.0,
         "is_shifted_neighbor": true,
-        "score": -60.12,
+        "score": -37.15,
         "carriers": [
           "ct"
         ],
         "sources": [
           "neighbor:104.21.233.126"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.19.206.54",
-        "colo": "LAX",
+        "ip": "104.18.148.19",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 25.22,
+        "latency_ms": 19.63,
         "loss_rate": 0.0,
-        "download_speed": 215.0,
+        "download_speed": 225.0,
         "is_shifted_neighbor": true,
-        "score": -59.78,
+        "score": -35.37,
         "carriers": [
           "ct"
         ],
         "sources": [
-          "neighbor:104.19.206.26"
+          "neighbor:104.18.148.247"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.21.233.50",
-        "colo": "LAX",
+        "ip": "104.19.119.186",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 26.58,
+        "latency_ms": 22.29,
+        "loss_rate": 0.0,
+        "download_speed": 210.0,
+        "is_shifted_neighbor": true,
+        "score": -32.71,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.19.119.86"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.18.77.100",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 22.61,
+        "loss_rate": 0.0,
+        "download_speed": 215.0,
+        "is_shifted_neighbor": true,
+        "score": -32.39,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.18.77.55"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.18.77.84",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 23.03,
+        "loss_rate": 0.0,
+        "download_speed": 215.0,
+        "is_shifted_neighbor": true,
+        "score": -31.97,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.18.77.55"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.21.233.253",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 23.36,
         "loss_rate": 0.0,
         "download_speed": 225.0,
         "is_shifted_neighbor": true,
-        "score": -58.42,
+        "score": -31.64,
         "carriers": [
           "ct"
         ],
         "sources": [
           "neighbor:104.21.233.126"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.18.77.89",
-        "colo": "LAX",
+        "ip": "104.19.119.201",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 26.64,
+        "latency_ms": 24.38,
         "loss_rate": 0.0,
-        "download_speed": 215.0,
+        "download_speed": 210.0,
         "is_shifted_neighbor": true,
-        "score": -58.36,
+        "score": -30.62,
         "carriers": [
           "ct"
         ],
         "sources": [
-          "neighbor:104.18.77.55"
-        ]
-      },
-      {
-        "ip": "104.18.77.57",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 27.71,
-        "loss_rate": 0.0,
-        "download_speed": 215.0,
-        "is_shifted_neighbor": true,
-        "score": -57.29,
-        "carriers": [
-          "ct"
+          "neighbor:104.19.119.86"
         ],
-        "sources": [
-          "neighbor:104.18.77.55"
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.21.229.181",
-        "colo": "LAX",
+        "ip": "104.18.148.174",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 29.26,
-        "loss_rate": 0.0,
-        "download_speed": 290.0,
-        "is_shifted_neighbor": true,
-        "score": -55.74,
-        "carriers": [
-          "ct",
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.21.229.228"
-        ]
-      },
-      {
-        "ip": "104.18.148.209",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 30.41,
+        "latency_ms": 28.93,
         "loss_rate": 0.0,
         "download_speed": 225.0,
         "is_shifted_neighbor": true,
-        "score": -54.59,
+        "score": -26.07,
         "carriers": [
           "ct"
         ],
         "sources": [
           "neighbor:104.18.148.247"
-        ]
-      },
-      {
-        "ip": "104.18.148.172",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 30.97,
-        "loss_rate": 0.0,
-        "download_speed": 225.0,
-        "is_shifted_neighbor": true,
-        "score": -54.03,
-        "carriers": [
-          "ct"
         ],
-        "sources": [
-          "neighbor:104.18.148.247"
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.19.206.87",
-        "colo": "LAX",
+        "ip": "172.64.159.147",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 37.34,
-        "loss_rate": 0.0,
-        "download_speed": 215.0,
-        "is_shifted_neighbor": true,
-        "score": -47.66,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.19.206.26"
-        ]
-      },
-      {
-        "ip": "104.16.251.110",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 21.83,
+        "latency_ms": 16.98,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -43.17,
+        "score": -18.02,
         "carriers": [
           "ct"
         ],
         "sources": [
-          "neighbor:104.16.251.63"
+          "neighbor:172.64.159.55"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.17.117.42",
-        "colo": "LAX",
+        "ip": "104.17.159.93",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 22.35,
+        "latency_ms": 17.42,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -42.65,
+        "score": -17.58,
         "carriers": [
           "ct"
         ],
         "sources": [
-          "neighbor:104.17.117.207"
+          "neighbor:104.17.159.190"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.17.22.221",
-        "colo": "LAX",
+        "ip": "172.64.229.126",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 22.44,
+        "latency_ms": 17.49,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -42.56,
+        "score": -17.51,
         "carriers": [
           "ct"
         ],
         "sources": [
-          "neighbor:104.17.22.7"
+          "neighbor:172.64.229.217"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "162.159.140.105",
-        "colo": "LAX",
+        "ip": "162.159.140.67",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 22.54,
+        "latency_ms": 17.76,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -42.46,
+        "score": -17.24,
         "carriers": [
           "ct"
         ],
         "sources": [
           "neighbor:162.159.140.85"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.17.159.10",
-        "colo": "LAX",
+        "ip": "172.64.82.1",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 22.88,
+        "latency_ms": 17.83,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -42.12,
+        "score": -17.17,
         "carriers": [
           "ct"
         ],
         "sources": [
-          "neighbor:104.17.159.247"
+          "neighbor:172.64.82.144"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "172.64.82.210",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 20.35,
+        "loss_rate": 0.0,
+        "download_speed": 55.36,
+        "is_shifted_neighbor": true,
+        "score": -16.79,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:172.64.82.114"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.117.11",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 18.21,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.79,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.17.117.207"
+        ],
+        "countries": [
+          "us"
         ]
       }
     ],
     "cu": [
       {
-        "ip": "141.101.113.214",
-        "colo": "LAX",
+        "ip": "172.64.83.212",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 24.3,
-        "loss_rate": 0.0,
-        "download_speed": 325.0,
-        "is_shifted_neighbor": true,
-        "score": -60.7,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:141.101.113.10"
-        ]
-      },
-      {
-        "ip": "104.21.229.20",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.47,
-        "loss_rate": 0.0,
-        "download_speed": 290.0,
-        "is_shifted_neighbor": true,
-        "score": -60.53,
-        "carriers": [
-          "ct",
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.21.229.228"
-        ]
-      },
-      {
-        "ip": "141.101.113.46",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.63,
-        "loss_rate": 0.0,
-        "download_speed": 325.0,
-        "is_shifted_neighbor": true,
-        "score": -60.37,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:141.101.113.10"
-        ]
-      },
-      {
-        "ip": "172.64.83.134",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.77,
+        "latency_ms": 16.98,
         "loss_rate": 0.0,
         "download_speed": 260.0,
         "is_shifted_neighbor": true,
-        "score": -60.23,
+        "score": -38.02,
         "carriers": [
           "cu"
         ],
         "sources": [
           "neighbor:172.64.83.52"
-        ]
-      },
-      {
-        "ip": "162.159.236.57",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 27.33,
-        "loss_rate": 0.0,
-        "download_speed": 1490.0,
-        "is_shifted_neighbor": true,
-        "score": -57.67,
-        "carriers": [
-          "cu"
         ],
-        "sources": [
-          "neighbor:162.159.236.194"
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "172.64.67.51",
-        "colo": "LAX",
+        "ip": "172.64.83.209",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 27.56,
-        "loss_rate": 0.0,
-        "download_speed": 1810.0,
-        "is_shifted_neighbor": true,
-        "score": -57.44,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.64.67.117"
-        ]
-      },
-      {
-        "ip": "172.64.67.63",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 27.61,
-        "loss_rate": 0.0,
-        "download_speed": 1810.0,
-        "is_shifted_neighbor": true,
-        "score": -57.39,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.64.67.117"
-        ]
-      },
-      {
-        "ip": "172.64.83.85",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 28.85,
+        "latency_ms": 18.65,
         "loss_rate": 0.0,
         "download_speed": 260.0,
         "is_shifted_neighbor": true,
-        "score": -56.15,
+        "score": -36.35,
         "carriers": [
           "cu"
         ],
         "sources": [
           "neighbor:172.64.83.52"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.21.229.181",
-        "colo": "LAX",
+        "ip": "172.67.251.151",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 29.26,
+        "latency_ms": 20.21,
         "loss_rate": 0.0,
-        "download_speed": 290.0,
+        "download_speed": 570.0,
         "is_shifted_neighbor": true,
-        "score": -55.74,
+        "score": -34.79,
         "carriers": [
-          "ct",
           "cu"
         ],
         "sources": [
-          "neighbor:104.21.229.228"
+          "neighbor:172.67.251.117"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "162.159.236.240",
-        "colo": "LAX",
+        "ip": "172.67.251.185",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 29.64,
+        "latency_ms": 21.78,
+        "loss_rate": 0.0,
+        "download_speed": 570.0,
+        "is_shifted_neighbor": true,
+        "score": -33.22,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:172.67.251.117"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "162.159.236.219",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 23.02,
         "loss_rate": 0.0,
         "download_speed": 1490.0,
         "is_shifted_neighbor": true,
-        "score": -55.36,
+        "score": -31.98,
         "carriers": [
           "cu"
         ],
         "sources": [
           "neighbor:162.159.236.194"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.26.4.193",
-        "colo": "LAX",
+        "ip": "104.26.4.93",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 23.94,
+        "latency_ms": 16.93,
         "loss_rate": 0.0,
         "download_speed": 82.16,
         "is_shifted_neighbor": true,
-        "score": -53.92,
+        "score": -30.93,
         "carriers": [
           "cu"
         ],
         "sources": [
           "neighbor:104.26.4.90"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "172.67.251.77",
-        "colo": "LAX",
+        "ip": "162.159.236.48",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 31.38,
+        "latency_ms": 24.69,
         "loss_rate": 0.0,
-        "download_speed": 570.0,
+        "download_speed": 1490.0,
         "is_shifted_neighbor": true,
-        "score": -53.62,
+        "score": -30.31,
         "carriers": [
           "cu"
         ],
         "sources": [
-          "neighbor:172.67.251.117"
+          "neighbor:162.159.236.194"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.19.148.142",
-        "colo": "LAX",
+        "ip": "162.159.136.212",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 28.69,
+        "latency_ms": 18.09,
+        "loss_rate": 0.0,
+        "download_speed": 78.4,
+        "is_shifted_neighbor": true,
+        "score": -28.27,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:162.159.136.89"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "172.64.67.145",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 27.09,
+        "loss_rate": 0.0,
+        "download_speed": 1810.0,
+        "is_shifted_neighbor": true,
+        "score": -27.91,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:172.64.67.117"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "172.64.67.176",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 27.54,
+        "loss_rate": 0.0,
+        "download_speed": 1810.0,
+        "is_shifted_neighbor": true,
+        "score": -27.46,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:172.64.67.117"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "162.159.136.52",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 20.2,
+        "loss_rate": 0.0,
+        "download_speed": 78.4,
+        "is_shifted_neighbor": true,
+        "score": -26.16,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:162.159.136.89"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.26.4.9",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 22.63,
+        "loss_rate": 0.0,
+        "download_speed": 82.16,
+        "is_shifted_neighbor": true,
+        "score": -25.23,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.4.90"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.19.148.125",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 24.43,
         "loss_rate": 0.0,
         "download_speed": 86.64,
         "is_shifted_neighbor": true,
-        "score": -50.97,
+        "score": -25.23,
         "carriers": [
           "cm",
           "cu"
         ],
         "sources": [
           "neighbor:104.19.148.121"
-        ]
-      },
-      {
-        "ip": "172.67.251.110",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 34.36,
-        "loss_rate": 0.0,
-        "download_speed": 570.0,
-        "is_shifted_neighbor": true,
-        "score": -50.64,
-        "carriers": [
-          "cu"
         ],
-        "sources": [
-          "neighbor:172.67.251.117"
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.19.148.87",
-        "colo": "LAX",
+        "ip": "104.19.148.192",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 29.73,
+        "latency_ms": 24.48,
         "loss_rate": 0.0,
         "download_speed": 86.64,
         "is_shifted_neighbor": true,
-        "score": -49.93,
+        "score": -25.17,
         "carriers": [
           "cm",
           "cu"
         ],
         "sources": [
           "neighbor:104.19.148.121"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "172.64.229.98",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 18.63,
+        "loss_rate": 0.0,
+        "download_speed": 70.32,
+        "is_shifted_neighbor": true,
+        "score": -24.5,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:172.64.229.7"
+        ],
+        "countries": [
+          "us"
         ]
       }
     ],
     "cm": [
       {
-        "ip": "172.67.175.98",
-        "colo": "LAX",
+        "ip": "104.18.166.27",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 23.12,
-        "loss_rate": 0.0,
-        "download_speed": 255.0,
-        "is_shifted_neighbor": true,
-        "score": -31.88,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:172.67.175.15"
-        ]
-      },
-      {
-        "ip": "172.67.175.197",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.31,
-        "loss_rate": 0.0,
-        "download_speed": 255.0,
-        "is_shifted_neighbor": true,
-        "score": -31.69,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:172.67.175.15"
-        ]
-      },
-      {
-        "ip": "104.18.81.166",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.39,
-        "loss_rate": 0.0,
-        "download_speed": 103.84,
-        "is_shifted_neighbor": true,
-        "score": -30.61,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.18.81.19"
-        ]
-      },
-      {
-        "ip": "104.18.81.57",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 26.5,
-        "loss_rate": 0.0,
-        "download_speed": 103.84,
-        "is_shifted_neighbor": true,
-        "score": -28.5,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.18.81.19"
-        ]
-      },
-      {
-        "ip": "172.67.74.112",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 26.75,
-        "loss_rate": 0.0,
-        "download_speed": 260.0,
-        "is_shifted_neighbor": true,
-        "score": -28.25,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:172.67.74.15"
-        ]
-      },
-      {
-        "ip": "104.18.166.63",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 26.93,
+        "latency_ms": 17.04,
         "loss_rate": 0.0,
         "download_speed": 100.48,
         "is_shifted_neighbor": true,
-        "score": -28.07,
+        "score": -37.96,
         "carriers": [
           "cm"
         ],
         "sources": [
           "neighbor:104.18.166.129"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "172.67.162.154",
-        "colo": "LAX",
+        "ip": "104.18.81.245",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 27.83,
+        "latency_ms": 18.91,
         "loss_rate": 0.0,
-        "download_speed": 295.0,
+        "download_speed": 103.84,
         "is_shifted_neighbor": true,
-        "score": -27.17,
+        "score": -36.09,
         "carriers": [
           "cm"
         ],
         "sources": [
-          "neighbor:172.67.162.55"
+          "neighbor:104.18.81.19"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "172.67.74.190",
-        "colo": "LAX",
+        "ip": "104.18.89.163",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 28.28,
+        "latency_ms": 19.01,
+        "loss_rate": 0.0,
+        "download_speed": 102.0,
+        "is_shifted_neighbor": true,
+        "score": -35.99,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.89.52"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.18.89.164",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 20.06,
+        "loss_rate": 0.0,
+        "download_speed": 102.0,
+        "is_shifted_neighbor": true,
+        "score": -34.94,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.89.52"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.18.81.79",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 20.51,
+        "loss_rate": 0.0,
+        "download_speed": 103.84,
+        "is_shifted_neighbor": true,
+        "score": -34.49,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.81.19"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "172.67.74.107",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 20.99,
         "loss_rate": 0.0,
         "download_speed": 260.0,
         "is_shifted_neighbor": true,
-        "score": -26.72,
+        "score": -34.01,
         "carriers": [
           "cm"
         ],
         "sources": [
           "neighbor:172.67.74.15"
-        ]
-      },
-      {
-        "ip": "104.18.89.110",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 30.61,
-        "loss_rate": 0.0,
-        "download_speed": 102.0,
-        "is_shifted_neighbor": true,
-        "score": -24.39,
-        "carriers": [
-          "cm"
         ],
-        "sources": [
-          "neighbor:104.18.89.52"
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.18.166.183",
-        "colo": "LAX",
+        "ip": "104.18.166.195",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 31.15,
+        "latency_ms": 21.95,
         "loss_rate": 0.0,
         "download_speed": 100.48,
         "is_shifted_neighbor": true,
-        "score": -23.85,
+        "score": -33.05,
         "carriers": [
           "cm"
         ],
         "sources": [
           "neighbor:104.18.166.129"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.18.89.89",
-        "colo": "LAX",
+        "ip": "172.67.170.119",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 32.07,
+        "latency_ms": 24.46,
         "loss_rate": 0.0,
-        "download_speed": 102.0,
+        "download_speed": 280.0,
         "is_shifted_neighbor": true,
-        "score": -22.93,
+        "score": -30.54,
         "carriers": [
           "cm"
         ],
         "sources": [
-          "neighbor:104.18.89.52"
+          "neighbor:172.67.170.118"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "172.67.162.156",
-        "colo": "LAX",
+        "ip": "172.67.74.141",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 32.89,
+        "latency_ms": 27.59,
         "loss_rate": 0.0,
-        "download_speed": 295.0,
+        "download_speed": 260.0,
         "is_shifted_neighbor": true,
-        "score": -22.11,
+        "score": -27.41,
         "carriers": [
           "cm"
         ],
         "sources": [
-          "neighbor:172.67.162.55"
+          "neighbor:172.67.74.15"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.17.139.195",
-        "colo": "LAX",
+        "ip": "172.67.170.221",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 23.75,
+        "latency_ms": 28.41,
+        "loss_rate": 0.0,
+        "download_speed": 280.0,
+        "is_shifted_neighbor": true,
+        "score": -26.59,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:172.67.170.118"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.19.154.218",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 19.85,
+        "loss_rate": 0.0,
+        "download_speed": 76.8,
+        "is_shifted_neighbor": true,
+        "score": -25.87,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.19.154.200"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.19.148.125",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 24.43,
+        "loss_rate": 0.0,
+        "download_speed": 86.64,
+        "is_shifted_neighbor": true,
+        "score": -25.23,
+        "carriers": [
+          "cm",
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.19.148.121"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.19.148.192",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 24.48,
+        "loss_rate": 0.0,
+        "download_speed": 86.64,
+        "is_shifted_neighbor": true,
+        "score": -25.17,
+        "carriers": [
+          "cm",
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.19.148.121"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.162.165",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 24.31,
+        "loss_rate": 0.0,
+        "download_speed": 85.92,
+        "is_shifted_neighbor": true,
+        "score": -25.06,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.17.162.3"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.139.244",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 21.11,
         "loss_rate": 0.0,
         "download_speed": 77.04,
         "is_shifted_neighbor": true,
-        "score": -22.07,
+        "score": -24.7,
         "carriers": [
           "cm"
         ],
         "sources": [
           "neighbor:104.17.139.37"
-        ]
-      },
-      {
-        "ip": "104.17.139.232",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.87,
-        "loss_rate": 0.0,
-        "download_speed": 77.04,
-        "is_shifted_neighbor": true,
-        "score": -21.95,
-        "carriers": [
-          "cm"
         ],
-        "sources": [
-          "neighbor:104.17.139.37"
-        ]
-      },
-      {
-        "ip": "104.18.151.16",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 25.25,
-        "loss_rate": 0.0,
-        "download_speed": 79.04,
-        "is_shifted_neighbor": true,
-        "score": -21.37,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.18.151.172"
+        "countries": [
+          "us"
         ]
       }
     ],
     "edu": [
       {
-        "ip": "172.64.144.161",
-        "colo": "LAX",
+        "ip": "172.64.144.54",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 22.36,
+        "latency_ms": 17.87,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -42.64,
+        "score": -17.13,
         "carriers": [
           "edu"
         ],
         "sources": [
           "neighbor:172.64.144.82"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.26.12.156",
-        "colo": "LAX",
+        "ip": "172.64.144.242",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 23.05,
+        "latency_ms": 18.76,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -41.95,
+        "score": -16.24,
         "carriers": [
-          "cm",
-          "ct",
-          "cu",
           "edu"
         ],
         "sources": [
-          "neighbor:104.26.12.54"
+          "neighbor:172.64.144.82"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.26.13.221",
-        "colo": "LAX",
+        "ip": "104.18.41.134",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 23.93,
+        "latency_ms": 20.23,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -41.07,
+        "score": -14.77,
+        "carriers": [
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.18.41.190"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.18.41.173",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 20.26,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -14.74,
+        "carriers": [
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.18.41.190"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.26.13.175",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 20.76,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -14.24,
         "carriers": [
           "cm",
           "ct",
@@ -836,36 +1062,64 @@
         ],
         "sources": [
           "neighbor:104.26.13.54"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.18.41.13",
-        "colo": "LAX",
+        "ip": "104.18.35.60",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 24.26,
+        "latency_ms": 20.82,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -40.74,
+        "score": -14.18,
         "carriers": [
-          "ct",
           "edu"
         ],
         "sources": [
-          "neighbor:104.18.41.190"
+          "neighbor:104.18.35.15"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.18.13.166",
-        "colo": "LAX",
+        "ip": "104.18.43.19",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 24.75,
+        "latency_ms": 20.91,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -40.25,
+        "score": -14.09,
+        "carriers": [
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.18.43.174"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.18.13.128",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 21.32,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -13.68,
         "carriers": [
           "cm",
           "ct",
@@ -874,18 +1128,68 @@
         ],
         "sources": [
           "neighbor:104.18.13.229"
+        ],
+        "countries": [
+          "sg",
+          "us"
         ]
       },
       {
-        "ip": "104.18.12.30",
-        "colo": "LAX",
+        "ip": "104.26.13.159",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 25.09,
+        "latency_ms": 21.81,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -39.91,
+        "score": -13.19,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.13.54"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.18.43.16",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 21.89,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -13.11,
+        "carriers": [
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.18.43.174"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.18.12.210",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 21.93,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -13.07,
         "carriers": [
           "cm",
           "ct",
@@ -894,56 +1198,44 @@
         ],
         "sources": [
           "neighbor:104.18.12.229"
+        ],
+        "countries": [
+          "sg",
+          "us"
         ]
       },
       {
-        "ip": "104.18.12.83",
-        "colo": "LAX",
+        "ip": "104.18.35.104",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 25.58,
+        "latency_ms": 22.23,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -39.42,
+        "score": -12.77,
         "carriers": [
-          "cm",
-          "ct",
-          "cu",
           "edu"
         ],
         "sources": [
-          "neighbor:104.18.12.229"
-        ]
-      },
-      {
-        "ip": "104.18.41.245",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 26.06,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -38.94,
-        "carriers": [
-          "ct",
-          "edu"
+          "neighbor:104.18.35.15"
         ],
-        "sources": [
-          "neighbor:104.18.41.190"
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "172.67.68.154",
-        "colo": "LAX",
+        "ip": "172.67.68.188",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 26.41,
+        "latency_ms": 22.56,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -38.59,
+        "score": -12.44,
         "carriers": [
           "cm",
           "ct",
@@ -952,110 +1244,51 @@
         ],
         "sources": [
           "neighbor:172.67.68.157"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "172.64.152.24",
-        "colo": "LAX",
+        "ip": "172.64.146.151",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 26.63,
+        "latency_ms": 22.56,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -38.37,
+        "score": -12.44,
+        "carriers": [
+          "edu"
+        ],
+        "sources": [
+          "neighbor:172.64.146.66"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "172.64.152.242",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 22.58,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -12.42,
         "carriers": [
           "edu"
         ],
         "sources": [
           "neighbor:172.64.152.241"
-        ]
-      },
-      {
-        "ip": "172.64.144.102",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 26.65,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -38.35,
-        "carriers": [
-          "edu"
         ],
-        "sources": [
-          "neighbor:172.64.144.82"
-        ]
-      },
-      {
-        "ip": "172.64.146.203",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 26.9,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -38.1,
-        "carriers": [
-          "ct",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:172.64.146.66"
-        ]
-      },
-      {
-        "ip": "172.64.146.105",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 27.54,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -37.46,
-        "carriers": [
-          "ct",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:172.64.146.66"
-        ]
-      },
-      {
-        "ip": "172.64.152.103",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 28.08,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -36.92,
-        "carriers": [
-          "edu"
-        ],
-        "sources": [
-          "neighbor:172.64.152.241"
-        ]
-      },
-      {
-        "ip": "104.18.43.242",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 29.69,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -35.31,
-        "carriers": [
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.43.174"
+        "countries": [
+          "us"
         ]
       }
     ]
@@ -1063,448 +1296,1460 @@
   "by_country": {
     "hk": [
       {
-        "ip": "104.16.85.109",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.16.85.113",
+        "colo": "MSP",
+        "country": "hk",
+        "country_code": "HK",
         "loc": "US",
-        "latency_ms": 22.96,
+        "latency_ms": 16.83,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -12.04,
+        "score": -18.17,
         "carriers": [],
         "sources": [
-          "neighbor:104.16.85.102"
+          "neighbor:104.16.85.118"
+        ],
+        "countries": [
+          "hk",
+          "us"
         ]
       },
       {
-        "ip": "104.19.143.244",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.18.2.166",
+        "colo": "MSP",
+        "country": "hk",
+        "country_code": "HK",
         "loc": "US",
-        "latency_ms": 22.99,
+        "latency_ms": 16.86,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -12.01,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.19.143.150"
-        ]
-      },
-      {
-        "ip": "104.18.2.123",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.07,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -11.93,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.18.2.138"
-        ]
-      },
-      {
-        "ip": "104.18.2.1",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.24,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -11.76,
+        "score": -18.14,
         "carriers": [],
         "sources": [
           "neighbor:104.18.2.150"
+        ],
+        "countries": [
+          "hk",
+          "us"
         ]
       },
       {
-        "ip": "104.19.143.6",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.17.160.12",
+        "colo": "MSP",
+        "country": "hk",
+        "country_code": "HK",
         "loc": "US",
-        "latency_ms": 23.57,
+        "latency_ms": 17.58,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -11.43,
+        "score": -17.42,
         "carriers": [],
         "sources": [
-          "neighbor:104.19.143.230"
+          "neighbor:104.17.160.76"
+        ],
+        "countries": [
+          "hk",
+          "us"
         ]
       },
       {
-        "ip": "172.67.180.108",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.17.160.108",
+        "colo": "MSP",
+        "country": "hk",
+        "country_code": "HK",
         "loc": "US",
-        "latency_ms": 23.82,
+        "latency_ms": 17.76,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -11.18,
-        "carriers": [],
-        "sources": [
-          "neighbor:172.67.180.41"
-        ]
-      },
-      {
-        "ip": "104.17.85.223",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.95,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -11.05,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.17.85.191"
-        ]
-      },
-      {
-        "ip": "104.17.160.60",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.21,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -10.79,
+        "score": -17.24,
         "carriers": [],
         "sources": [
           "neighbor:104.17.160.88"
+        ],
+        "countries": [
+          "hk",
+          "us"
         ]
       },
       {
-        "ip": "104.17.160.22",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.18.2.133",
+        "colo": "MSP",
+        "country": "hk",
+        "country_code": "HK",
         "loc": "US",
-        "latency_ms": 24.25,
+        "latency_ms": 18.08,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -10.75,
+        "score": -16.92,
         "carriers": [],
         "sources": [
-          "neighbor:104.17.160.197"
+          "neighbor:104.18.2.68"
+        ],
+        "countries": [
+          "hk",
+          "us"
         ]
       },
       {
-        "ip": "104.16.85.230",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.17.85.20",
+        "colo": "MSP",
+        "country": "hk",
+        "country_code": "HK",
         "loc": "US",
-        "latency_ms": 24.3,
+        "latency_ms": 18.34,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -10.7,
+        "score": -16.66,
         "carriers": [],
         "sources": [
-          "neighbor:104.16.85.227"
+          "neighbor:104.17.85.64"
+        ],
+        "countries": [
+          "hk",
+          "us"
         ]
       },
       {
-        "ip": "104.17.85.65",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.16.160.89",
+        "colo": "MSP",
+        "country": "hk",
+        "country_code": "HK",
         "loc": "US",
-        "latency_ms": 24.49,
+        "latency_ms": 18.4,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -10.51,
+        "score": -16.6,
         "carriers": [],
         "sources": [
-          "neighbor:104.17.85.68"
+          "neighbor:104.16.160.227"
+        ],
+        "countries": [
+          "hk",
+          "us"
         ]
       },
       {
-        "ip": "104.16.160.242",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.17.85.126",
+        "colo": "MSP",
+        "country": "hk",
+        "country_code": "HK",
         "loc": "US",
-        "latency_ms": 25.97,
+        "latency_ms": 18.46,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -9.03,
+        "score": -16.54,
         "carriers": [],
         "sources": [
-          "neighbor:104.16.160.69"
+          "neighbor:104.17.85.37"
+        ],
+        "countries": [
+          "hk",
+          "us"
         ]
       },
       {
-        "ip": "104.16.160.27",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "172.67.180.167",
+        "colo": "MSP",
+        "country": "hk",
+        "country_code": "HK",
         "loc": "US",
-        "latency_ms": 25.97,
+        "latency_ms": 18.64,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -9.03,
+        "score": -16.36,
         "carriers": [],
         "sources": [
-          "neighbor:104.16.160.138"
+          "neighbor:172.67.180.41"
+        ],
+        "countries": [
+          "hk",
+          "us"
         ]
       },
       {
-        "ip": "172.67.180.81",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.16.160.149",
+        "colo": "MSP",
+        "country": "hk",
+        "country_code": "HK",
         "loc": "US",
-        "latency_ms": 26.32,
+        "latency_ms": 18.96,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -8.68,
+        "score": -16.04,
         "carriers": [],
         "sources": [
-          "neighbor:172.67.180.203"
+          "neighbor:104.16.160.175"
+        ],
+        "countries": [
+          "hk",
+          "us"
+        ]
+      },
+      {
+        "ip": "172.67.180.191",
+        "colo": "MSP",
+        "country": "hk",
+        "country_code": "HK",
+        "loc": "US",
+        "latency_ms": 19.12,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -15.88,
+        "carriers": [],
+        "sources": [
+          "neighbor:172.67.180.161"
+        ],
+        "countries": [
+          "hk",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.16.85.56",
+        "colo": "MSP",
+        "country": "hk",
+        "country_code": "HK",
+        "loc": "US",
+        "latency_ms": 19.78,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -15.22,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.16.85.102"
+        ],
+        "countries": [
+          "hk",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.19.143.99",
+        "colo": "MSP",
+        "country": "hk",
+        "country_code": "HK",
+        "loc": "US",
+        "latency_ms": 21.83,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -13.17,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.19.143.230"
+        ],
+        "countries": [
+          "hk",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.19.143.22",
+        "colo": "MSP",
+        "country": "hk",
+        "country_code": "HK",
+        "loc": "US",
+        "latency_ms": 22.94,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -12.06,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.19.143.150"
+        ],
+        "countries": [
+          "hk",
+          "us"
         ]
       }
     ],
     "tw": [
       {
-        "ip": "172.67.140.139",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.17.148.166",
+        "colo": "MSP",
+        "country": "tw",
+        "country_code": "TW",
         "loc": "US",
-        "latency_ms": 22.16,
+        "latency_ms": 16.45,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -12.84,
-        "carriers": [],
-        "sources": [
-          "neighbor:172.67.140.29"
-        ]
-      },
-      {
-        "ip": "104.16.20.134",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.0,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -12.0,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.16.20.117"
-        ]
-      },
-      {
-        "ip": "104.19.11.154",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.46,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -11.54,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.19.11.223"
-        ]
-      },
-      {
-        "ip": "104.17.20.55",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.19,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -10.81,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.17.20.68"
-        ]
-      },
-      {
-        "ip": "104.16.20.153",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 25.03,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -9.97,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.16.20.117"
-        ]
-      },
-      {
-        "ip": "104.19.11.142",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 25.11,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -9.89,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.19.11.161"
-        ]
-      },
-      {
-        "ip": "104.17.20.211",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 25.14,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -9.86,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.17.20.185"
-        ]
-      },
-      {
-        "ip": "172.67.140.39",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 25.34,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -9.66,
-        "carriers": [],
-        "sources": [
-          "neighbor:172.67.140.238"
-        ]
-      },
-      {
-        "ip": "104.17.148.30",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 26.46,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -8.54,
+        "score": -18.55,
         "carriers": [],
         "sources": [
           "neighbor:104.17.148.18"
+        ],
+        "countries": [
+          "tw",
+          "us"
         ]
       },
       {
-        "ip": "104.16.148.161",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "172.64.150.88",
+        "colo": "MSP",
+        "country": "tw",
+        "country_code": "TW",
         "loc": "US",
-        "latency_ms": 26.63,
+        "latency_ms": 17.1,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -8.37,
+        "score": -17.9,
         "carriers": [],
         "sources": [
-          "neighbor:104.16.148.243"
+          "neighbor:172.64.150.236"
+        ],
+        "countries": [
+          "tw",
+          "us"
         ]
       },
       {
-        "ip": "104.16.148.211",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "162.159.152.85",
+        "colo": "MSP",
+        "country": "tw",
+        "country_code": "TW",
         "loc": "US",
-        "latency_ms": 26.69,
+        "latency_ms": 17.5,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -8.31,
+        "score": -17.5,
+        "carriers": [],
+        "sources": [
+          "neighbor:162.159.152.139"
+        ],
+        "countries": [
+          "tw",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.19.11.204",
+        "colo": "MSP",
+        "country": "tw",
+        "country_code": "TW",
+        "loc": "US",
+        "latency_ms": 17.51,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -17.49,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.19.11.77"
+        ],
+        "countries": [
+          "tw",
+          "us"
+        ]
+      },
+      {
+        "ip": "172.67.140.251",
+        "colo": "MSP",
+        "country": "tw",
+        "country_code": "TW",
+        "loc": "US",
+        "latency_ms": 17.68,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -17.32,
+        "carriers": [],
+        "sources": [
+          "neighbor:172.67.140.126"
+        ],
+        "countries": [
+          "tw",
+          "us"
+        ]
+      },
+      {
+        "ip": "162.159.152.253",
+        "colo": "MSP",
+        "country": "tw",
+        "country_code": "TW",
+        "loc": "US",
+        "latency_ms": 17.78,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -17.22,
+        "carriers": [],
+        "sources": [
+          "neighbor:162.159.152.139"
+        ],
+        "countries": [
+          "tw",
+          "us"
+        ]
+      },
+      {
+        "ip": "172.67.140.7",
+        "colo": "MSP",
+        "country": "tw",
+        "country_code": "TW",
+        "loc": "US",
+        "latency_ms": 17.83,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -17.17,
+        "carriers": [],
+        "sources": [
+          "neighbor:172.67.140.238"
+        ],
+        "countries": [
+          "tw",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.16.20.231",
+        "colo": "MSP",
+        "country": "tw",
+        "country_code": "TW",
+        "loc": "US",
+        "latency_ms": 17.98,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -17.02,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.16.20.1"
+        ],
+        "countries": [
+          "tw",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.19.11.62",
+        "colo": "MSP",
+        "country": "tw",
+        "country_code": "TW",
+        "loc": "US",
+        "latency_ms": 18.36,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.64,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.19.11.216"
+        ],
+        "countries": [
+          "tw",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.20.31",
+        "colo": "MSP",
+        "country": "tw",
+        "country_code": "TW",
+        "loc": "US",
+        "latency_ms": 18.58,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.42,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.17.20.225"
+        ],
+        "countries": [
+          "tw",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.20.204",
+        "colo": "MSP",
+        "country": "tw",
+        "country_code": "TW",
+        "loc": "US",
+        "latency_ms": 18.62,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.38,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.17.20.68"
+        ],
+        "countries": [
+          "tw",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.16.148.176",
+        "colo": "MSP",
+        "country": "tw",
+        "country_code": "TW",
+        "loc": "US",
+        "latency_ms": 19.78,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -15.22,
         "carriers": [],
         "sources": [
           "neighbor:104.16.148.22"
+        ],
+        "countries": [
+          "tw",
+          "us"
         ]
       },
       {
-        "ip": "162.159.152.225",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "172.64.150.162",
+        "colo": "MSP",
+        "country": "tw",
+        "country_code": "TW",
         "loc": "US",
-        "latency_ms": 26.73,
+        "latency_ms": 20.11,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -8.27,
+        "score": -14.89,
         "carriers": [],
         "sources": [
-          "neighbor:162.159.152.200"
+          "neighbor:172.64.150.1"
+        ],
+        "countries": [
+          "tw",
+          "us"
         ]
       },
       {
-        "ip": "162.159.152.145",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.18.10.153",
+        "colo": "MSP",
+        "country": "tw",
+        "country_code": "TW",
         "loc": "US",
-        "latency_ms": 27.46,
+        "latency_ms": 20.26,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -7.54,
-        "carriers": [],
-        "sources": [
-          "neighbor:162.159.152.42"
-        ]
-      },
-      {
-        "ip": "104.18.10.158",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 27.81,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -7.19,
+        "score": -14.74,
         "carriers": [],
         "sources": [
           "neighbor:104.18.10.46"
+        ],
+        "countries": [
+          "tw",
+          "us"
         ]
       },
       {
-        "ip": "104.17.148.148",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.16.20.237",
+        "colo": "MSP",
+        "country": "tw",
+        "country_code": "TW",
         "loc": "US",
-        "latency_ms": 27.98,
+        "latency_ms": 20.8,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -7.02,
+        "score": -14.2,
         "carriers": [],
         "sources": [
-          "neighbor:104.17.148.251"
+          "neighbor:104.16.20.117"
+        ],
+        "countries": [
+          "tw",
+          "us"
         ]
       }
     ],
     "jp": [
       {
-        "ip": "172.67.150.40",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.16.50.202",
+        "colo": "MSP",
+        "country": "jp",
+        "country_code": "JP",
+        "loc": "US",
+        "latency_ms": 18.02,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.98,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.16.50.122"
+        ],
+        "countries": [
+          "jp",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.16.50.217",
+        "colo": "MSP",
+        "country": "jp",
+        "country_code": "JP",
+        "loc": "US",
+        "latency_ms": 18.17,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.83,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.16.50.33"
+        ],
+        "countries": [
+          "jp",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.19.41.182",
+        "colo": "MSP",
+        "country": "jp",
+        "country_code": "JP",
+        "loc": "US",
+        "latency_ms": 18.88,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.12,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.19.41.139"
+        ],
+        "countries": [
+          "jp",
+          "us"
+        ]
+      },
+      {
+        "ip": "172.67.150.208",
+        "colo": "MSP",
+        "country": "jp",
+        "country_code": "JP",
+        "loc": "US",
+        "latency_ms": 18.95,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.05,
+        "carriers": [],
+        "sources": [
+          "neighbor:172.67.150.59"
+        ],
+        "countries": [
+          "jp",
+          "us"
+        ]
+      },
+      {
+        "ip": "172.67.150.231",
+        "colo": "MSP",
+        "country": "jp",
+        "country_code": "JP",
+        "loc": "US",
+        "latency_ms": 19.55,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -15.45,
+        "carriers": [],
+        "sources": [
+          "neighbor:172.67.150.142"
+        ],
+        "countries": [
+          "jp",
+          "us"
+        ]
+      },
+      {
+        "ip": "162.159.130.50",
+        "colo": "MSP",
+        "country": "jp",
+        "country_code": "JP",
+        "loc": "US",
+        "latency_ms": 19.62,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -15.38,
+        "carriers": [],
+        "sources": [
+          "neighbor:162.159.130.231"
+        ],
+        "countries": [
+          "jp",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.19.41.175",
+        "colo": "MSP",
+        "country": "jp",
+        "country_code": "JP",
+        "loc": "US",
+        "latency_ms": 19.7,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -15.3,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.19.41.177"
+        ],
+        "countries": [
+          "jp",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.120.108",
+        "colo": "MSP",
+        "country": "jp",
+        "country_code": "JP",
+        "loc": "US",
+        "latency_ms": 20.05,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -14.95,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.17.120.34"
+        ],
+        "countries": [
+          "jp",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.120.102",
+        "colo": "MSP",
+        "country": "jp",
+        "country_code": "JP",
+        "loc": "US",
+        "latency_ms": 20.67,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -14.33,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.17.120.55"
+        ],
+        "countries": [
+          "jp",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.50.213",
+        "colo": "MSP",
+        "country": "jp",
+        "country_code": "JP",
+        "loc": "US",
+        "latency_ms": 20.73,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -14.27,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.17.50.136"
+        ],
+        "countries": [
+          "jp",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.16.120.135",
+        "colo": "MSP",
+        "country": "jp",
+        "country_code": "JP",
+        "loc": "US",
+        "latency_ms": 20.97,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -14.03,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.16.120.132"
+        ],
+        "countries": [
+          "jp",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.50.76",
+        "colo": "MSP",
+        "country": "jp",
+        "country_code": "JP",
+        "loc": "US",
+        "latency_ms": 21.29,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -13.71,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.17.50.141"
+        ],
+        "countries": [
+          "jp",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.18.40.5",
+        "colo": "MSP",
+        "country": "jp",
+        "country_code": "JP",
+        "loc": "US",
+        "latency_ms": 21.59,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -13.41,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.18.40.247"
+        ],
+        "countries": [
+          "jp",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.16.120.57",
+        "colo": "MSP",
+        "country": "jp",
+        "country_code": "JP",
+        "loc": "US",
+        "latency_ms": 22.04,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -12.96,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.16.120.85"
+        ],
+        "countries": [
+          "jp",
+          "us"
+        ]
+      },
+      {
+        "ip": "162.159.130.247",
+        "colo": "MSP",
+        "country": "jp",
+        "country_code": "JP",
+        "loc": "US",
+        "latency_ms": 22.07,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -12.93,
+        "carriers": [],
+        "sources": [
+          "neighbor:162.159.130.96"
+        ],
+        "countries": [
+          "jp",
+          "us"
+        ]
+      }
+    ],
+    "sg": [
+      {
+        "ip": "104.16.100.253",
+        "colo": "MSP",
+        "country": "sg",
+        "country_code": "SG",
+        "loc": "US",
+        "latency_ms": 17.62,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -17.38,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.16.100.147"
+        ],
+        "countries": [
+          "sg",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.100.153",
+        "colo": "MSP",
+        "country": "sg",
+        "country_code": "SG",
+        "loc": "US",
+        "latency_ms": 17.97,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -17.03,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.17.100.207"
+        ],
+        "countries": [
+          "sg",
+          "us"
+        ]
+      },
+      {
+        "ip": "162.159.140.188",
+        "colo": "MSP",
+        "country": "sg",
+        "country_code": "SG",
+        "loc": "US",
+        "latency_ms": 18.21,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.79,
+        "carriers": [],
+        "sources": [
+          "neighbor:162.159.140.16"
+        ],
+        "countries": [
+          "sg",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.16.180.41",
+        "colo": "MSP",
+        "country": "sg",
+        "country_code": "SG",
+        "loc": "US",
+        "latency_ms": 18.37,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.63,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.16.180.141"
+        ],
+        "countries": [
+          "sg",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.100.214",
+        "colo": "MSP",
+        "country": "sg",
+        "country_code": "SG",
+        "loc": "US",
+        "latency_ms": 18.44,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.56,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.17.100.63"
+        ],
+        "countries": [
+          "sg",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.180.231",
+        "colo": "MSP",
+        "country": "sg",
+        "country_code": "SG",
+        "loc": "US",
+        "latency_ms": 18.92,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.08,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.17.180.4"
+        ],
+        "countries": [
+          "sg",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.16.100.105",
+        "colo": "MSP",
+        "country": "sg",
+        "country_code": "SG",
+        "loc": "US",
+        "latency_ms": 19.14,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -15.86,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.16.100.148"
+        ],
+        "countries": [
+          "sg",
+          "us"
+        ]
+      },
+      {
+        "ip": "172.67.170.156",
+        "colo": "MSP",
+        "country": "sg",
+        "country_code": "SG",
+        "loc": "US",
+        "latency_ms": 19.4,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -15.6,
+        "carriers": [],
+        "sources": [
+          "neighbor:172.67.170.138"
+        ],
+        "countries": [
+          "sg",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.16.180.205",
+        "colo": "MSP",
+        "country": "sg",
+        "country_code": "SG",
+        "loc": "US",
+        "latency_ms": 19.5,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -15.5,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.16.180.141"
+        ],
+        "countries": [
+          "sg",
+          "us"
+        ]
+      },
+      {
+        "ip": "162.159.140.197",
+        "colo": "MSP",
+        "country": "sg",
+        "country_code": "SG",
+        "loc": "US",
+        "latency_ms": 19.81,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -15.19,
+        "carriers": [],
+        "sources": [
+          "neighbor:162.159.140.87"
+        ],
+        "countries": [
+          "sg",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.180.253",
+        "colo": "MSP",
+        "country": "sg",
+        "country_code": "SG",
+        "loc": "US",
+        "latency_ms": 20.09,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -14.91,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.17.180.24"
+        ],
+        "countries": [
+          "sg",
+          "us"
+        ]
+      },
+      {
+        "ip": "172.64.90.39",
+        "colo": "MSP",
+        "country": "sg",
+        "country_code": "SG",
+        "loc": "US",
+        "latency_ms": 20.58,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -14.42,
+        "carriers": [],
+        "sources": [
+          "neighbor:172.64.90.28"
+        ],
+        "countries": [
+          "sg",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.19.61.76",
+        "colo": "MSP",
+        "country": "sg",
+        "country_code": "SG",
+        "loc": "US",
+        "latency_ms": 20.98,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -14.02,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.19.61.120"
+        ],
+        "countries": [
+          "sg",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.19.61.97",
+        "colo": "MSP",
+        "country": "sg",
+        "country_code": "SG",
+        "loc": "US",
+        "latency_ms": 21.1,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -13.9,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.19.61.187"
+        ],
+        "countries": [
+          "sg",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.18.60.102",
+        "colo": "MSP",
+        "country": "sg",
+        "country_code": "SG",
+        "loc": "US",
+        "latency_ms": 21.17,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -13.83,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.18.60.25"
+        ],
+        "countries": [
+          "sg",
+          "us"
+        ]
+      }
+    ],
+    "kr": [
+      {
+        "ip": "104.17.70.31",
+        "colo": "MSP",
+        "country": "kr",
+        "country_code": "KR",
+        "loc": "US",
+        "latency_ms": 17.86,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -17.14,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.17.70.124"
+        ],
+        "countries": [
+          "kr",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.190.244",
+        "colo": "MSP",
+        "country": "kr",
+        "country_code": "KR",
+        "loc": "US",
+        "latency_ms": 18.02,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.98,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.17.190.131"
+        ],
+        "countries": [
+          "kr",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.190.169",
+        "colo": "MSP",
+        "country": "kr",
+        "country_code": "KR",
+        "loc": "US",
+        "latency_ms": 18.39,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.61,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.17.190.18"
+        ],
+        "countries": [
+          "kr",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.70.52",
+        "colo": "MSP",
+        "country": "kr",
+        "country_code": "KR",
+        "loc": "US",
+        "latency_ms": 18.44,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.56,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.17.70.55"
+        ],
+        "countries": [
+          "kr",
+          "us"
+        ]
+      },
+      {
+        "ip": "172.67.160.10",
+        "colo": "MSP",
+        "country": "kr",
+        "country_code": "KR",
+        "loc": "US",
+        "latency_ms": 18.57,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.43,
+        "carriers": [],
+        "sources": [
+          "neighbor:172.67.160.248"
+        ],
+        "countries": [
+          "kr",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.18.80.200",
+        "colo": "MSP",
+        "country": "kr",
+        "country_code": "KR",
+        "loc": "US",
+        "latency_ms": 18.61,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.39,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.18.80.16"
+        ],
+        "countries": [
+          "kr",
+          "us"
+        ]
+      },
+      {
+        "ip": "172.67.160.168",
+        "colo": "MSP",
+        "country": "kr",
+        "country_code": "KR",
+        "loc": "US",
+        "latency_ms": 18.65,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.35,
+        "carriers": [],
+        "sources": [
+          "neighbor:172.67.160.248"
+        ],
+        "countries": [
+          "kr",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.16.190.55",
+        "colo": "MSP",
+        "country": "kr",
+        "country_code": "KR",
+        "loc": "US",
+        "latency_ms": 18.85,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -16.15,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.16.190.246"
+        ],
+        "countries": [
+          "kr",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.16.70.215",
+        "colo": "MSP",
+        "country": "kr",
+        "country_code": "KR",
+        "loc": "US",
+        "latency_ms": 19.31,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -15.69,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.16.70.61"
+        ],
+        "countries": [
+          "kr",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.19.81.16",
+        "colo": "MSP",
+        "country": "kr",
+        "country_code": "KR",
+        "loc": "US",
+        "latency_ms": 19.53,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -15.47,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.19.81.238"
+        ],
+        "countries": [
+          "kr",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.18.80.233",
+        "colo": "MSP",
+        "country": "kr",
+        "country_code": "KR",
+        "loc": "US",
+        "latency_ms": 19.62,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -15.38,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.18.80.16"
+        ],
+        "countries": [
+          "kr",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.16.70.13",
+        "colo": "MSP",
+        "country": "kr",
+        "country_code": "KR",
+        "loc": "US",
+        "latency_ms": 19.71,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -15.29,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.16.70.43"
+        ],
+        "countries": [
+          "kr",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.16.190.35",
+        "colo": "MSP",
+        "country": "kr",
+        "country_code": "KR",
+        "loc": "US",
+        "latency_ms": 20.46,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": -14.54,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.16.190.219"
+        ],
+        "countries": [
+          "kr",
+          "us"
+        ]
+      },
+      {
+        "ip": "104.19.81.176",
+        "colo": "MSP",
+        "country": "kr",
+        "country_code": "KR",
         "loc": "US",
         "latency_ms": 21.88,
         "loss_rate": 0.0,
@@ -1513,1145 +2758,622 @@
         "score": -13.12,
         "carriers": [],
         "sources": [
-          "neighbor:172.67.150.59"
-        ]
-      },
-      {
-        "ip": "172.67.150.43",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 22.26,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -12.74,
-        "carriers": [],
-        "sources": [
-          "neighbor:172.67.150.59"
-        ]
-      },
-      {
-        "ip": "162.159.130.95",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 22.4,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -12.6,
-        "carriers": [],
-        "sources": [
-          "neighbor:162.159.130.113"
-        ]
-      },
-      {
-        "ip": "162.159.130.109",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 22.77,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -12.23,
-        "carriers": [],
-        "sources": [
-          "neighbor:162.159.130.116"
-        ]
-      },
-      {
-        "ip": "104.19.41.34",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.29,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -11.71,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.19.41.187"
-        ]
-      },
-      {
-        "ip": "104.19.41.116",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.65,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -11.35,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.19.41.194"
-        ]
-      },
-      {
-        "ip": "104.16.120.196",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.87,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -11.13,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.16.120.19"
-        ]
-      },
-      {
-        "ip": "104.17.120.140",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.71,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -10.29,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.17.120.172"
-        ]
-      },
-      {
-        "ip": "104.16.50.73",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 25.07,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -9.93,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.16.50.33"
-        ]
-      },
-      {
-        "ip": "104.16.120.17",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 25.08,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -9.92,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.16.120.19"
-        ]
-      },
-      {
-        "ip": "104.17.120.189",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 25.3,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -9.7,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.17.120.139"
-        ]
-      },
-      {
-        "ip": "104.16.50.133",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 25.57,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -9.43,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.16.50.197"
-        ]
-      },
-      {
-        "ip": "104.18.40.126",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 25.85,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -9.15,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.18.40.247"
-        ]
-      },
-      {
-        "ip": "104.18.40.128",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 26.94,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -8.06,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.18.40.247"
-        ]
-      },
-      {
-        "ip": "104.17.50.116",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 27.46,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -7.54,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.17.50.224"
-        ]
-      }
-    ],
-    "sg": [
-      {
-        "ip": "172.64.90.223",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 21.61,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -13.39,
-        "carriers": [],
-        "sources": [
-          "neighbor:172.64.90.28"
-        ]
-      },
-      {
-        "ip": "104.17.100.149",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 22.65,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -12.35,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.17.100.105"
-        ]
-      },
-      {
-        "ip": "104.16.180.78",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 22.65,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -12.35,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.16.180.220"
-        ]
-      },
-      {
-        "ip": "104.17.180.203",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 22.66,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -12.34,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.17.180.249"
-        ]
-      },
-      {
-        "ip": "104.17.180.186",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 22.67,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -12.33,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.17.180.215"
-        ]
-      },
-      {
-        "ip": "104.18.60.129",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 22.7,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -12.3,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.18.60.91"
-        ]
-      },
-      {
-        "ip": "172.64.90.232",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.55,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -11.45,
-        "carriers": [],
-        "sources": [
-          "neighbor:172.64.90.205"
-        ]
-      },
-      {
-        "ip": "104.19.61.32",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.84,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -11.16,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.19.61.222"
-        ]
-      },
-      {
-        "ip": "104.18.60.20",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.01,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -10.99,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.18.60.111"
-        ]
-      },
-      {
-        "ip": "104.18.13.166",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.75,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -10.25,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.13.229"
-        ]
-      },
-      {
-        "ip": "172.67.170.101",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.76,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -10.24,
-        "carriers": [],
-        "sources": [
-          "neighbor:172.67.170.49"
-        ]
-      },
-      {
-        "ip": "104.18.12.30",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 25.09,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -9.91,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.12.229"
-        ]
-      },
-      {
-        "ip": "172.67.170.234",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 25.13,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -9.87,
-        "carriers": [],
-        "sources": [
-          "neighbor:172.67.170.109"
-        ]
-      },
-      {
-        "ip": "104.16.100.95",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 25.21,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -9.79,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.16.100.186"
-        ]
-      },
-      {
-        "ip": "104.16.100.56",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 25.34,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -9.66,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.16.100.147"
-        ]
-      }
-    ],
-    "kr": [
-      {
-        "ip": "104.16.70.211",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 21.64,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -13.36,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.16.70.43"
-        ]
-      },
-      {
-        "ip": "104.17.190.163",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 21.92,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -13.08,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.17.190.48"
-        ]
-      },
-      {
-        "ip": "104.18.80.171",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 22.52,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -12.48,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.18.80.98"
-        ]
-      },
-      {
-        "ip": "104.17.70.250",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 22.68,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -12.32,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.17.70.125"
-        ]
-      },
-      {
-        "ip": "172.67.160.46",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 22.73,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -12.27,
-        "carriers": [],
-        "sources": [
-          "neighbor:172.67.160.56"
-        ]
-      },
-      {
-        "ip": "104.17.70.85",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.15,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -11.85,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.17.70.55"
-        ]
-      },
-      {
-        "ip": "104.17.190.139",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.27,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -11.73,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.17.190.21"
-        ]
-      },
-      {
-        "ip": "172.67.160.112",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.35,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -11.65,
-        "carriers": [],
-        "sources": [
-          "neighbor:172.67.160.248"
-        ]
-      },
-      {
-        "ip": "104.18.80.104",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.55,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -11.45,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.18.80.16"
-        ]
-      },
-      {
-        "ip": "104.19.81.13",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.86,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -11.14,
-        "carriers": [],
-        "sources": [
           "neighbor:104.19.81.253"
+        ],
+        "countries": [
+          "kr",
+          "us"
         ]
       },
       {
-        "ip": "104.19.81.77",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.04,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -10.96,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.19.81.238"
-        ]
-      },
-      {
-        "ip": "104.16.70.204",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.66,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -10.34,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.16.70.43"
-        ]
-      },
-      {
-        "ip": "104.16.190.119",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 27.44,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -7.56,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.16.190.15"
-        ]
-      },
-      {
-        "ip": "104.16.190.92",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 30.78,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -4.22,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.16.190.15"
-        ]
-      },
-      {
-        "ip": "162.159.160.111",
+        "ip": "162.159.160.185",
         "colo": "DUB",
-        "country": "eu",
+        "country": "kr",
+        "country_code": "KR",
         "loc": "US",
-        "latency_ms": 239.99,
+        "latency_ms": 198.62,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": 204.99,
+        "score": 163.62,
         "carriers": [],
         "sources": [
-          "neighbor:162.159.160.143"
+          "neighbor:162.159.160.246"
+        ],
+        "countries": [
+          "eu",
+          "kr"
         ]
       }
     ],
     "us": [
       {
-        "ip": "172.67.175.98",
-        "colo": "LAX",
+        "ip": "172.64.83.212",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 23.12,
-        "loss_rate": 0.0,
-        "download_speed": 255.0,
-        "is_shifted_neighbor": true,
-        "score": -31.88,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:172.67.175.15"
-        ]
-      },
-      {
-        "ip": "172.67.175.197",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 23.31,
-        "loss_rate": 0.0,
-        "download_speed": 255.0,
-        "is_shifted_neighbor": true,
-        "score": -31.69,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:172.67.175.15"
-        ]
-      },
-      {
-        "ip": "141.101.113.214",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.3,
-        "loss_rate": 0.0,
-        "download_speed": 325.0,
-        "is_shifted_neighbor": true,
-        "score": -30.7,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:141.101.113.10"
-        ]
-      },
-      {
-        "ip": "104.18.81.166",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.39,
-        "loss_rate": 0.0,
-        "download_speed": 103.84,
-        "is_shifted_neighbor": true,
-        "score": -30.61,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.18.81.19"
-        ]
-      },
-      {
-        "ip": "104.21.229.20",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.47,
-        "loss_rate": 0.0,
-        "download_speed": 290.0,
-        "is_shifted_neighbor": true,
-        "score": -30.53,
-        "carriers": [
-          "ct",
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.21.229.228"
-        ]
-      },
-      {
-        "ip": "141.101.113.46",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.63,
-        "loss_rate": 0.0,
-        "download_speed": 325.0,
-        "is_shifted_neighbor": true,
-        "score": -30.37,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:141.101.113.10"
-        ]
-      },
-      {
-        "ip": "172.64.83.134",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 24.77,
+        "latency_ms": 16.98,
         "loss_rate": 0.0,
         "download_speed": 260.0,
         "is_shifted_neighbor": true,
-        "score": -30.23,
+        "score": -38.02,
         "carriers": [
           "cu"
         ],
         "sources": [
           "neighbor:172.64.83.52"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.21.233.197",
-        "colo": "LAX",
+        "ip": "104.18.166.27",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 24.88,
+        "latency_ms": 17.04,
+        "loss_rate": 0.0,
+        "download_speed": 100.48,
+        "is_shifted_neighbor": true,
+        "score": -37.96,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.166.129"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.21.233.237",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 17.85,
         "loss_rate": 0.0,
         "download_speed": 225.0,
         "is_shifted_neighbor": true,
-        "score": -30.12,
+        "score": -37.15,
         "carriers": [
           "ct"
         ],
         "sources": [
           "neighbor:104.21.233.126"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.19.206.54",
-        "colo": "LAX",
+        "ip": "172.64.83.209",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 25.22,
+        "latency_ms": 18.65,
         "loss_rate": 0.0,
-        "download_speed": 215.0,
+        "download_speed": 260.0,
         "is_shifted_neighbor": true,
-        "score": -29.78,
+        "score": -36.35,
         "carriers": [
-          "ct"
+          "cu"
         ],
         "sources": [
-          "neighbor:104.19.206.26"
+          "neighbor:172.64.83.52"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.18.255.232",
-        "colo": "LAX",
+        "ip": "104.18.81.245",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 26.42,
-        "loss_rate": 0.0,
-        "download_speed": 172.4,
-        "is_shifted_neighbor": true,
-        "score": -28.58,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.18.255.167"
-        ]
-      },
-      {
-        "ip": "104.18.81.57",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 26.5,
+        "latency_ms": 18.91,
         "loss_rate": 0.0,
         "download_speed": 103.84,
         "is_shifted_neighbor": true,
-        "score": -28.5,
+        "score": -36.09,
         "carriers": [
           "cm"
         ],
         "sources": [
           "neighbor:104.18.81.19"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.21.233.50",
-        "colo": "LAX",
+        "ip": "104.18.89.163",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 26.58,
+        "latency_ms": 19.01,
         "loss_rate": 0.0,
-        "download_speed": 225.0,
+        "download_speed": 102.0,
         "is_shifted_neighbor": true,
-        "score": -28.42,
+        "score": -35.99,
         "carriers": [
-          "ct"
+          "cm"
         ],
         "sources": [
-          "neighbor:104.21.233.126"
+          "neighbor:104.18.89.52"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.18.255.32",
-        "colo": "LAX",
+        "ip": "104.19.212.253",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 26.59,
+        "latency_ms": 19.07,
+        "loss_rate": 0.0,
+        "download_speed": 143.6,
+        "is_shifted_neighbor": true,
+        "score": -35.93,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.19.212.207"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.18.255.137",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 19.39,
         "loss_rate": 0.0,
         "download_speed": 172.4,
         "is_shifted_neighbor": true,
-        "score": -28.41,
+        "score": -35.61,
         "carriers": [],
         "sources": [
           "neighbor:104.18.255.167"
+        ],
+        "countries": [
+          "us"
         ]
       },
       {
-        "ip": "104.18.223.30",
-        "colo": "LAX",
+        "ip": "104.18.148.19",
+        "colo": "MSP",
         "country": "us",
+        "country_code": "US",
         "loc": "US",
-        "latency_ms": 26.6,
+        "latency_ms": 19.63,
         "loss_rate": 0.0,
-        "download_speed": 105.92,
+        "download_speed": 225.0,
         "is_shifted_neighbor": true,
-        "score": -28.4,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.18.223.253"
-        ]
-      },
-      {
-        "ip": "104.18.77.89",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 26.64,
-        "loss_rate": 0.0,
-        "download_speed": 215.0,
-        "is_shifted_neighbor": true,
-        "score": -28.36,
+        "score": -35.37,
         "carriers": [
           "ct"
         ],
         "sources": [
-          "neighbor:104.18.77.55"
+          "neighbor:104.18.148.247"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.17.69.9",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 19.85,
+        "loss_rate": 0.0,
+        "download_speed": 134.08,
+        "is_shifted_neighbor": true,
+        "score": -35.15,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.17.69.244"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.18.89.164",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 20.06,
+        "loss_rate": 0.0,
+        "download_speed": 102.0,
+        "is_shifted_neighbor": true,
+        "score": -34.94,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.89.52"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.18.255.9",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 20.13,
+        "loss_rate": 0.0,
+        "download_speed": 172.4,
+        "is_shifted_neighbor": true,
+        "score": -34.87,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.18.255.167"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "172.67.251.151",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 20.21,
+        "loss_rate": 0.0,
+        "download_speed": 570.0,
+        "is_shifted_neighbor": true,
+        "score": -34.79,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:172.67.251.117"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "104.18.81.79",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 20.51,
+        "loss_rate": 0.0,
+        "download_speed": 103.84,
+        "is_shifted_neighbor": true,
+        "score": -34.49,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.81.19"
+        ],
+        "countries": [
+          "us"
+        ]
+      },
+      {
+        "ip": "172.67.74.107",
+        "colo": "MSP",
+        "country": "us",
+        "country_code": "US",
+        "loc": "US",
+        "latency_ms": 20.99,
+        "loss_rate": 0.0,
+        "download_speed": 260.0,
+        "is_shifted_neighbor": true,
+        "score": -34.01,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:172.67.74.15"
+        ],
+        "countries": [
+          "us"
         ]
       }
     ],
     "eu": [
       {
-        "ip": "188.114.96.171",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.19.200.181",
+        "colo": "MSP",
+        "country": "eu",
+        "country_code": "EU",
         "loc": "US",
-        "latency_ms": 22.69,
+        "latency_ms": 17.48,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -12.31,
+        "score": -17.52,
         "carriers": [],
         "sources": [
-          "neighbor:188.114.96.184"
+          "neighbor:104.19.200.253"
+        ],
+        "countries": [
+          "eu",
+          "us"
         ]
       },
       {
         "ip": "104.18.200.221",
-        "colo": "LAX",
-        "country": "us",
+        "colo": "MSP",
+        "country": "eu",
+        "country_code": "EU",
         "loc": "US",
-        "latency_ms": 23.24,
+        "latency_ms": 17.9,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -11.76,
+        "score": -17.1,
         "carriers": [],
         "sources": [
           "neighbor:104.18.200.113"
+        ],
+        "countries": [
+          "eu",
+          "us"
         ]
       },
       {
-        "ip": "104.18.200.248",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.19.200.57",
+        "colo": "MSP",
+        "country": "eu",
+        "country_code": "EU",
         "loc": "US",
-        "latency_ms": 23.37,
+        "latency_ms": 17.99,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -11.63,
+        "score": -17.01,
         "carriers": [],
         "sources": [
-          "neighbor:104.18.200.113"
+          "neighbor:104.19.200.252"
+        ],
+        "countries": [
+          "eu",
+          "us"
         ]
       },
       {
-        "ip": "104.16.200.78",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.17.200.106",
+        "colo": "MSP",
+        "country": "eu",
+        "country_code": "EU",
         "loc": "US",
-        "latency_ms": 23.38,
+        "latency_ms": 18.74,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -11.62,
+        "score": -16.26,
         "carriers": [],
         "sources": [
-          "neighbor:104.16.200.34"
+          "neighbor:104.17.200.73"
+        ],
+        "countries": [
+          "eu",
+          "us"
         ]
       },
       {
-        "ip": "104.16.200.158",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.18.200.191",
+        "colo": "MSP",
+        "country": "eu",
+        "country_code": "EU",
         "loc": "US",
-        "latency_ms": 23.88,
+        "latency_ms": 21.06,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -11.12,
+        "score": -13.94,
         "carriers": [],
         "sources": [
-          "neighbor:104.16.200.34"
+          "neighbor:104.18.200.41"
+        ],
+        "countries": [
+          "eu",
+          "us"
         ]
       },
       {
-        "ip": "188.114.97.209",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.16.200.175",
+        "colo": "MSP",
+        "country": "eu",
+        "country_code": "EU",
         "loc": "US",
-        "latency_ms": 24.32,
+        "latency_ms": 21.24,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -10.68,
+        "score": -13.76,
         "carriers": [],
         "sources": [
-          "neighbor:188.114.97.176"
+          "neighbor:104.16.200.90"
+        ],
+        "countries": [
+          "eu",
+          "us"
         ]
       },
       {
-        "ip": "188.114.97.89",
-        "colo": "LAX",
-        "country": "us",
+        "ip": "104.17.200.154",
+        "colo": "MSP",
+        "country": "eu",
+        "country_code": "EU",
         "loc": "US",
-        "latency_ms": 24.39,
+        "latency_ms": 21.99,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": -10.61,
-        "carriers": [],
-        "sources": [
-          "neighbor:188.114.97.176"
-        ]
-      },
-      {
-        "ip": "188.114.96.197",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 25.19,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -9.81,
-        "carriers": [],
-        "sources": [
-          "neighbor:188.114.96.54"
-        ]
-      },
-      {
-        "ip": "104.19.200.170",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 26.45,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -8.55,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.19.200.78"
-        ]
-      },
-      {
-        "ip": "104.19.200.114",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 28.63,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -6.37,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.19.200.207"
-        ]
-      },
-      {
-        "ip": "104.17.200.37",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 29.85,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -5.15,
-        "carriers": [],
-        "sources": [
-          "neighbor:104.17.200.18"
-        ]
-      },
-      {
-        "ip": "104.17.200.215",
-        "colo": "LAX",
-        "country": "us",
-        "loc": "US",
-        "latency_ms": 32.58,
-        "loss_rate": 0.0,
-        "download_speed": 50.0,
-        "is_shifted_neighbor": true,
-        "score": -2.42,
+        "score": -13.01,
         "carriers": [],
         "sources": [
           "neighbor:104.17.200.95"
+        ],
+        "countries": [
+          "eu",
+          "us"
         ]
       },
       {
-        "ip": "162.159.160.111",
-        "colo": "DUB",
+        "ip": "104.16.200.2",
+        "colo": "MSP",
         "country": "eu",
+        "country_code": "EU",
         "loc": "US",
-        "latency_ms": 239.99,
+        "latency_ms": 23.6,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": 204.99,
+        "score": -11.4,
         "carriers": [],
         "sources": [
-          "neighbor:162.159.160.143"
+          "neighbor:104.16.200.34"
+        ],
+        "countries": [
+          "eu",
+          "us"
         ]
       },
       {
-        "ip": "162.159.160.68",
-        "colo": "DUB",
+        "ip": "188.114.96.160",
+        "colo": "ORD",
         "country": "eu",
+        "country_code": "EU",
         "loc": "US",
-        "latency_ms": 240.37,
+        "latency_ms": 33.43,
         "loss_rate": 0.0,
         "download_speed": 50.0,
         "is_shifted_neighbor": true,
-        "score": 205.37,
+        "score": -1.57,
+        "carriers": [],
+        "sources": [
+          "neighbor:188.114.96.70"
+        ],
+        "countries": [
+          "eu",
+          "us"
+        ]
+      },
+      {
+        "ip": "188.114.96.87",
+        "colo": "ORD",
+        "country": "eu",
+        "country_code": "EU",
+        "loc": "US",
+        "latency_ms": 35.18,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": 0.18,
+        "carriers": [],
+        "sources": [
+          "neighbor:188.114.96.184"
+        ],
+        "countries": [
+          "eu",
+          "us"
+        ]
+      },
+      {
+        "ip": "188.114.97.207",
+        "colo": "ORD",
+        "country": "eu",
+        "country_code": "EU",
+        "loc": "US",
+        "latency_ms": 36.64,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": 1.64,
+        "carriers": [],
+        "sources": [
+          "neighbor:188.114.97.219"
+        ],
+        "countries": [
+          "eu",
+          "us"
+        ]
+      },
+      {
+        "ip": "188.114.97.27",
+        "colo": "ORD",
+        "country": "eu",
+        "country_code": "EU",
+        "loc": "US",
+        "latency_ms": 37.44,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": 2.44,
+        "carriers": [],
+        "sources": [
+          "neighbor:188.114.97.219"
+        ],
+        "countries": [
+          "eu",
+          "us"
+        ]
+      },
+      {
+        "ip": "162.159.160.185",
+        "colo": "DUB",
+        "country": "eu",
+        "country_code": "EU",
+        "loc": "US",
+        "latency_ms": 198.62,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": 163.62,
         "carriers": [],
         "sources": [
           "neighbor:162.159.160.246"
+        ],
+        "countries": [
+          "eu",
+          "kr"
+        ]
+      },
+      {
+        "ip": "162.159.160.113",
+        "colo": "DUB",
+        "country": "eu",
+        "country_code": "EU",
+        "loc": "US",
+        "latency_ms": 203.37,
+        "loss_rate": 0.0,
+        "download_speed": 50.0,
+        "is_shifted_neighbor": true,
+        "score": 168.37,
+        "carriers": [],
+        "sources": [
+          "neighbor:162.159.160.170"
+        ],
+        "countries": [
+          "eu",
+          "kr"
         ]
       }
     ]
