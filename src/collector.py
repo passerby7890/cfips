@@ -1,10 +1,11 @@
-"""階段一：多維度情報收集器。
+"""階段一：多維度情報收集器 (v1.1.0)。
 
 實作四大收集策略：
 - 策略 A：基於北上廣四網錨點的 ECS (EDNS Client Subnet) Google DoH 偽裝解析
 - 策略 B：大陸境內公開三網實測榜單抓取 (HostMonit, WeTest, uouin 等)
 - 策略 C：分國家地區公開優選/反代來源聚合
-- 策略 D：本地精選種子庫補充 (seeds_ct, seeds_cu, seeds_cm)
+- 策略 D：本地精選種子庫補充 (支援 IP#COUNTRY 與 CIDR#COUNTRY 格式)
+- 嚴格保留 source_country 與 source_colo 原生標籤，防止被海外 Runner 誤判覆蓋。
 """
 
 from __future__ import annotations
@@ -23,6 +24,8 @@ from pathlib import Path
 from typing import Any
 
 import aiohttp
+
+from .region_mapper import get_country_by_colo
 
 log = logging.getLogger(__name__)
 
@@ -56,14 +59,12 @@ def extract_speed_mbps(text: str) -> float | None:
     """從文字中萃取下載速率並統一轉換為 Mbps。"""
     if not text:
         return None
-    # 匹配 MB/s 或 MByte
     m_byte = re.search(r"(\d+(?:\.\d+)?)\s*(?:mb/s|mbyte/s|mbps|mb|兆)", text, re.I)
     if m_byte:
         val = float(m_byte.group(1))
         if "mb/s" in text.lower():
             return val * 8.0
         return val
-    # 匹配 KB/s
     m_k = SPEED_KBPS_RE.search(text)
     if m_k:
         return (float(m_k.group(1)) * 8.0) / 1000.0
@@ -79,6 +80,7 @@ def extract_loss_rate(text: str) -> float | None:
         return float(m.group(1))
     return None
 
+
 CARRIER_KEYWORDS = {
     "ct": ("电信", "電信", "telecom", "189"),
     "cu": ("联通", "聯通", "unicom", "10010"),
@@ -89,7 +91,7 @@ HOSTMONIT_LINES = {"CT": "ct", "CU": "cu", "CM": "cm", "EDU": "edu"}
 
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/126.0 Safari/537.36 cf-global-quadnet-feed/1.0"
+    "(KHTML, like Gecko) Chrome/126.0 Safari/537.36 cf-global-quadnet-feed/2.1"
 )
 
 
@@ -102,6 +104,8 @@ class Candidate:
     is_shifted_neighbor: bool = False
     loss_rate: float = 0.0                               # 丟包率百分比 (%)
     download_speed: float = 50.0                         # 實測下載頻寬 (Mbps)
+    source_country: str = ""                             # 來源綁定之大寫國家標籤 (例: TW, HK, JP, SG)
+    source_colo: str = ""                                # 來源實測之機房標籤 (例: HKG, TPE, NRT, SJC)
     source_hint: dict[str, Any] = field(default_factory=dict)
 
 
@@ -189,7 +193,6 @@ async def collect_ecs_doh(
     domains = cfg.get("domains", [])
     results: list[dict[str, Any]] = []
 
-    # 1. 異步確定每個錨點的實際可用 IP
     anchor_ips = await asyncio.gather(*(_resolve_anchor_ip(a) for a in anchors))
 
     async def _query(domain: str, anchor: dict[str, Any], ip: str) -> list[dict[str, Any]]:
@@ -213,13 +216,13 @@ async def collect_ecs_doh(
                         target_ip = str(ans.get("data", "")).strip()
                         if IPV4_RE.fullmatch(target_ip):
                             c_tag = None
-                            if "visa.hk" in domain or domain.endswith(".hk"):
+                            if "visa.hk" in domain or domain.endswith(".hk") or "visa.com.hk" in domain:
                                 c_tag = "hk"
                             elif "visa.com.sg" in domain or domain.endswith(".sg"):
                                 c_tag = "sg"
-                            elif domain.endswith(".tw"):
+                            elif domain.endswith(".tw") or "visa.com.tw" in domain:
                                 c_tag = "tw"
-                            elif domain.endswith(".jp"):
+                            elif domain.endswith(".jp") or "visa.co.jp" in domain:
                                 c_tag = "jp"
 
                             item = {
@@ -230,6 +233,7 @@ async def collect_ecs_doh(
                             }
                             if c_tag:
                                 item["country"] = c_tag
+                                item["source_country"] = c_tag.upper()
                             out.append(item)
         except Exception as exc:
             log.debug("ECS DoH 查詢失敗 [%s / %s]: %s", domain, code, exc)
@@ -265,20 +269,39 @@ def parse_html_table(body: str) -> list[dict[str, Any]]:
 
         loss_rate = extract_loss_rate(row_text)
         speed_mbps = extract_speed_mbps(row_text)
-        # WeTest 中 '5 MB' 視為 40 Mbps (5 MB/s)
         if "5 mb" in row_text.lower() and (speed_mbps is None or speed_mbps < 40.0):
             speed_mbps = 40.0
 
-        # 硬性門檻過濾：丟包率 <= 1.0%，下載頻寬 >= 20.0 Mbps
         if loss_rate is not None and loss_rate > MAX_LOSS_RATE:
             continue
         if speed_mbps is not None and speed_mbps < MIN_DOWNLOAD_SPEED:
             continue
 
+        valid_colo = str(colo).upper() if colo and COLO_CELL_RE.match(colo) else ""
+        source_country = get_country_by_colo(valid_colo) if valid_colo else ""
+
+        # 檢測中文地區關鍵字
+        if not source_country:
+            if any(w in row_text for w in ("香港", "HK")):
+                source_country = "HK"
+            elif any(w in row_text for w in ("台湾", "台灣", "TW")):
+                source_country = "TW"
+            elif any(w in row_text for w in ("日本", "JP")):
+                source_country = "JP"
+            elif any(w in row_text for w in ("新加坡", "SG")):
+                source_country = "SG"
+            elif any(w in row_text for w in ("韩国", "韓國", "KR")):
+                source_country = "KR"
+            elif any(w in row_text for w in ("美国", "美國", "US")):
+                source_country = "US"
+
         rows.append({
             "ip": m.group(1),
             "carrier": _detect_carrier(row_text),
-            "colo": colo,
+            "colo": valid_colo or None,
+            "source_colo": valid_colo,
+            "source_country": source_country,
+            "country": source_country.lower() if source_country else None,
             "latency_ms": float(lat.group(1)) if lat else None,
             "loss_rate": loss_rate if loss_rate is not None else 0.0,
             "download_speed": speed_mbps if speed_mbps is not None else 50.0,
@@ -302,16 +325,21 @@ def parse_hostmonit(payload: Any) -> list[dict[str, Any]]:
         loss_rate = float(loss_raw) if isinstance(loss_raw, (int, float)) else 0.0
         speed_mbps = float(speed_raw) if isinstance(speed_raw, (int, float)) else 50.0
 
-        # 硬性門檻過濾：丟包率 <= 1.0%，下載頻寬 >= 20.0 Mbps
         if loss_rate > MAX_LOSS_RATE:
             continue
         if speed_mbps < MIN_DOWNLOAD_SPEED:
             continue
 
+        valid_colo = colo if COLO_CELL_RE.match(colo) else ""
+        source_country = get_country_by_colo(valid_colo) if valid_colo else ""
+
         rows.append({
             "ip": item["ip"],
             "carrier": HOSTMONIT_LINES.get(str(item.get("line", "")).upper()),
-            "colo": colo if COLO_CELL_RE.match(colo) else None,
+            "colo": valid_colo or None,
+            "source_colo": valid_colo,
+            "source_country": source_country,
+            "country": source_country.lower() if source_country else None,
             "latency_ms": float(lat) if isinstance(lat, (int, float)) else None,
             "loss_rate": loss_rate,
             "download_speed": speed_mbps,
@@ -320,17 +348,40 @@ def parse_hostmonit(payload: Any) -> list[dict[str, Any]]:
 
 
 def parse_text(body: str) -> list[dict[str, Any]]:
-    seen: dict[str, dict[str, Any]] = {}
-    for m in IPV4_RE.finditer(body):
-        seen.setdefault(m.group(1), {
-            "ip": m.group(1),
-            "carrier": None,
-            "colo": None,
-            "latency_ms": None,
-            "loss_rate": 0.0,
-            "download_speed": 50.0,
-        })
-    return list(seen.values())
+    """支援解析 172.67.140.251#TW 或 104.28.16.0/24#HK 等帶有國家標註之文字行"""
+    rows: list[dict[str, Any]] = []
+    seen = set()
+    for raw_line in body.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+
+        tag_country = ""
+        if "#" in line:
+            parts = line.split("#", 1)
+            line = parts[0].strip()
+            tag_country = parts[1].strip().upper()
+
+        if ":" in line and line.count(":") == 1:
+            line = line.split(":", 1)[0].strip()
+
+        m = IPV4_RE.search(line)
+        if m:
+            ip = m.group(1)
+            if ip not in seen:
+                seen.add(ip)
+                rows.append({
+                    "ip": ip,
+                    "carrier": None,
+                    "colo": None,
+                    "source_colo": "",
+                    "source_country": tag_country,
+                    "country": tag_country.lower() if tag_country else None,
+                    "latency_ms": None,
+                    "loss_rate": 0.0,
+                    "download_speed": 50.0,
+                })
+    return rows
 
 
 def parse_json_feed(payload: Any) -> list[dict[str, Any]]:
@@ -354,6 +405,8 @@ def parse_json_feed(payload: Any) -> list[dict[str, Any]]:
                     "ip": item.strip(),
                     "carrier": None,
                     "colo": None,
+                    "source_colo": "",
+                    "source_country": "",
                     "latency_ms": None,
                     "loss_rate": 0.0,
                     "download_speed": 50.0,
@@ -370,16 +423,21 @@ def parse_json_feed(payload: Any) -> list[dict[str, Any]]:
                     loss_f = float(loss) if isinstance(loss, (int, float)) else extract_loss_rate(str(loss)) if loss else None
                     speed_f = float(speed) if isinstance(speed, (int, float)) else extract_speed_mbps(str(speed)) if speed else None
 
-                    # 硬性門檻過濾：丟包率 <= 1.0%，下載頻寬 >= 20.0 Mbps
                     if loss_f is not None and loss_f > MAX_LOSS_RATE:
                         continue
                     if speed_f is not None and speed_f < MIN_DOWNLOAD_SPEED:
                         continue
 
+                    valid_colo = colo if COLO_CELL_RE.match(colo) else ""
+                    source_country = get_country_by_colo(valid_colo) if valid_colo else ""
+
                     rows.append({
                         "ip": ip,
                         "carrier": c,
-                        "colo": colo if COLO_CELL_RE.match(colo) else None,
+                        "colo": valid_colo or None,
+                        "source_colo": valid_colo,
+                        "source_country": source_country,
+                        "country": source_country.lower() if source_country else None,
                         "latency_ms": float(lat) if isinstance(lat, (int, float)) else None,
                         "loss_rate": loss_f if loss_f is not None else 0.0,
                         "download_speed": speed_f if speed_f is not None else 50.0,
@@ -449,19 +507,20 @@ async def collect_country_sources(
     results: list[dict[str, Any]] = []
     nested = await asyncio.gather(*(_fetch_public_source(session, s) for s in sources), return_exceptions=True)
     for src_def, rows in zip(sources, nested):
+        c_code = str(src_def.get("country", "")).strip()
         if isinstance(rows, list):
-            country_tag = src_def.get("country")
             for r in rows:
-                r["source"] = src_def.get("name", "country_feed")
-                if country_tag and not r.get("country"):
-                    r["country"] = str(country_tag).lower()
+                r["source"] = src_def.get("name", "country")
+                if c_code:
+                    r["country"] = c_code.lower()
+                    r["source_country"] = c_code.upper()
                 results.append(r)
     log.info("策略 C (分國來源) 成功獲取 %d 筆記錄", len(results))
     return results
 
 
 # --------------------------------------------------------------------------- #
-# 策略 D: 本地種子清單展開
+# 策略 D: 本地精選種子庫補充
 # --------------------------------------------------------------------------- #
 def sample_network(net: ipaddress.IPv4Network, count: int, rng: random.Random) -> list[str]:
     if net.prefixlen >= 31:
@@ -480,17 +539,28 @@ def sample_network(net: ipaddress.IPv4Network, count: int, rng: random.Random) -
     return [str(ipaddress.IPv4Address(i)) for i in sorted(picks)]
 
 
-def load_seed_file(path: Path, sample_count: int, rng: random.Random) -> list[str]:
+def load_seed_file(path: Path, sample_count: int, rng: random.Random) -> list[tuple[str, str]]:
+    """讀取種子檔，支援每行 172.67.140.251#TW 或 104.28.16.0/24#HK 標註格式"""
     if not path.is_file():
         log.warning("種子檔案不存在：%s", path)
         return []
-    ips: list[str] = []
+    items: list[tuple[str, str]] = []
     try:
         text = path.read_text(encoding="utf-8-sig")
-        for line in text.splitlines():
-            line = line.split("#", 1)[0].strip()
-            if not line:
+        for raw_line in text.splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#"):
                 continue
+
+            tag_country = ""
+            if "#" in line:
+                parts = line.split("#", 1)
+                line = parts[0].strip()
+                tag_country = parts[1].strip().upper()
+
+            if ":" in line and line.count(":") == 1:
+                line = line.split(":", 1)[0].strip()
+
             for token in re.split(r"[\s,;]+", line):
                 if not token:
                     continue
@@ -498,16 +568,17 @@ def load_seed_file(path: Path, sample_count: int, rng: random.Random) -> list[st
                     if "/" in token:
                         net = ipaddress.ip_network(token, strict=False)
                         if net.version == 4:
-                            ips.extend(sample_network(net, sample_count, rng))
+                            for sampled_ip in sample_network(net, sample_count, rng):
+                                items.append((sampled_ip, tag_country))
                     else:
                         addr = ipaddress.ip_address(token)
                         if addr.version == 4:
-                            ips.append(str(addr))
+                            items.append((str(addr), tag_country))
                 except ValueError:
                     continue
     except Exception as exc:
         log.error("讀取種子檔失敗 %s：%s", path, exc)
-    return ips
+    return items
 
 
 def collect_local_seeds(cfg: dict[str, Any], root_dir: Path) -> list[dict[str, Any]]:
@@ -522,20 +593,26 @@ def collect_local_seeds(cfg: dict[str, Any], root_dir: Path) -> list[dict[str, A
     for carrier, rel_path in files.items():
         full_path = root_dir / rel_path
         loaded = load_seed_file(full_path, sample_count, rng)
-        for ip in loaded:
-            results.append({
+        for ip, country_tag in loaded:
+            item = {
                 "ip": ip,
                 "carrier": carrier,
                 "source": f"seeds_{carrier}",
-            })
+            }
+            if country_tag:
+                item["source_country"] = country_tag
+                item["country"] = country_tag.lower()
+            results.append(item)
 
     for country, rel_path in country_files.items():
         full_path = root_dir / rel_path
         loaded = load_seed_file(full_path, sample_count, rng)
-        for ip in loaded:
+        for ip, country_tag in loaded:
+            c_tag = country_tag or country.upper()
             results.append({
                 "ip": ip,
-                "country": country,
+                "country": c_tag.lower(),
+                "source_country": c_tag,
                 "source": f"seeds_{country}",
             })
 
@@ -557,7 +634,6 @@ async def collect_all_candidates(
 
     timeout = aiohttp.ClientTimeout(total=20.0)
     async with aiohttp.ClientSession(timeout=timeout, headers={"User-Agent": USER_AGENT}) as session:
-        # 並行抓取 Cloudflare IP 段與三大網絡策略
         cf_nets_task = fetch_cloudflare_ranges(session)
         ecs_task = collect_ecs_doh(session, c_cfg.get("ecs_doh", {}), anchors)
         mainland_task = collect_mainland_sources(session, c_cfg.get("mainland_sources", {}))
@@ -567,7 +643,6 @@ async def collect_all_candidates(
             cf_nets_task, ecs_task, mainland_task, country_task
         )
 
-    # 策略 D 為本機磁碟讀取
     seed_rows = collect_local_seeds(c_cfg.get("local_seeds", {}), root_dir)
 
     all_raw_rows = ecs_rows + mainland_rows + country_rows + seed_rows
@@ -592,6 +667,15 @@ async def collect_all_candidates(
         country = row.get("country")
         if country:
             cand.countries.add(str(country).lower())
+
+        source_country = row.get("source_country")
+        if source_country and not cand.source_country:
+            cand.source_country = str(source_country).upper()
+            cand.countries.add(str(source_country).lower())
+
+        source_colo = row.get("source_colo") or row.get("colo")
+        if source_colo and not cand.source_colo:
+            cand.source_colo = str(source_colo).upper()
 
         source = row.get("source")
         if source:

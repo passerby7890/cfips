@@ -19,7 +19,7 @@ import shutil
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from .region_mapper import get_country_code
+from .region_mapper import get_country_code, resolve_country_tag
 from .scorer import apply_ewma_history, calculate_single_score, load_history, save_history
 
 log = logging.getLogger(__name__)
@@ -83,10 +83,9 @@ def export_single_carrier(
         ip = str(item.get("ip", "")).strip()
         c_subnet = ".".join(ip.split(".")[:3])
         if c_subnet_tracker.get(c_subnet, 0) < max_per_subnet:
-            # 確保 country 標籤由 colo 透過 region_mapper 取得
-            colo = item.get("colo", "")
-            loc = item.get("loc", "")
-            country_code = get_country_code(colo, loc)
+            # 確保 country 標籤由 4 層優先級解析，不被海外 Runner 覆蓋
+            runner_c = item.get("runner_colo", "")
+            country_code = item.get("country_code") or resolve_country_tag(item, runner_trace_colo=runner_c)
             item["country_code"] = country_code
 
             final_selection.append(item)
@@ -193,8 +192,9 @@ def export_all(
             final_sc = apply_ewma_history(it_copy["ip"], instant, history_dict, decay=decay_ratio)
             it_copy["instant_score"] = instant
             it_copy["final_score"] = final_sc
-            # 確保 country_code 透過 region_mapper 取得
-            it_copy["country_code"] = get_country_code(it_copy.get("colo"), it_copy.get("loc"))
+            # 確保 country_code 優先採用原生標籤與境內 Colo
+            runner_c = it_copy.get("runner_colo", "")
+            it_copy["country_code"] = it_copy.get("country_code") or resolve_country_tag(it_copy, runner_trace_colo=runner_c)
             scored_candidates.append(it_copy)
 
         txt_path = out_dir / f"{c_key}.txt"

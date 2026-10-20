@@ -1,8 +1,11 @@
-"""階段三：端到端真實回源 V2bX 驗證與國家機房識別 (v2.0 終極修訂版)。
+"""階段三：端到端真實回源 V2bX 驗證與國家機房識別 (v1.1.0 國家標籤保護版)。
 
 - fast_precheck: 極短超時 (0.6s) TCP 端口前置快篩，秒殺過濾冷門鄰居假死 IP。
 - TLS SNI 握手：連線至 <IP>:2053，SNI node1.snowcat77.com。
-- /cdn-cgi/trace：解析機房 (colo) 與地區 (loc)，並映射為國家/地區代碼 (HK/TW/JP/SG/KR/US/EU)。
+- /cdn-cgi/trace：解析機房 (colo) 與地區 (loc)。
+- 國家標籤保護機制：
+  若為 CF 官方 Anycast 網段，僅將海外 Runner 的 /cdn-cgi/trace 用於確認連線通暢，
+  嚴禁覆蓋原生情報源/種子庫之亞太標籤 (HK/TW/JP/SG)。
 - WebSocket 101：發送 Upgrade: websocket 至 /ws，嚴格確認 101 Switching Protocols。
 """
 
@@ -17,11 +20,11 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, Optional
 
 from .collector import Candidate
-from .region_mapper import colo_to_country
+from .region_mapper import colo_to_country, get_country_by_colo, resolve_country_tag
 
 log = logging.getLogger(__name__)
 
-UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) cf-global-quadnet-feed/2.0"
+UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) cf-global-quadnet-feed/2.1"
 
 
 async def fast_precheck(ip: str, port: int, timeout: float = 0.6) -> bool:
@@ -44,7 +47,11 @@ class VerifyResult:
     handshake_latencies: list[float] = field(default_factory=list)
     colo: str = ""
     country: str | None = None
+    country_code: str = ""
     loc: str = ""
+    source_country: str = ""
+    source_colo: str = ""
+    runner_colo: str = ""
     ws_status: int | None = None
     ws_status_line: str = ""
     is_shifted_neighbor: bool = False
@@ -70,7 +77,11 @@ class VerifyResult:
             "speed_mbps": round(self.speed_mbps, 2),
             "ws_handshake_101": self.ws_handshake_101,
             "colo": self.colo,
+            "runner_colo": self.runner_colo,
+            "source_colo": self.source_colo,
+            "source_country": self.source_country,
             "country": self.country,
+            "country_code": self.country_code,
             "countries": sorted(self.countries),
             "loc": self.loc,
             "ws_status": self.ws_status,
@@ -152,6 +163,10 @@ async def verify_single_ip(item: Dict[str, Any], origin_cfg: Dict[str, Any], sem
                 result = dict(item)
                 result["latency_ms"] = round(latency, 2)
                 result["ws_handshake_101"] = True
+                runner_colo = str(item.get("colo", "")).upper()
+                c_tag = resolve_country_tag(item, runner_trace_colo=runner_colo)
+                result["country_code"] = c_tag
+                result["country"] = c_tag.lower()
                 return result
         except Exception:
             pass
@@ -216,16 +231,32 @@ class OriginVerifier:
 
         body = await asyncio.wait_for(reader.read(4096), timeout=self.timeout)
         info = parse_trace(body)
-        colo = info.get("colo", "").upper()
-        if not colo:
+        runner_colo = info.get("colo", "").upper()
+        if not runner_colo:
             raise ValueError("trace 回應未包含 colo 欄位")
 
-        res.colo = colo
+        res.runner_colo = runner_colo
         res.loc = info.get("loc", "")
-        detected_c = colo_to_country(colo)
-        res.country = detected_c
-        if detected_c:
-            res.countries.add(detected_c)
+
+        # 關鍵保護：保留境內實測原生 source_colo，不被海外 Runner 的 IAD/SJC 覆蓋
+        res.colo = res.source_colo or runner_colo
+
+        # 解析多層級國家標籤 (優先級: source_colo > source_country > Unicast反代 > Runner fallback)
+        resolved_country = resolve_country_tag(
+            {
+                "ip": res.ip,
+                "source_colo": res.source_colo,
+                "source_country": res.source_country,
+                "country": res.country,
+                "countries": list(res.countries),
+            },
+            runner_trace_colo=runner_colo,
+        )
+
+        res.country = resolved_country.lower()
+        res.country_code = resolved_country.upper()
+        if resolved_country:
+            res.countries.add(resolved_country.lower())
 
     async def _check_ws(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter, res: VerifyResult) -> None:
         req = (
@@ -257,16 +288,25 @@ class OriginVerifier:
 
     async def verify_candidate(self, cand: Candidate) -> VerifyResult:
         async with self.sem:
+            initial_c = cand.source_country.lower() if cand.source_country else None
+            initial_countries = set(cand.countries)
+            if cand.source_country:
+                initial_countries.add(cand.source_country.lower())
+
             res = VerifyResult(
                 ip=cand.ip,
                 is_shifted_neighbor=cand.is_shifted_neighbor,
                 carriers=set(cand.carriers),
-                countries=set(cand.countries),
+                countries=initial_countries,
                 sources=set(cand.sources),
                 loss_rate=cand.loss_rate,
                 loss_percent=cand.loss_rate,
                 download_speed=cand.download_speed,
                 speed_mbps=cand.download_speed,
+                source_country=cand.source_country,
+                source_colo=cand.source_colo,
+                country=initial_c,
+                country_code=cand.source_country.upper() if cand.source_country else "",
             )
 
             # 前置快篩：0.6s 極短超時 TCP 握手

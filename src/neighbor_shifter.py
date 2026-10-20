@@ -62,12 +62,18 @@ def shift_neighbors(
                         is_shifted_neighbor=True,
                         loss_rate=cand.loss_rate,
                         download_speed=cand.download_speed,
+                        source_country=cand.source_country,
+                        source_colo=cand.source_colo,
                     )
                     expanded[neighbor_ip] = neighbor_cand
                     shifted_count += 1
                 else:
                     # 若已存在，合併運營商屬性
                     expanded[neighbor_ip].carriers.update(cand.carriers)
+                    if not expanded[neighbor_ip].source_country and cand.source_country:
+                        expanded[neighbor_ip].source_country = cand.source_country
+                    if not expanded[neighbor_ip].source_colo and cand.source_colo:
+                        expanded[neighbor_ip].source_colo = cand.source_colo
         except Exception as exc:
             log.debug("IP %s 鄰居平移異常：%s", ip, exc)
 
@@ -106,10 +112,13 @@ def shift_to_clean_neighbors(base_records: list[dict[str, Any]], count_per_subne
                 neighbor_item = dict(record)  # 繼承該網段的前半段實測指標
                 neighbor_item["ip"] = neighbor
                 neighbor_item["is_shifted_neighbor"] = True
+                neighbor_item["source_country"] = record.get("source_country", "")
+                neighbor_item["source_colo"] = record.get("source_colo", "")
                 results.append(neighbor_item)
                 seen_ips.add(neighbor)
         except Exception:
             continue
+
 
     return results
 
