@@ -1,7 +1,7 @@
 {
-  "updated_at": "2026-10-20T17:23:00+08:00",
-  "timestamp": 1792488180,
-  "total_verified_ok": 2070,
+  "updated_at": "2026-10-20T17:27:48+08:00",
+  "timestamp": 1792488468,
+  "total_verified_ok": 2073,
   "carriers_status": {
     "ct": "HEALTHY",
     "cu": "HEALTHY",
@@ -10,20 +10,20 @@
   "by_carrier": {
     "ct": [
       {
-        "ip": "104.19.137.24",
+        "ip": "104.19.137.135",
         "ok": true,
-        "latency_ms": 89.97,
+        "latency_ms": 35.6,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 235.0,
         "speed_mbps": 235.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -32,54 +32,26 @@
         "sources": [
           "neighbor:104.19.137.209"
         ],
-        "instant_score": 91.38,
-        "final_score": 91.38,
-        "country_code": "TW",
+        "instant_score": 92.0,
+        "final_score": 92.0,
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.18.221.154",
+        "ip": "104.19.137.199",
         "ok": true,
-        "latency_ms": 90.28,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 275.0,
-        "speed_mbps": 275.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.18.221.56"
-        ],
-        "instant_score": 91.36,
-        "final_score": 91.36,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.19.137.90",
-        "ok": true,
-        "latency_ms": 93.16,
+        "latency_ms": 27.72,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 235.0,
         "speed_mbps": 235.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -88,110 +60,26 @@
         "sources": [
           "neighbor:104.19.137.209"
         ],
-        "instant_score": 91.18,
-        "final_score": 91.18,
-        "country_code": "TW",
+        "instant_score": 92.0,
+        "final_score": 92.0,
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.18.221.13",
+        "ip": "104.19.137.220",
         "ok": true,
-        "latency_ms": 99.62,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 275.0,
-        "speed_mbps": 275.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.18.221.56"
-        ],
-        "instant_score": 90.77,
-        "final_score": 90.77,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.221.72",
-        "ok": true,
-        "latency_ms": 108.64,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 275.0,
-        "speed_mbps": 275.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.18.221.56"
-        ],
-        "instant_score": 90.21,
-        "final_score": 90.21,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.19.52.250",
-        "ok": true,
-        "latency_ms": 125.7,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 230.0,
-        "speed_mbps": 230.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.19.52.18"
-        ],
-        "instant_score": 89.14,
-        "final_score": 89.14,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.19.137.54",
-        "ok": true,
-        "latency_ms": 125.88,
+        "latency_ms": 36.51,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 235.0,
         "speed_mbps": 235.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -200,26 +88,54 @@
         "sources": [
           "neighbor:104.19.137.209"
         ],
-        "instant_score": 89.13,
-        "final_score": 89.13,
-        "country_code": "TW",
+        "instant_score": 92.0,
+        "final_score": 92.0,
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.19.52.168",
+        "ip": "104.18.221.110",
         "ok": true,
-        "latency_ms": 126.15,
+        "latency_ms": 20.25,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 275.0,
+        "speed_mbps": 275.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.18.221.56"
+        ],
+        "instant_score": 92.0,
+        "final_score": 92.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.19.52.242",
+        "ok": true,
+        "latency_ms": 35.35,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 230.0,
         "speed_mbps": 230.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -228,26 +144,26 @@
         "sources": [
           "neighbor:104.19.52.18"
         ],
-        "instant_score": 89.12,
-        "final_score": 89.12,
-        "country_code": "TW",
+        "instant_score": 92.0,
+        "final_score": 92.0,
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.19.52.72",
+        "ip": "104.19.52.219",
         "ok": true,
-        "latency_ms": 129.26,
+        "latency_ms": 25.37,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 230.0,
         "speed_mbps": 230.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -256,26 +172,110 @@
         "sources": [
           "neighbor:104.19.52.18"
         ],
-        "instant_score": 88.92,
-        "final_score": 88.92,
-        "country_code": "TW",
+        "instant_score": 92.0,
+        "final_score": 92.0,
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.19.102.144",
+        "ip": "104.19.52.43",
         "ok": true,
-        "latency_ms": 117.92,
+        "latency_ms": 38.35,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 230.0,
+        "speed_mbps": 230.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.19.52.18"
+        ],
+        "instant_score": 92.0,
+        "final_score": 92.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.221.188",
+        "ok": true,
+        "latency_ms": 30.73,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 275.0,
+        "speed_mbps": 275.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.18.221.56"
+        ],
+        "instant_score": 92.0,
+        "final_score": 92.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.221.248",
+        "ok": true,
+        "latency_ms": 52.85,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 275.0,
+        "speed_mbps": 275.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.18.221.56"
+        ],
+        "instant_score": 92.0,
+        "final_score": 92.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.19.102.121",
+        "ok": true,
+        "latency_ms": 29.01,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 160.0,
         "speed_mbps": 160.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -284,26 +284,26 @@
         "sources": [
           "neighbor:104.19.102.211"
         ],
-        "instant_score": 81.63,
-        "final_score": 81.63,
-        "country_code": "TW",
+        "instant_score": 84.0,
+        "final_score": 84.0,
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.19.102.45",
+        "ip": "104.19.102.123",
         "ok": true,
-        "latency_ms": 125.47,
+        "latency_ms": 31.44,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 160.0,
         "speed_mbps": 160.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -312,26 +312,26 @@
         "sources": [
           "neighbor:104.19.102.211"
         ],
-        "instant_score": 81.16,
-        "final_score": 81.16,
-        "country_code": "TW",
+        "instant_score": 84.0,
+        "final_score": 84.0,
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.19.102.229",
+        "ip": "104.19.102.55",
         "ok": true,
-        "latency_ms": 126.12,
+        "latency_ms": 36.39,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 160.0,
         "speed_mbps": 160.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -340,59 +340,111 @@
         "sources": [
           "neighbor:104.19.102.211"
         ],
-        "instant_score": 81.12,
-        "final_score": 81.12,
-        "country_code": "TW",
+        "instant_score": 84.0,
+        "final_score": 84.0,
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.18.12.186",
+        "ip": "172.64.82.119",
         "ok": true,
-        "latency_ms": 47.54,
+        "latency_ms": 31.65,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
+        "download_speed": 55.36,
+        "speed_mbps": 55.36,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "sg",
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
+          "ct"
         ],
         "sources": [
-          "neighbor:104.18.12.229"
+          "neighbor:172.64.82.114"
         ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
+        "instant_score": 63.07,
+        "final_score": 63.07,
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.18.13.201",
+        "ip": "172.64.82.116",
         "ok": true,
-        "latency_ms": 47.82,
+        "latency_ms": 35.51,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 55.36,
+        "speed_mbps": 55.36,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:172.64.82.114"
+        ],
+        "instant_score": 63.07,
+        "final_score": 63.07,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.64.82.204",
+        "ok": true,
+        "latency_ms": 25.98,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 55.36,
+        "speed_mbps": 55.36,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:172.64.82.114"
+        ],
+        "instant_score": 63.07,
+        "final_score": 63.07,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.13.212",
+        "ok": true,
+        "latency_ms": 24.78,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
           "sg",
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -406,25 +458,25 @@
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.18.13.73",
+        "ip": "104.18.13.108",
         "ok": true,
-        "latency_ms": 63.12,
+        "latency_ms": 23.91,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
           "sg",
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -438,120 +490,25 @@
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.18.12.202",
+        "ip": "104.18.13.174",
         "ok": true,
-        "latency_ms": 54.32,
+        "latency_ms": 37.98,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
           "sg",
-          "tw"
+          "us"
         ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.12.229"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.67.68.72",
-        "ok": true,
-        "latency_ms": 56.78,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:172.67.68.157"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.12.138",
-        "ok": true,
-        "latency_ms": 43.1,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "sg",
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.12.229"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.13.63",
-        "ok": true,
-        "latency_ms": 41.76,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "sg",
-          "tw"
-        ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -565,3182 +522,24 @@
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "172.67.68.26",
+        "ip": "104.26.12.172",
         "ok": true,
-        "latency_ms": 26.86,
+        "latency_ms": 53.0,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:172.67.68.157"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.33.108",
-        "ok": true,
-        "latency_ms": 48.29,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.18.33.181"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.154.154",
-        "ok": true,
-        "latency_ms": 35.89,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:172.64.154.75"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.67.68.193",
-        "ok": true,
-        "latency_ms": 46.8,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:172.67.68.157"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.154.233",
-        "ok": true,
-        "latency_ms": 49.48,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:172.64.154.75"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.33.240",
-        "ok": true,
-        "latency_ms": 58.47,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.18.33.181"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.33.37",
-        "ok": true,
-        "latency_ms": 36.72,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.18.33.181"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.153.241",
-        "ok": true,
-        "latency_ms": 76.76,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:172.64.153.208"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.153.57",
-        "ok": true,
-        "latency_ms": 75.78,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:172.64.153.208"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.34.160",
-        "ok": true,
-        "latency_ms": 64.77,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.18.34.48"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.148.145",
-        "ok": true,
-        "latency_ms": 74.09,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:172.64.148.179"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "162.159.140.118",
-        "ok": true,
-        "latency_ms": 77.39,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:162.159.140.85"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.91.199",
-        "ok": true,
-        "latency_ms": 74.62,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:172.64.91.69"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.17.159.76",
-        "ok": true,
-        "latency_ms": 65.2,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.17.159.247"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.17.159.242",
-        "ok": true,
-        "latency_ms": 68.69,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.17.159.247"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.17.157.176",
-        "ok": true,
-        "latency_ms": 69.32,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.17.157.246"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.17.159.137",
-        "ok": true,
-        "latency_ms": 69.55,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.17.159.247"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.16.251.196",
-        "ok": true,
-        "latency_ms": 52.01,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.16.251.77"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.17.157.139",
-        "ok": true,
-        "latency_ms": 78.05,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.17.157.246"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.17.22.195",
-        "ok": true,
-        "latency_ms": 78.68,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.17.22.181"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.17.157.193",
-        "ok": true,
-        "latency_ms": 50.72,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.17.157.246"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.16.251.117",
-        "ok": true,
-        "latency_ms": 76.47,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.16.251.58"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.82.211",
-        "ok": true,
-        "latency_ms": 74.84,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:172.64.82.184"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.82.177",
-        "ok": true,
-        "latency_ms": 55.09,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:172.64.82.167"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.82.233",
-        "ok": true,
-        "latency_ms": 74.32,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:172.64.82.180"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.16.163.249",
-        "ok": true,
-        "latency_ms": 60.7,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.16.163.126"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.148.218",
-        "ok": true,
-        "latency_ms": 80.16,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:172.64.148.179"
-        ],
-        "instant_score": 61.99,
-        "final_score": 61.99,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.46.80",
-        "ok": true,
-        "latency_ms": 80.49,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.18.46.59"
-        ],
-        "instant_score": 61.97,
-        "final_score": 61.97,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.229.188",
-        "ok": true,
-        "latency_ms": 80.78,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct",
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.64.229.161"
-        ],
-        "instant_score": 61.95,
-        "final_score": 61.95,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.43.83",
-        "ok": true,
-        "latency_ms": 80.91,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.18.43.81"
-        ],
-        "instant_score": 61.94,
-        "final_score": 61.94,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.46.226",
-        "ok": true,
-        "latency_ms": 81.04,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.18.46.59"
-        ],
-        "instant_score": 61.94,
-        "final_score": 61.94,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      }
-    ],
-    "cu": [
-      {
-        "ip": "162.159.236.175",
-        "ok": true,
-        "latency_ms": 74.99,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 1490.0,
-        "speed_mbps": 1490.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:162.159.236.194"
-        ],
-        "instant_score": 92.0,
-        "final_score": 92.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "141.101.113.67",
-        "ok": true,
-        "latency_ms": 76.83,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 325.0,
-        "speed_mbps": 325.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:141.101.113.10"
-        ],
-        "instant_score": 92.0,
-        "final_score": 92.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "141.101.113.140",
-        "ok": true,
-        "latency_ms": 68.29,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 325.0,
-        "speed_mbps": 325.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:141.101.113.10"
-        ],
-        "instant_score": 92.0,
-        "final_score": 92.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.67.251.118",
-        "ok": true,
-        "latency_ms": 81.17,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 570.0,
-        "speed_mbps": 570.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.67.251.117"
-        ],
-        "instant_score": 91.93,
-        "final_score": 91.93,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.67.71",
-        "ok": true,
-        "latency_ms": 92.88,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 1810.0,
-        "speed_mbps": 1810.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.64.67.117"
-        ],
-        "instant_score": 91.19,
-        "final_score": 91.19,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "141.101.113.144",
-        "ok": true,
-        "latency_ms": 93.79,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 325.0,
-        "speed_mbps": 325.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:141.101.113.10"
-        ],
-        "instant_score": 91.14,
-        "final_score": 91.14,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.83.54",
-        "ok": true,
-        "latency_ms": 100.93,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 260.0,
-        "speed_mbps": 260.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.64.83.52"
-        ],
-        "instant_score": 90.69,
-        "final_score": 90.69,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.83.36",
-        "ok": true,
-        "latency_ms": 101.18,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 260.0,
-        "speed_mbps": 260.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.64.83.52"
-        ],
-        "instant_score": 90.68,
-        "final_score": 90.68,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "162.159.236.184",
-        "ok": true,
-        "latency_ms": 111.65,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 1490.0,
-        "speed_mbps": 1490.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:162.159.236.194"
-        ],
-        "instant_score": 90.02,
-        "final_score": 90.02,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.83.138",
-        "ok": true,
-        "latency_ms": 114.68,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 260.0,
-        "speed_mbps": 260.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.64.83.52"
-        ],
-        "instant_score": 89.83,
-        "final_score": 89.83,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.67.102",
-        "ok": true,
-        "latency_ms": 114.98,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 1810.0,
-        "speed_mbps": 1810.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.64.67.117"
-        ],
-        "instant_score": 89.81,
-        "final_score": 89.81,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.67.251.64",
-        "ok": true,
-        "latency_ms": 122.86,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 570.0,
-        "speed_mbps": 570.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.67.251.117"
-        ],
-        "instant_score": 89.32,
-        "final_score": 89.32,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.67.251.79",
-        "ok": true,
-        "latency_ms": 123.01,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 570.0,
-        "speed_mbps": 570.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.67.251.117"
-        ],
-        "instant_score": 89.31,
-        "final_score": 89.31,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.67.212",
-        "ok": true,
-        "latency_ms": 123.95,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 1810.0,
-        "speed_mbps": 1810.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.64.67.117"
-        ],
-        "instant_score": 89.25,
-        "final_score": 89.25,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "162.159.236.5",
-        "ok": true,
-        "latency_ms": 124.62,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 1490.0,
-        "speed_mbps": 1490.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:162.159.236.194"
-        ],
-        "instant_score": 89.21,
-        "final_score": 89.21,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.19.148.197",
-        "ok": true,
-        "latency_ms": 42.88,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 86.64,
-        "speed_mbps": 86.64,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.19.148.121"
-        ],
-        "instant_score": 69.33,
-        "final_score": 69.33,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.19.148.236",
-        "ok": true,
-        "latency_ms": 84.61,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 86.64,
-        "speed_mbps": 86.64,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.19.148.121"
-        ],
-        "instant_score": 69.04,
-        "final_score": 69.04,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.19.148.78",
-        "ok": true,
-        "latency_ms": 91.26,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 86.64,
-        "speed_mbps": 86.64,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.19.148.121"
-        ],
-        "instant_score": 68.62,
-        "final_score": 68.62,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "162.159.136.57",
-        "ok": true,
-        "latency_ms": 100.09,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 78.4,
-        "speed_mbps": 78.4,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:162.159.136.89"
-        ],
-        "instant_score": 66.42,
-        "final_score": 66.42,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "162.159.136.243",
-        "ok": true,
-        "latency_ms": 103.08,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 78.4,
-        "speed_mbps": 78.4,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:162.159.136.89"
-        ],
-        "instant_score": 66.24,
-        "final_score": 66.24,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.229.82",
-        "ok": true,
-        "latency_ms": 92.61,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 70.32,
-        "speed_mbps": 70.32,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.64.229.7"
-        ],
-        "instant_score": 65.28,
-        "final_score": 65.28,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.229.103",
-        "ok": true,
-        "latency_ms": 93.13,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 70.32,
-        "speed_mbps": 70.32,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.64.229.7"
-        ],
-        "instant_score": 65.24,
-        "final_score": 65.24,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "162.159.128.143",
-        "ok": true,
-        "latency_ms": 104.79,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 64.0,
-        "speed_mbps": 64.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:162.159.128.253"
-        ],
-        "instant_score": 63.25,
-        "final_score": 63.25,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.26.4.86",
-        "ok": true,
-        "latency_ms": 164.18,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 82.16,
-        "speed_mbps": 82.16,
-        "ws_handshake_101": true,
-        "colo": "HKG",
-        "country": "hk",
-        "countries": [
-          "hk"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.26.4.90"
-        ],
-        "instant_score": 63.17,
-        "final_score": 63.17,
-        "country_code": "HK",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.26.4.200",
-        "ok": true,
-        "latency_ms": 164.38,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 82.16,
-        "speed_mbps": 82.16,
-        "ws_handshake_101": true,
-        "colo": "HKG",
-        "country": "hk",
-        "countries": [
-          "hk"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.26.4.90"
-        ],
-        "instant_score": 63.16,
-        "final_score": 63.16,
-        "country_code": "HK",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.26.4.208",
-        "ok": true,
-        "latency_ms": 171.29,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 82.16,
-        "speed_mbps": 82.16,
-        "ws_handshake_101": true,
-        "colo": "HKG",
-        "country": "hk",
-        "countries": [
-          "hk"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.26.4.90"
-        ],
-        "instant_score": 62.73,
-        "final_score": 62.73,
-        "country_code": "HK",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "162.159.137.29",
-        "ok": true,
-        "latency_ms": 116.08,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 64.64,
-        "speed_mbps": 64.64,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:162.159.137.204"
-        ],
-        "instant_score": 62.67,
-        "final_score": 62.67,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "162.159.137.172",
-        "ok": true,
-        "latency_ms": 125.44,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 64.64,
-        "speed_mbps": 64.64,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:162.159.137.204"
-        ],
-        "instant_score": 62.09,
-        "final_score": 62.09,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.12.186",
-        "ok": true,
-        "latency_ms": 47.54,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "sg",
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.12.229"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.13.201",
-        "ok": true,
-        "latency_ms": 47.82,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "sg",
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.13.229"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.13.73",
-        "ok": true,
-        "latency_ms": 63.12,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "sg",
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.13.229"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.12.202",
-        "ok": true,
-        "latency_ms": 54.32,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "sg",
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.12.229"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.67.68.72",
-        "ok": true,
-        "latency_ms": 56.78,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:172.67.68.157"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.12.138",
-        "ok": true,
-        "latency_ms": 43.1,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "sg",
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.12.229"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.13.63",
-        "ok": true,
-        "latency_ms": 41.76,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "sg",
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.13.229"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.67.68.26",
-        "ok": true,
-        "latency_ms": 26.86,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:172.67.68.157"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.67.68.193",
-        "ok": true,
-        "latency_ms": 46.8,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:172.67.68.157"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.67.74.153",
-        "ok": true,
-        "latency_ms": 76.19,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.67.74.151"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.67.74.138",
-        "ok": true,
-        "latency_ms": 77.62,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.67.74.151"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.67.73.253",
-        "ok": true,
-        "latency_ms": 77.25,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.67.73.167"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.64.145.85",
-        "ok": true,
-        "latency_ms": 72.84,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.64.145.202"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.17.137.134",
-        "ok": true,
-        "latency_ms": 74.02,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.17.137.120"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.37.32",
-        "ok": true,
-        "latency_ms": 69.12,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.18.37.247"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.16.141.96",
-        "ok": true,
-        "latency_ms": 63.71,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.16.141.98"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.16.141.175",
-        "ok": true,
-        "latency_ms": 50.98,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.16.141.87"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.37.79",
-        "ok": true,
-        "latency_ms": 65.15,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.18.37.155"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.16.141.118",
-        "ok": true,
-        "latency_ms": 57.03,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.16.141.87"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.37.189",
-        "ok": true,
-        "latency_ms": 43.73,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.18.37.68"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.21.229.59",
-        "ok": true,
-        "latency_ms": 61.75,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.21.229.76"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.21.229.156",
-        "ok": true,
-        "latency_ms": 61.57,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.21.229.76"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      }
-    ],
-    "cm": [
-      {
-        "ip": "172.67.67.189",
-        "ok": true,
-        "latency_ms": 72.81,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 270.0,
-        "speed_mbps": 270.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:172.67.67.200"
-        ],
-        "instant_score": 92.0,
-        "final_score": 92.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.67.67.27",
-        "ok": true,
-        "latency_ms": 89.07,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 270.0,
-        "speed_mbps": 270.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:172.67.67.200"
-        ],
-        "instant_score": 91.43,
-        "final_score": 91.43,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "172.67.67.151",
-        "ok": true,
-        "latency_ms": 101.63,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 270.0,
-        "speed_mbps": 270.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:172.67.67.200"
-        ],
-        "instant_score": 90.65,
-        "final_score": 90.65,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.89.209",
-        "ok": true,
-        "latency_ms": 76.06,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 102.0,
-        "speed_mbps": 102.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.18.89.52"
-        ],
-        "instant_score": 72.4,
-        "final_score": 72.4,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.89.216",
-        "ok": true,
-        "latency_ms": 76.42,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 102.0,
-        "speed_mbps": 102.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.18.89.52"
-        ],
-        "instant_score": 72.4,
-        "final_score": 72.4,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.81.79",
-        "ok": true,
-        "latency_ms": 93.78,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 103.84,
-        "speed_mbps": 103.84,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.18.81.19"
-        ],
-        "instant_score": 71.91,
-        "final_score": 71.91,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.166.139",
-        "ok": true,
-        "latency_ms": 83.32,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 100.48,
-        "speed_mbps": 100.48,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.18.166.129"
-        ],
-        "instant_score": 71.89,
-        "final_score": 71.89,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.89.112",
-        "ok": true,
-        "latency_ms": 93.45,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 102.0,
-        "speed_mbps": 102.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.18.89.52"
-        ],
-        "instant_score": 71.56,
-        "final_score": 71.56,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.166.9",
-        "ok": true,
-        "latency_ms": 94.34,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 100.48,
-        "speed_mbps": 100.48,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.18.166.129"
-        ],
-        "instant_score": 71.2,
-        "final_score": 71.2,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.81.198",
-        "ok": true,
-        "latency_ms": 106.53,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 103.84,
-        "speed_mbps": 103.84,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.18.81.19"
-        ],
-        "instant_score": 71.11,
-        "final_score": 71.11,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.81.134",
-        "ok": true,
-        "latency_ms": 108.52,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 103.84,
-        "speed_mbps": 103.84,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.18.81.19"
-        ],
-        "instant_score": 70.99,
-        "final_score": 70.99,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.19.148.197",
-        "ok": true,
-        "latency_ms": 42.88,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 86.64,
-        "speed_mbps": 86.64,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.19.148.121"
-        ],
-        "instant_score": 69.33,
-        "final_score": 69.33,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.17.162.130",
-        "ok": true,
-        "latency_ms": 66.17,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 85.92,
-        "speed_mbps": 85.92,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.17.162.3"
-        ],
-        "instant_score": 69.18,
-        "final_score": 69.18,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.17.162.78",
-        "ok": true,
-        "latency_ms": 57.97,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 85.92,
-        "speed_mbps": 85.92,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.17.162.3"
-        ],
-        "instant_score": 69.18,
-        "final_score": 69.18,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.17.162.251",
-        "ok": true,
-        "latency_ms": 81.46,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 85.92,
-        "speed_mbps": 85.92,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.17.162.3"
-        ],
-        "instant_score": 69.09,
-        "final_score": 69.09,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.19.148.236",
-        "ok": true,
-        "latency_ms": 84.61,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 86.64,
-        "speed_mbps": 86.64,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.19.148.121"
-        ],
-        "instant_score": 69.04,
-        "final_score": 69.04,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.19.148.78",
-        "ok": true,
-        "latency_ms": 91.26,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 86.64,
-        "speed_mbps": 86.64,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.19.148.121"
-        ],
-        "instant_score": 68.62,
-        "final_score": 68.62,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.151.24",
-        "ok": true,
-        "latency_ms": 69.45,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 79.04,
-        "speed_mbps": 79.04,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.18.151.172"
-        ],
-        "instant_score": 67.81,
-        "final_score": 67.81,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.151.62",
-        "ok": true,
-        "latency_ms": 83.01,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 79.04,
-        "speed_mbps": 79.04,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.18.151.172"
-        ],
-        "instant_score": 67.62,
-        "final_score": 67.62,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.19.220.164",
-        "ok": true,
-        "latency_ms": 76.94,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 76.96,
-        "speed_mbps": 76.96,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.19.220.22"
-        ],
-        "instant_score": 67.39,
-        "final_score": 67.39,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.17.139.140",
-        "ok": true,
-        "latency_ms": 92.42,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 77.04,
-        "speed_mbps": 77.04,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.17.139.37"
-        ],
-        "instant_score": 66.63,
-        "final_score": 66.63,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.151.82",
-        "ok": true,
-        "latency_ms": 100.95,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 79.04,
-        "speed_mbps": 79.04,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.18.151.172"
-        ],
-        "instant_score": 66.5,
-        "final_score": 66.5,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.166.129",
-        "ok": true,
-        "latency_ms": 100.28,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 100.48,
-        "speed_mbps": 100.48,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": false,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "uouin"
-        ],
-        "instant_score": 65.83,
-        "final_score": 65.83,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.17.139.81",
-        "ok": true,
-        "latency_ms": 105.91,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 77.04,
-        "speed_mbps": 77.04,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.17.139.37"
-        ],
-        "instant_score": 65.79,
-        "final_score": 65.79,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.19.154.36",
-        "ok": true,
-        "latency_ms": 105.8,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 76.8,
-        "speed_mbps": 76.8,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.19.154.200"
-        ],
-        "instant_score": 65.75,
-        "final_score": 65.75,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.19.220.145",
-        "ok": true,
-        "latency_ms": 106.91,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 76.96,
-        "speed_mbps": 76.96,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.19.220.22"
-        ],
-        "instant_score": 65.71,
-        "final_score": 65.71,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.19.220.108",
-        "ok": true,
-        "latency_ms": 106.89,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 76.96,
-        "speed_mbps": 76.96,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.19.220.22"
-        ],
-        "instant_score": 65.71,
-        "final_score": 65.71,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.17.139.93",
-        "ok": true,
-        "latency_ms": 107.28,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 77.04,
-        "speed_mbps": 77.04,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.17.139.37"
-        ],
-        "instant_score": 65.7,
-        "final_score": 65.7,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.19.154.67",
-        "ok": true,
-        "latency_ms": 118.57,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 76.8,
-        "speed_mbps": 76.8,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.19.154.200"
-        ],
-        "instant_score": 64.95,
-        "final_score": 64.95,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.19.154.173",
-        "ok": true,
-        "latency_ms": 124.12,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 76.8,
-        "speed_mbps": 76.8,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.19.154.200"
-        ],
-        "instant_score": 64.6,
-        "final_score": 64.6,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.26.12.97",
-        "ok": true,
-        "latency_ms": 87.66,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "HKG",
-        "country": "hk",
-        "countries": [
-          "hk"
-        ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -3752,27 +551,148 @@
         "sources": [
           "neighbor:104.26.12.54"
         ],
-        "instant_score": 69.52,
-        "final_score": 63.92,
-        "country_code": "HK",
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.18.12.186",
+        "ip": "104.26.13.188",
         "ok": true,
-        "latency_ms": 47.54,
+        "latency_ms": 38.38,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.13.54"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.33.174",
+        "ok": true,
+        "latency_ms": 51.01,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.18.33.181"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.12.204",
+        "ok": true,
+        "latency_ms": 52.52,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.12.54"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.13.35",
+        "ok": true,
+        "latency_ms": 36.88,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.13.54"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.12.40",
+        "ok": true,
+        "latency_ms": 27.15,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
         "countries": [
           "sg",
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -3786,25 +706,24 @@
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.18.13.201",
+        "ip": "104.26.13.12",
         "ok": true,
-        "latency_ms": 47.82,
+        "latency_ms": 37.77,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "sg",
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -3814,61 +733,29 @@
           "edu"
         ],
         "sources": [
-          "neighbor:104.18.13.229"
+          "neighbor:104.26.13.54"
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.18.13.73",
+        "ip": "104.18.12.104",
         "ok": true,
-        "latency_ms": 63.12,
+        "latency_ms": 50.92,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
           "sg",
-          "tw"
+          "us"
         ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.13.229"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.18.12.202",
-        "ok": true,
-        "latency_ms": 54.32,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "sg",
-          "tw"
-        ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -3882,24 +769,24 @@
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "172.67.68.72",
+        "ip": "172.67.68.110",
         "ok": true,
-        "latency_ms": 56.78,
+        "latency_ms": 53.49,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -3913,25 +800,171 @@
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.18.12.138",
+        "ip": "172.67.68.89",
         "ok": true,
-        "latency_ms": 43.1,
+        "latency_ms": 49.02,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:172.67.68.157"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.12.20",
+        "ok": true,
+        "latency_ms": 54.53,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.12.54"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.33.163",
+        "ok": true,
+        "latency_ms": 38.28,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.18.33.181"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.33.223",
+        "ok": true,
+        "latency_ms": 38.7,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.18.33.181"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.64.154.189",
+        "ok": true,
+        "latency_ms": 78.15,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:172.64.154.75"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.12.64",
+        "ok": true,
+        "latency_ms": 41.88,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
         "countries": [
           "sg",
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -3945,25 +978,1378 @@
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.18.13.63",
+        "ip": "172.64.154.178",
         "ok": true,
-        "latency_ms": 41.76,
+        "latency_ms": 52.67,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:172.64.154.75"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.67.68.45",
+        "ok": true,
+        "latency_ms": 53.25,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:172.67.68.157"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.64.154.175",
+        "ok": true,
+        "latency_ms": 52.41,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:172.64.154.75"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.64.149.226",
+        "ok": true,
+        "latency_ms": 17.25,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:172.64.149.209"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.64.149.76",
+        "ok": true,
+        "latency_ms": 16.08,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:172.64.149.209"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.64.149.165",
+        "ok": true,
+        "latency_ms": 16.64,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:172.64.149.209"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.38.124",
+        "ok": true,
+        "latency_ms": 13.54,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.18.38.47"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.38.242",
+        "ok": true,
+        "latency_ms": 15.76,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.18.38.47"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.38.53",
+        "ok": true,
+        "latency_ms": 16.55,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.18.38.47"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.64.229.145",
+        "ok": true,
+        "latency_ms": 16.63,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:172.64.229.174"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.64.229.230",
+        "ok": true,
+        "latency_ms": 28.76,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:172.64.229.174"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.64.229.250",
+        "ok": true,
+        "latency_ms": 15.57,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:172.64.229.185"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.17.159.8",
+        "ok": true,
+        "latency_ms": 18.81,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct",
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.17.159.140"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.46.202",
+        "ok": true,
+        "latency_ms": 17.83,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.18.46.59"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.43.141",
+        "ok": true,
+        "latency_ms": 17.34,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.18.43.81"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.43.80",
+        "ok": true,
+        "latency_ms": 21.33,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.18.43.81"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.46.28",
+        "ok": true,
+        "latency_ms": 9.01,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.18.46.59"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      }
+    ],
+    "cu": [
+      {
+        "ip": "162.159.236.194",
+        "ok": true,
+        "latency_ms": 16.68,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": false,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "seeds_cu"
+        ],
+        "instant_score": 57.0,
+        "final_score": 77.19,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.19.148.102",
+        "ok": true,
+        "latency_ms": 15.94,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 86.64,
+        "speed_mbps": 86.64,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.19.148.121"
+        ],
+        "instant_score": 69.33,
+        "final_score": 69.33,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.19.148.188",
+        "ok": true,
+        "latency_ms": 28.74,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 86.64,
+        "speed_mbps": 86.64,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.19.148.121"
+        ],
+        "instant_score": 69.33,
+        "final_score": 69.33,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.19.148.78",
+        "ok": true,
+        "latency_ms": 21.96,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 86.64,
+        "speed_mbps": 86.64,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.19.148.121"
+        ],
+        "instant_score": 69.33,
+        "final_score": 68.83,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.4.116",
+        "ok": true,
+        "latency_ms": 20.73,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 82.16,
+        "speed_mbps": 82.16,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.4.90"
+        ],
+        "instant_score": 68.43,
+        "final_score": 68.43,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.4.77",
+        "ok": true,
+        "latency_ms": 15.71,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 82.16,
+        "speed_mbps": 82.16,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.4.90"
+        ],
+        "instant_score": 68.43,
+        "final_score": 68.43,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.4.84",
+        "ok": true,
+        "latency_ms": 18.97,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 82.16,
+        "speed_mbps": 82.16,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.4.90"
+        ],
+        "instant_score": 68.43,
+        "final_score": 68.43,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "162.159.136.91",
+        "ok": true,
+        "latency_ms": 25.27,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 78.4,
+        "speed_mbps": 78.4,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:162.159.136.89"
+        ],
+        "instant_score": 67.68,
+        "final_score": 67.68,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "162.159.136.119",
+        "ok": true,
+        "latency_ms": 19.71,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 78.4,
+        "speed_mbps": 78.4,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:162.159.136.89"
+        ],
+        "instant_score": 67.68,
+        "final_score": 67.68,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "162.159.136.169",
+        "ok": true,
+        "latency_ms": 14.27,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 78.4,
+        "speed_mbps": 78.4,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:162.159.136.89"
+        ],
+        "instant_score": 67.68,
+        "final_score": 67.68,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.64.229.98",
+        "ok": true,
+        "latency_ms": 12.38,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 70.32,
+        "speed_mbps": 70.32,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:172.64.229.7"
+        ],
+        "instant_score": 66.06,
+        "final_score": 66.06,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.64.229.233",
+        "ok": true,
+        "latency_ms": 16.83,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 70.32,
+        "speed_mbps": 70.32,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:172.64.229.7"
+        ],
+        "instant_score": 66.06,
+        "final_score": 66.06,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.64.229.27",
+        "ok": true,
+        "latency_ms": 14.53,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 70.32,
+        "speed_mbps": 70.32,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:172.64.229.7"
+        ],
+        "instant_score": 66.06,
+        "final_score": 66.06,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.5.73",
+        "ok": true,
+        "latency_ms": 15.92,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 65.92,
+        "speed_mbps": 65.92,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.5.134"
+        ],
+        "instant_score": 65.18,
+        "final_score": 65.18,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.5.202",
+        "ok": true,
+        "latency_ms": 9.31,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 65.92,
+        "speed_mbps": 65.92,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.5.134"
+        ],
+        "instant_score": 65.18,
+        "final_score": 65.18,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.5.178",
+        "ok": true,
+        "latency_ms": 15.36,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 65.92,
+        "speed_mbps": 65.92,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.5.134"
+        ],
+        "instant_score": 65.18,
+        "final_score": 65.18,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "162.159.137.47",
+        "ok": true,
+        "latency_ms": 9.94,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 64.64,
+        "speed_mbps": 64.64,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:162.159.137.204"
+        ],
+        "instant_score": 64.93,
+        "final_score": 64.93,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "162.159.137.107",
+        "ok": true,
+        "latency_ms": 20.48,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 64.64,
+        "speed_mbps": 64.64,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:162.159.137.204"
+        ],
+        "instant_score": 64.93,
+        "final_score": 64.93,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "162.159.137.197",
+        "ok": true,
+        "latency_ms": 10.63,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 64.64,
+        "speed_mbps": 64.64,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:162.159.137.204"
+        ],
+        "instant_score": 64.93,
+        "final_score": 64.93,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "162.159.128.93",
+        "ok": true,
+        "latency_ms": 14.7,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 64.0,
+        "speed_mbps": 64.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:162.159.128.253"
+        ],
+        "instant_score": 64.8,
+        "final_score": 64.8,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "162.159.128.178",
+        "ok": true,
+        "latency_ms": 12.64,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 64.0,
+        "speed_mbps": 64.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:162.159.128.253"
+        ],
+        "instant_score": 64.8,
+        "final_score": 64.8,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "162.159.128.25",
+        "ok": true,
+        "latency_ms": 11.83,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 64.0,
+        "speed_mbps": 64.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:162.159.128.253"
+        ],
+        "instant_score": 64.8,
+        "final_score": 64.8,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.3.154",
+        "ok": true,
+        "latency_ms": 14.06,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 62.96,
+        "speed_mbps": 62.96,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.3.162"
+        ],
+        "instant_score": 64.59,
+        "final_score": 64.59,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.3.13",
+        "ok": true,
+        "latency_ms": 17.78,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 62.96,
+        "speed_mbps": 62.96,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.3.162"
+        ],
+        "instant_score": 64.59,
+        "final_score": 64.59,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.3.42",
+        "ok": true,
+        "latency_ms": 13.18,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 62.96,
+        "speed_mbps": 62.96,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.3.162"
+        ],
+        "instant_score": 64.59,
+        "final_score": 64.59,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.8.169",
+        "ok": true,
+        "latency_ms": 13.37,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 59.92,
+        "speed_mbps": 59.92,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.8.117"
+        ],
+        "instant_score": 63.98,
+        "final_score": 63.98,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.8.135",
+        "ok": true,
+        "latency_ms": 23.3,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 59.92,
+        "speed_mbps": 59.92,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.8.117"
+        ],
+        "instant_score": 63.98,
+        "final_score": 63.98,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.8.246",
+        "ok": true,
+        "latency_ms": 18.15,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 59.92,
+        "speed_mbps": 59.92,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.8.117"
+        ],
+        "instant_score": 63.98,
+        "final_score": 63.98,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "162.159.140.53",
+        "ok": true,
+        "latency_ms": 25.03,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 53.44,
+        "speed_mbps": 53.44,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:162.159.140.116"
+        ],
+        "instant_score": 62.69,
+        "final_score": 62.69,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "162.159.140.72",
+        "ok": true,
+        "latency_ms": 20.49,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 53.44,
+        "speed_mbps": 53.44,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:162.159.140.116"
+        ],
+        "instant_score": 62.69,
+        "final_score": 62.69,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "162.159.140.40",
+        "ok": true,
+        "latency_ms": 20.54,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 53.44,
+        "speed_mbps": 53.44,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:162.159.140.116"
+        ],
+        "instant_score": 62.69,
+        "final_score": 62.69,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.13.212",
+        "ok": true,
+        "latency_ms": 24.78,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
         "countries": [
           "sg",
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -3977,24 +2363,335 @@
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "172.67.68.26",
+        "ip": "104.18.13.108",
         "ok": true,
-        "latency_ms": 26.86,
+        "latency_ms": 23.91,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "sg",
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.18.13.229"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.13.174",
+        "ok": true,
+        "latency_ms": 37.98,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "sg",
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.18.13.229"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.12.172",
+        "ok": true,
+        "latency_ms": 53.0,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.12.54"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.13.188",
+        "ok": true,
+        "latency_ms": 38.38,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.13.54"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.12.204",
+        "ok": true,
+        "latency_ms": 52.52,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.12.54"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.13.35",
+        "ok": true,
+        "latency_ms": 36.88,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.13.54"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.12.40",
+        "ok": true,
+        "latency_ms": 27.15,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "sg",
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.18.12.229"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.13.12",
+        "ok": true,
+        "latency_ms": 37.77,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.13.54"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.12.104",
+        "ok": true,
+        "latency_ms": 50.92,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "sg",
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.18.12.229"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.67.73.240",
+        "ok": true,
+        "latency_ms": 51.92,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:172.67.73.167"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.67.68.110",
+        "ok": true,
+        "latency_ms": 53.49,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -4008,24 +2705,24 @@
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "172.67.68.193",
+        "ip": "172.67.68.89",
         "ok": true,
-        "latency_ms": 46.8,
+        "latency_ms": 49.02,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -4039,24 +2736,1364 @@
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.19.50.217",
+        "ip": "104.26.15.213",
         "ok": true,
-        "latency_ms": 56.92,
+        "latency_ms": 52.88,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.15.26"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.67.73.188",
+        "ok": true,
+        "latency_ms": 77.24,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:172.67.73.167"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.12.20",
+        "ok": true,
+        "latency_ms": 54.53,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.12.54"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.14.122",
+        "ok": true,
+        "latency_ms": 27.32,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.14.26"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.14.100",
+        "ok": true,
+        "latency_ms": 32.67,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.14.26"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.15.46",
+        "ok": true,
+        "latency_ms": 35.43,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.26.15.26"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      }
+    ],
+    "cm": [
+      {
+        "ip": "104.18.81.49",
+        "ok": true,
+        "latency_ms": 28.51,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 103.84,
+        "speed_mbps": 103.84,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.81.19"
+        ],
+        "instant_score": 72.77,
+        "final_score": 72.77,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.81.119",
+        "ok": true,
+        "latency_ms": 26.33,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 103.84,
+        "speed_mbps": 103.84,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.81.19"
+        ],
+        "instant_score": 72.77,
+        "final_score": 72.77,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.81.156",
+        "ok": true,
+        "latency_ms": 23.72,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 103.84,
+        "speed_mbps": 103.84,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.81.19"
+        ],
+        "instant_score": 72.77,
+        "final_score": 72.77,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.89.48",
+        "ok": true,
+        "latency_ms": 30.27,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 102.0,
+        "speed_mbps": 102.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.89.52"
+        ],
+        "instant_score": 72.4,
+        "final_score": 72.4,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.89.83",
+        "ok": true,
+        "latency_ms": 26.15,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 102.0,
+        "speed_mbps": 102.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.89.52"
+        ],
+        "instant_score": 72.4,
+        "final_score": 72.4,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.89.18",
+        "ok": true,
+        "latency_ms": 21.33,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 102.0,
+        "speed_mbps": 102.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.89.52"
+        ],
+        "instant_score": 72.4,
+        "final_score": 72.4,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.166.10",
+        "ok": true,
+        "latency_ms": 14.57,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 100.48,
+        "speed_mbps": 100.48,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.166.129"
+        ],
+        "instant_score": 72.1,
+        "final_score": 72.1,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.166.135",
+        "ok": true,
+        "latency_ms": 25.11,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 100.48,
+        "speed_mbps": 100.48,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.166.129"
+        ],
+        "instant_score": 72.1,
+        "final_score": 72.1,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.166.235",
+        "ok": true,
+        "latency_ms": 23.09,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 100.48,
+        "speed_mbps": 100.48,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.166.129"
+        ],
+        "instant_score": 72.1,
+        "final_score": 72.1,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.19.148.102",
+        "ok": true,
+        "latency_ms": 15.94,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 86.64,
+        "speed_mbps": 86.64,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.19.148.121"
+        ],
+        "instant_score": 69.33,
+        "final_score": 69.33,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.19.148.188",
+        "ok": true,
+        "latency_ms": 28.74,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 86.64,
+        "speed_mbps": 86.64,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.19.148.121"
+        ],
+        "instant_score": 69.33,
+        "final_score": 69.33,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.17.162.171",
+        "ok": true,
+        "latency_ms": 22.66,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 85.92,
+        "speed_mbps": 85.92,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.17.162.3"
+        ],
+        "instant_score": 69.18,
+        "final_score": 69.18,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.17.162.163",
+        "ok": true,
+        "latency_ms": 28.8,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 85.92,
+        "speed_mbps": 85.92,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.17.162.3"
+        ],
+        "instant_score": 69.18,
+        "final_score": 69.18,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.17.162.164",
+        "ok": true,
+        "latency_ms": 21.43,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 85.92,
+        "speed_mbps": 85.92,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.17.162.3"
+        ],
+        "instant_score": 69.18,
+        "final_score": 69.18,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.19.148.78",
+        "ok": true,
+        "latency_ms": 21.96,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 86.64,
+        "speed_mbps": 86.64,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.19.148.121"
+        ],
+        "instant_score": 69.33,
+        "final_score": 68.98,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.151.136",
+        "ok": true,
+        "latency_ms": 14.01,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 79.04,
+        "speed_mbps": 79.04,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.151.172"
+        ],
+        "instant_score": 67.81,
+        "final_score": 67.81,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.151.126",
+        "ok": true,
+        "latency_ms": 14.24,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 79.04,
+        "speed_mbps": 79.04,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.151.172"
+        ],
+        "instant_score": 67.81,
+        "final_score": 67.81,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.151.236",
+        "ok": true,
+        "latency_ms": 12.4,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 79.04,
+        "speed_mbps": 79.04,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.18.151.172"
+        ],
+        "instant_score": 67.81,
+        "final_score": 67.81,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.17.139.19",
+        "ok": true,
+        "latency_ms": 14.48,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 77.04,
+        "speed_mbps": 77.04,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.17.139.37"
+        ],
+        "instant_score": 67.41,
+        "final_score": 67.41,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.17.139.236",
+        "ok": true,
+        "latency_ms": 14.61,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 77.04,
+        "speed_mbps": 77.04,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.17.139.37"
+        ],
+        "instant_score": 67.41,
+        "final_score": 67.41,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.17.139.33",
+        "ok": true,
+        "latency_ms": 10.7,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 77.04,
+        "speed_mbps": 77.04,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.17.139.37"
+        ],
+        "instant_score": 67.41,
+        "final_score": 67.41,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.19.220.205",
+        "ok": true,
+        "latency_ms": 19.59,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 76.96,
+        "speed_mbps": 76.96,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.19.220.22"
+        ],
+        "instant_score": 67.39,
+        "final_score": 67.39,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.19.220.39",
+        "ok": true,
+        "latency_ms": 16.95,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 76.96,
+        "speed_mbps": 76.96,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.19.220.22"
+        ],
+        "instant_score": 67.39,
+        "final_score": 67.39,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.19.220.210",
+        "ok": true,
+        "latency_ms": 16.57,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 76.96,
+        "speed_mbps": 76.96,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.19.220.22"
+        ],
+        "instant_score": 67.39,
+        "final_score": 67.39,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.19.154.254",
+        "ok": true,
+        "latency_ms": 12.95,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 76.8,
+        "speed_mbps": 76.8,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.19.154.200"
+        ],
+        "instant_score": 67.36,
+        "final_score": 67.36,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.19.154.142",
+        "ok": true,
+        "latency_ms": 15.34,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 76.8,
+        "speed_mbps": 76.8,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.19.154.200"
+        ],
+        "instant_score": 67.36,
+        "final_score": 67.36,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.19.154.7",
+        "ok": true,
+        "latency_ms": 19.28,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 76.8,
+        "speed_mbps": 76.8,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.19.154.200"
+        ],
+        "instant_score": 67.36,
+        "final_score": 67.36,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.13.212",
+        "ok": true,
+        "latency_ms": 24.78,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "sg",
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.18.13.229"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.13.108",
+        "ok": true,
+        "latency_ms": 23.91,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "sg",
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.18.13.229"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.13.174",
+        "ok": true,
+        "latency_ms": 37.98,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "sg",
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.18.13.229"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.12.172",
+        "ok": true,
+        "latency_ms": 53.0,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.12.54"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.13.188",
+        "ok": true,
+        "latency_ms": 38.38,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.13.54"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.12.204",
+        "ok": true,
+        "latency_ms": 52.52,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.12.54"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.13.35",
+        "ok": true,
+        "latency_ms": 36.88,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.13.54"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.12.40",
+        "ok": true,
+        "latency_ms": 27.15,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "sg",
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.18.12.229"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.13.12",
+        "ok": true,
+        "latency_ms": 37.77,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.13.54"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.18.12.104",
+        "ok": true,
+        "latency_ms": 50.92,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "sg",
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.18.12.229"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.67.68.110",
+        "ok": true,
+        "latency_ms": 53.49,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:172.67.68.157"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.67.68.89",
+        "ok": true,
+        "latency_ms": 49.02,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:172.67.68.157"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.26.12.20",
+        "ok": true,
+        "latency_ms": 54.53,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.12.54"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.19.50.36",
+        "ok": true,
+        "latency_ms": 15.65,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
@@ -4067,259 +4104,266 @@
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.16.249.248",
+        "ip": "104.16.146.156",
         "ok": true,
-        "latency_ms": 72.19,
+        "latency_ms": 12.66,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
           "cm"
         ],
         "sources": [
-          "neighbor:104.16.249.15"
+          "neighbor:104.16.146.234"
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.19.35.32",
+        "ip": "104.18.12.64",
         "ok": true,
-        "latency_ms": 67.59,
+        "latency_ms": 41.88,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "sg",
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.18.12.229"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "172.67.68.45",
+        "ok": true,
+        "latency_ms": 53.25,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
+        "ws_status": 101,
+        "is_shifted_neighbor": true,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:172.67.68.157"
+        ],
+        "instant_score": 62.0,
+        "final_score": 62.0,
+        "country_code": "US",
+        "tier": "HEALTHY"
+      },
+      {
+        "ip": "104.16.150.44",
+        "ok": true,
+        "latency_ms": 17.9,
+        "loss_rate": 0.0,
+        "loss_percent": 0.0,
+        "download_speed": 50.0,
+        "speed_mbps": 50.0,
+        "ws_handshake_101": true,
+        "colo": "IAD",
+        "country": "us",
+        "countries": [
+          "us"
+        ],
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
           "cm"
         ],
         "sources": [
-          "neighbor:104.19.35.94"
+          "neighbor:104.16.150.78"
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.17.124.114",
+        "ip": "104.16.150.235",
         "ok": true,
-        "latency_ms": 65.7,
+        "latency_ms": 17.78,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
           "cm"
         ],
         "sources": [
-          "neighbor:104.17.124.179"
+          "neighbor:104.16.150.78"
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.17.124.202",
+        "ip": "104.19.50.213",
         "ok": true,
-        "latency_ms": 73.24,
+        "latency_ms": 21.4,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
           "cm"
         ],
         "sources": [
-          "neighbor:104.17.124.179"
+          "neighbor:104.19.50.155"
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.17.21.186",
+        "ip": "104.17.112.183",
         "ok": true,
-        "latency_ms": 63.25,
+        "latency_ms": 17.73,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
           "cm"
         ],
         "sources": [
-          "neighbor:104.17.21.238"
+          "neighbor:104.17.112.66"
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.17.116.177",
+        "ip": "104.16.150.174",
         "ok": true,
-        "latency_ms": 71.14,
+        "latency_ms": 18.09,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
           "cm"
         ],
         "sources": [
-          "neighbor:104.17.116.123"
+          "neighbor:104.16.150.78"
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       },
       {
-        "ip": "104.17.120.42",
+        "ip": "104.19.50.150",
         "ok": true,
-        "latency_ms": 70.83,
+        "latency_ms": 10.03,
         "loss_rate": 0.0,
         "loss_percent": 0.0,
         "download_speed": 50.0,
         "speed_mbps": 50.0,
         "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
+        "colo": "IAD",
+        "country": "us",
         "countries": [
-          "tw"
+          "us"
         ],
-        "loc": "TW",
+        "loc": "US",
         "ws_status": 101,
         "is_shifted_neighbor": true,
         "carriers": [
           "cm"
         ],
         "sources": [
-          "neighbor:104.17.120.129"
+          "neighbor:104.19.50.155"
         ],
         "instant_score": 62.0,
         "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.17.120.119",
-        "ok": true,
-        "latency_ms": 66.39,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.17.120.129"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
-        "tier": "HEALTHY"
-      },
-      {
-        "ip": "104.17.21.231",
-        "ok": true,
-        "latency_ms": 77.5,
-        "loss_rate": 0.0,
-        "loss_percent": 0.0,
-        "download_speed": 50.0,
-        "speed_mbps": 50.0,
-        "ws_handshake_101": true,
-        "colo": "TPE",
-        "country": "tw",
-        "countries": [
-          "tw"
-        ],
-        "loc": "TW",
-        "ws_status": 101,
-        "is_shifted_neighbor": true,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.17.21.219"
-        ],
-        "instant_score": 62.0,
-        "final_score": 62.0,
-        "country_code": "TW",
+        "country_code": "US",
         "tier": "HEALTHY"
       }
     ]
