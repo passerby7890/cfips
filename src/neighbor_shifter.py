@@ -53,7 +53,7 @@ def shift_neighbors(
             picked_ints = rng.sample(possible, min(samples_per_ip, len(possible)))
             for n_int in picked_ints:
                 neighbor_ip = str(ipaddress.IPv4Address(n_int))
-                if neighbor_ip.startswith("172.67.") or neighbor_ip.startswith("104.21."):
+                if neighbor_ip.startswith(("104.18.", "104.20.", "104.21.", "104.22.", "172.66.", "172.67.")):
                     continue
                 if neighbor_ip not in expanded:
                     n_hint = dict(cand.source_hint)
@@ -114,11 +114,17 @@ def shift_to_clean_neighbors(base_records: list[dict[str, Any]], count_per_subne
             ]
             sampled = random.sample(candidates, min(count_per_subnet, len(candidates)))
             for neighbor in sampled:
+                if neighbor.startswith(("104.18.", "104.20.", "104.21.", "104.22.", "172.66.", "172.67.")):
+                    continue
                 neighbor_item = dict(record)  # 繼承該網段的前半段實測指標
                 neighbor_item["ip"] = neighbor
                 neighbor_item["is_shifted_neighbor"] = True
                 neighbor_item["source_country"] = record.get("source_country", "")
                 neighbor_item["source_colo"] = record.get("source_colo", "")
+                neighbor_item["source_carrier"] = record.get("source_carrier", "")
+                neighbor_item["cn_latency_ms"] = record.get("cn_latency_ms")
+                neighbor_item["cn_speed_mbps"] = record.get("cn_speed_mbps", 0.0)
+                neighbor_item["cn_loss_percent"] = record.get("cn_loss_percent", 0.0)
                 results.append(neighbor_item)
                 seen_ips.add(neighbor)
         except Exception:

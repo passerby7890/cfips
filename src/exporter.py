@@ -48,12 +48,14 @@ def export_single_carrier(
 
     selected_tier = "SNAPSHOT_LOCK"
     filtered_ips: List[Dict[str, Any]] = []
+    blacklist_prefixes = ("104.18.", "104.20.", "104.21.", "104.22.", "172.66.", "172.67.")
 
     # 1. 晚高峰階梯式篩選
     for min_spd, max_los, tier_name in tiers:
         matched = [
             item for item in candidate_pool
             if item.get("ws_handshake_101", False) is True
+            and not str(item.get("ip", "")).startswith(blacklist_prefixes)
             and float(item.get("speed_mbps", 0.0)) >= min_spd
             and float(item.get("loss_percent", 100.0)) <= max_los
         ]
@@ -70,6 +72,7 @@ def export_single_carrier(
         matched = [
             item for item in candidate_pool
             if item.get("ws_handshake_101", False) is True
+            and not str(item.get("ip", "")).startswith(blacklist_prefixes)
         ]
         if matched:
             selected_tier = "FALLBACK_101"
@@ -268,3 +271,23 @@ def export_all(
     log.info("結構化總表已輸出 -> %s", json_path)
 
     return summary_data
+
+
+def export_carrier_ips(
+    candidate_pool: List[Dict[str, Any]],
+    carrier: str,
+    output_txt_path: str | Path,
+    max_count: int = 50,
+    max_per_subnet: int = 3,
+    max_per_country: int = 15,
+) -> Dict[str, Any]:
+    """匯出特定運營商 Top IP 清單至 txt (格式: IP#COUNTRY)。"""
+    return export_single_carrier(
+        candidate_pool=candidate_pool,
+        carrier=carrier,
+        output_txt_path=output_txt_path,
+        max_count=max_count,
+        max_per_subnet=max_per_subnet,
+        max_per_country=max_per_country,
+    )
+

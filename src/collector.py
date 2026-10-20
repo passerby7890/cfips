@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any
 
 import aiohttp
+import requests
 
 from .region_mapper import get_country_by_colo
 
@@ -106,9 +107,14 @@ class Candidate:
     download_speed: float = 50.0                         # 實測下載頻寬 (Mbps)
     source_country: str = ""                             # 來源綁定之大寫國家標籤 (例: TW, HK, JP, SG)
     source_colo: str = ""                                # 來源實測之機房標籤 (例: HKG, TPE, NRT, SJC)
+    source_carrier: str = ""                             # 境內探針指定運營商 (ct / cu / cm)
+    cn_latency_ms: float | None = None                   # 境內實測延遲 (ms)
+    cn_speed_mbps: float = 0.0                           # 境內實測頻寬 (Mbps)
+    cn_loss_percent: float = 0.0                         # 境內丟包率 (%)
     source_hint: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        c_tag = self.source_country.lower() if self.source_country else (list(self.countries)[0] if self.countries else "")
         return {
             "ip": self.ip,
             "carriers": sorted(self.carriers),
@@ -119,6 +125,13 @@ class Candidate:
             "download_speed": self.download_speed,
             "source_country": self.source_country,
             "source_colo": self.source_colo,
+            "source_carrier": self.source_carrier,
+            "cn_latency_ms": self.cn_latency_ms,
+            "cn_speed_mbps": self.cn_speed_mbps,
+            "cn_loss_percent": self.cn_loss_percent,
+            "country": c_tag,
+            "country_code": self.source_country,
+            "colo": self.source_colo or None,
             "source_hint": dict(self.source_hint),
         }
 
@@ -309,14 +322,20 @@ def parse_html_table(body: str) -> list[dict[str, Any]]:
             elif any(w in row_text for w in ("美国", "美國", "US")):
                 source_country = "US"
 
+        c_det = _detect_carrier(row_text)
+        lat_val = float(lat.group(1)) if lat else None
         rows.append({
             "ip": m.group(1),
-            "carrier": _detect_carrier(row_text),
+            "carrier": c_det,
+            "source_carrier": c_det if c_det in ("ct", "cu", "cm") else "",
+            "cn_latency_ms": lat_val,
+            "cn_speed_mbps": speed_mbps if speed_mbps is not None else 50.0,
+            "cn_loss_percent": loss_rate if loss_rate is not None else 0.0,
             "colo": valid_colo or None,
             "source_colo": valid_colo,
             "source_country": source_country,
             "country": source_country.lower() if source_country else None,
-            "latency_ms": float(lat.group(1)) if lat else None,
+            "latency_ms": lat_val,
             "loss_rate": loss_rate if loss_rate is not None else 0.0,
             "download_speed": speed_mbps if speed_mbps is not None else 50.0,
         })
@@ -360,14 +379,19 @@ def parse_hostmonit(payload: Any) -> list[dict[str, Any]]:
             else:
                 carrier = "all"
 
+        lat_val = float(lat) if isinstance(lat, (int, float)) else None
         rows.append({
             "ip": item["ip"],
             "carrier": carrier,
+            "source_carrier": carrier if carrier in ("ct", "cu", "cm") else "",
+            "cn_latency_ms": lat_val,
+            "cn_speed_mbps": speed_mbps,
+            "cn_loss_percent": loss_rate,
             "colo": valid_colo or None,
             "source_colo": valid_colo,
             "source_country": source_country,
             "country": source_country.lower() if source_country else None,
-            "latency_ms": float(lat) if isinstance(lat, (int, float)) else None,
+            "latency_ms": lat_val,
             "loss_rate": loss_rate,
             "download_speed": speed_mbps,
         })
@@ -398,6 +422,10 @@ def parse_cdtools(body: str, source_name: str = "cdtools") -> list[dict[str, Any
                     "ip": ip,
                     "carrier": "all",
                     "source": source_name,
+                    "source_carrier": "all",
+                    "cn_latency_ms": lat,
+                    "cn_speed_mbps": spd,
+                    "cn_loss_percent": loss_rate,
                     "latency_ms": lat,
                     "loss_rate": loss_rate,
                     "download_speed": spd,
@@ -696,15 +724,104 @@ def collect_local_seeds(cfg: dict[str, Any], root_dir: Path) -> list[dict[str, A
     return results
 
 
+def fetch_mainland_trinet_probes(timeout: float = 6.0) -> list[dict[str, Any]]:
+    """從大陸境內實體三網探針 API 拉取當下實測低延遲 IP"""
+    results: list[dict[str, Any]] = []
+    # 1. WeTest 大陸三網即時優選 API
+    try:
+        resp = requests.get(
+            "https://www.wetest.vip/api/cf2dns/get_cloudflare_ip",
+            headers={"User-Agent": USER_AGENT},
+            timeout=timeout,
+        )
+        if resp.status_code == 200:
+            data = resp.json().get("info", {})
+            if isinstance(data, dict):
+                for carrier_key, code in [("CM", "cm"), ("CU", "cu"), ("CT", "ct")]:
+                    for node in data.get(carrier_key, []):
+                        if isinstance(node, dict):
+                            ip = node.get("ip")
+                            if ip and IPV4_RE.fullmatch(str(ip).strip()):
+                                results.append({
+                                    "ip": str(ip).strip(),
+                                    "source": f"wetest_{code}",
+                                    "source_carrier": code,
+                                    "carrier": code,
+                                    "source_colo": str(node.get("colo", "")).upper(),
+                                    "cn_latency_ms": float(node.get("latency", 60)),
+                                    "cn_speed_mbps": float(node.get("speed", 50)) * 8.0,  # MB/s 轉 Mbps
+                                    "cn_loss_percent": float(node.get("loss", 0.0)),
+                                    "download_speed": float(node.get("speed", 50)) * 8.0,
+                                    "loss_rate": float(node.get("loss", 0.0)),
+                                })
+    except Exception as exc:
+        log.debug("fetch_mainland_trinet_probes wetest 略過: %s", exc)
+
+    # 2. HostMonit (CloudFlareYes) 大陸三網即時探針
+    try:
+        resp = requests.post(
+            "https://api.hostmonit.com/get_optimization_ip",
+            json={"key": "iDetkOys"},
+            headers={"User-Agent": USER_AGENT},
+            timeout=timeout,
+        )
+        if resp.status_code == 200:
+            info = resp.json().get("info", [])
+            if isinstance(info, list):
+                for node in info:
+                    if isinstance(node, dict):
+                        line = str(node.get("line", "")).upper()
+                        code = "ct" if "CT" in line or "電信" in line or "电信" in line else ("cu" if "CU" in line or "聯通" in line or "联通" in line else "cm")
+                        ip = node.get("ip")
+                        if ip and IPV4_RE.fullmatch(str(ip).strip()):
+                            results.append({
+                                "ip": str(ip).strip(),
+                                "source": f"hostmonit_{code}",
+                                "source_carrier": code,
+                                "carrier": code,
+                                "source_colo": str(node.get("colo", "")).upper(),
+                                "cn_latency_ms": float(node.get("latency", 60)),
+                                "cn_speed_mbps": float(node.get("speed", 50)) * 8.0,
+                                "cn_loss_percent": float(node.get("loss", 0.0)),
+                                "download_speed": float(node.get("speed", 50)) * 8.0,
+                                "loss_rate": float(node.get("loss", 0.0)),
+                            })
+    except Exception as exc:
+        log.debug("fetch_mainland_trinet_probes hostmonit 略過: %s", exc)
+
+    return results
+
+
 # --------------------------------------------------------------------------- #
 # 總調度收集器
 # --------------------------------------------------------------------------- #
 async def collect_all_candidates(
-    config: dict[str, Any],
-    anchors: list[dict[str, Any]],
-    root_dir: Path,
-) -> dict[str, Candidate]:
-    """執行全策略收集並聚合為以 IP 為鍵的候選物件池。"""
+    config: dict[str, Any] | None = None,
+    anchors: list[dict[str, Any]] | None = None,
+    root_dir: Path | None = None,
+) -> list[dict[str, Any]]:
+    """執行全策略收集並聚合為以 IP 為鍵的候選物件池，回傳候選資料字典清單。"""
+    if root_dir is None:
+        root_dir = Path(__file__).resolve().parent.parent
+    if config is None:
+        import yaml
+        cfg_p = root_dir / "config" / "config.yaml"
+        if cfg_p.is_file():
+            config = yaml.safe_load(cfg_p.read_text(encoding="utf-8")) or {}
+        else:
+            config = {}
+    if anchors is None:
+        anchors_rel = config.get("collector", {}).get("ecs_doh", {}).get("anchors_file", "data/cn_anchors.json")
+        anchors_p = root_dir / anchors_rel
+        if anchors_p.is_file():
+            try:
+                a_data = json.loads(anchors_p.read_text(encoding="utf-8"))
+                anchors = a_data.get("anchors", []) if isinstance(a_data, dict) else a_data
+            except Exception:
+                anchors = []
+        else:
+            anchors = []
+
     c_cfg = config.get("collector", {})
     candidates: dict[str, Candidate] = {}
 
@@ -719,9 +836,18 @@ async def collect_all_candidates(
             cf_nets_task, ecs_task, mainland_task, country_task
         )
 
+    # 執行境內即時三網探針 API 直連拉取 (第一引擎)
+    loop = asyncio.get_running_loop()
+    try:
+        live_probe_rows = await loop.run_in_executor(None, fetch_mainland_trinet_probes, 6.0)
+        log.info("第一引擎：境內實體三網探針 API 直連獲取 %d 筆記錄", len(live_probe_rows))
+    except Exception as exc:
+        log.debug("境內探針拉取異常：%s", exc)
+        live_probe_rows = []
+
     seed_rows = collect_local_seeds(c_cfg.get("local_seeds", {}), root_dir)
 
-    all_raw_rows = ecs_rows + mainland_rows + country_rows + seed_rows
+    all_raw_rows = ecs_rows + mainland_rows + country_rows + seed_rows + live_probe_rows
     log.info("四策略原始候選總筆數：%d 筆", len(all_raw_rows))
 
     for row in all_raw_rows:
@@ -729,8 +855,8 @@ async def collect_all_candidates(
         if not ip or not in_networks(ip, cf_nets):
             continue
 
-        # 嚴格剔除 Cloudflare 免費層通用 Anycast 段 (172.67.* 與 104.21.*)，防大陸電信繞洋 250ms 與高丟包
-        if ip.startswith("172.67.") or ip.startswith("104.21."):
+        # 鐵律 2: 嚴格剔除繞美高延遲、高丟包黑名單網段
+        if ip.startswith(("104.18.", "104.20.", "104.21.", "104.22.", "172.66.", "172.67.")):
             continue
 
         cand = candidates.get(ip)
@@ -743,6 +869,11 @@ async def collect_all_candidates(
             cand.carriers.add(carrier)
         elif carrier == "all":
             cand.carriers.update(["ct", "cu", "cm", "edu"])
+
+        source_carrier = row.get("source_carrier")
+        if source_carrier in {"ct", "cu", "cm"}:
+            cand.source_carrier = source_carrier
+            cand.carriers.add(source_carrier)
 
         country = row.get("country")
         if country:
@@ -765,6 +896,17 @@ async def collect_all_candidates(
             cand.source_hint["colo"] = row["colo"]
         if row.get("latency_ms"):
             cand.source_hint["latency_ms"] = float(row["latency_ms"])
+        if row.get("cn_latency_ms") is not None:
+            cand.cn_latency_ms = float(row["cn_latency_ms"])
+            cand.source_hint["cn_latency_ms"] = cand.cn_latency_ms
+        if row.get("cn_speed_mbps") is not None:
+            cand.cn_speed_mbps = float(row["cn_speed_mbps"])
+            cand.download_speed = max(cand.download_speed, cand.cn_speed_mbps)
+            cand.source_hint["cn_speed_mbps"] = cand.cn_speed_mbps
+        if row.get("cn_loss_percent") is not None:
+            cand.cn_loss_percent = float(row["cn_loss_percent"])
+            cand.loss_rate = cand.cn_loss_percent
+            cand.source_hint["cn_loss_percent"] = cand.cn_loss_percent
         if row.get("loss_rate") is not None:
             cand.loss_rate = float(row["loss_rate"])
             cand.source_hint["loss_rate"] = float(row["loss_rate"])
@@ -774,5 +916,6 @@ async def collect_all_candidates(
         if row.get("carrier") in {"ct", "cu", "cm"}:
             cand.source_hint["carrier"] = row["carrier"]
 
-    log.info("Cloudflare 官方段過濾與去重後獨立 IP 數：%d 個", len(candidates))
-    return candidates
+    results = [cand.to_dict() for cand in candidates.values()]
+    log.info("Cloudflare 官方段過濾與去重後獨立 IP 數：%d 個", len(results))
+    return results

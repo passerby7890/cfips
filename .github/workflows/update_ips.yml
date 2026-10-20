@@ -37,9 +37,10 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Run IP Optimizer & Verification
+      - name: Run IP Optimizer & Red-Team Audit
         run: |
           python main.py
+          python scripts/self_test_audit.py
 
       - name: Commit and Push Output
         run: |

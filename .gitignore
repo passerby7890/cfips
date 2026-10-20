@@ -10,3 +10,5 @@ venv/
 *.log
 .DS_Store
 MAINTAINER_GUIDE.md
+output_dryrun/
+

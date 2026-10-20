@@ -12,21 +12,24 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import datetime
 import json
 import logging
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
 import yaml
 
 from src import __version__
+from src.cn_evaluator import evaluate_for_carrier
 from src.collector import collect_all_candidates
-from src.exporter import export_all
-from src.neighbor_shifter import shift_neighbors
-from src.speed_tester import batch_measure_bandwidth
-from src.verifier import OriginVerifier
+from src.exporter import export_carrier_ips
+from src.neighbor_shifter import shift_to_clean_neighbors
+from src.speed_tester import measure_ip_bandwidth
+from src.verifier import batch_verify_101
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 
@@ -151,116 +154,187 @@ async def run_pipeline(args: argparse.Namespace) -> int:
     cfg_path = (PROJECT_ROOT / args.config).resolve()
     config = load_config(cfg_path)
 
-    # 參數覆寫與調優設定 (v1.3.0 漏斗過濾管線)
     tuning = config.get("tuning", {})
-    precheck_concurrency = int(tuning.get("precheck_concurrency", 100))
-    handshake_concurrency = args.concurrency or int(tuning.get("handshake_concurrency", tuning.get("concurrency_limit", 50)))
-    precheck_timeout = float(tuning.get("precheck_timeout_sec", 0.6))
-    speedtest_duration = float(tuning.get("speedtest_duration_limit", 2.5))
-    speedtest_limit = int(tuning.get("speedtest_candidates_limit", 80))
-    speedtest_workers = int(tuning.get("speedtest_workers", 4))
+    handshake_concurrency = args.concurrency or int(tuning.get("handshake_concurrency", 50))
+    speedtest_duration = float(tuning.get("speedtest_duration_limit", 2.0))
+    speedtest_workers = int(tuning.get("speedtest_workers", 8))
+    target_output_count = int(tuning.get("target_output_count", 50))
+    max_per_subnet = int(tuning.get("max_ips_per_subnet", 3))
+    max_per_country = int(tuning.get("max_ips_per_country", 15))
 
     if args.no_ecs:
         config.setdefault("collector", {}).setdefault("ecs_doh", {})["enabled"] = False
-    if args.no_neighbor:
-        config.setdefault("neighbor_shifter", {})["enabled"] = False
 
     anchors_rel = config.get("collector", {}).get("ecs_doh", {}).get("anchors_file", "data/cn_anchors.json")
     anchors = load_anchors((PROJECT_ROOT / anchors_rel).resolve())
 
     origin_cfg = config.get("origin", {})
     log.info("=" * 65)
-    log.info("CF-Global-QuadNet-Feed v%s 啟動 (大規模漏斗階梯篩選)", __version__)
+    log.info("CF-Global-QuadNet-Feed v%s 啟動 (大陸三網視角雙引擎架構)", __version__)
     log.info("目標源站：%s:%s (WS: %s, 預期 101)", origin_cfg.get('host'), origin_cfg.get('port'), origin_cfg.get('ws_path'))
-    log.info("調優參數：快篩併發 %d，握手併發 %d，測速精選前 %d 名 (工作線程: %d, 截斷: %.1fs)",
-             precheck_concurrency, handshake_concurrency, speedtest_limit, speedtest_workers, speedtest_duration)
+    log.info("調優參數：握手併發 %d，測速線程: %d，切片截斷: %.1fs，目標每網: %d 筆",
+             handshake_concurrency, speedtest_workers, speedtest_duration, target_output_count)
     log.info("=" * 65)
 
-    # 1. 階段一：多維度情報收集
-    candidates = await collect_all_candidates(config, anchors, PROJECT_ROOT)
+    # 1. 階段一：聚合境內三網探針、亞太神仙段與 2000+ 候選池
+    log.info("[*] 階段 1: 聚合境內三網探針、亞太神仙段與 2000+ 候選池...")
+    raw_candidates = await collect_all_candidates(config, anchors, PROJECT_ROOT)
+    if args.no_neighbor:
+        expanded_pool = raw_candidates
+        log.info("[*] 冷門鄰居平移已停用，保持原始候選池: %d 筆", len(expanded_pool))
+    else:
+        expanded_pool = shift_to_clean_neighbors(raw_candidates, count_per_subnet=2)
+        log.info("[*] 展開後總候選池規模: %d 筆", len(expanded_pool))
 
-    # 2. 階段二：同 /24 網段冷門鄰居平移演算法
-    expanded_candidates = shift_neighbors(candidates, config.get("neighbor_shifter", {}))
+    # 2. 階段二：為電信(ct)、聯通(cu)、移動(cm) 各自按「境內視角」獨立初評，選出各網前 100 名候選
+    log.info("[*] 階段 2: 大陸三網獨立路由基因與境內探針雙引擎初評...")
+    carrier_finalists = {}
+    unique_to_verify = {}
 
-    # 3. 階段三：端到端真實回源測活 (漏斗階梯: 100 併發快篩 + 50 併發 TLS+trace+WS 101)
-    verifier = OriginVerifier(
-        origin_cfg,
-        concurrency=handshake_concurrency,
-        precheck_concurrency=precheck_concurrency,
-        handshake_concurrency=handshake_concurrency,
-        precheck_timeout=precheck_timeout,
+    for carrier in ["ct", "cu", "cm"]:
+        scored_list = [evaluate_for_carrier(item, carrier) for item in expanded_pool]
+        # 按境內評分排序，絕不使用美國 Runner 延遲排序！
+        scored_list.sort(key=lambda x: x.get("final_score", 0.0), reverse=True)
+
+        # 同 /24 網段在初篩時最多保留 4 個，取前 150 名進入回源驗證
+        top_candidates = []
+        subnet_cnt = {}
+        for item in scored_list:
+            subnet = ".".join(item["ip"].split(".")[:3])
+            if subnet_cnt.get(subnet, 0) < 4:
+                top_candidates.append(item)
+                subnet_cnt[subnet] = subnet_cnt.get(subnet, 0) + 1
+                unique_to_verify[item["ip"]] = item
+            if len(top_candidates) >= 150:
+                break
+        carrier_finalists[carrier] = top_candidates
+        top1 = top_candidates[0] if top_candidates else {}
+        log.info("[+] [%s] 境內初評前 %d 名精選完成（最高分: %.1f, 預估延遲: %.1fms, 頂級網段: %s#%s）",
+                 carrier.upper(), len(top_candidates), top1.get("final_score", 0.0), top1.get("est_cn_latency_ms", 0.0),
+                 top1.get("ip", ""), top1.get("country", ""))
+
+    # 3. 階段三：對三網精選出的去重節點執行 101 回源握手驗證
+    log.info("[*] 階段 3: 對三網精選出的 %d 個去重節點執行 101 回源握手驗證...", len(unique_to_verify))
+    verified_list = await batch_verify_101(
+        list(unique_to_verify.values()),
+        origin_cfg=origin_cfg,
+        concurrency=handshake_concurrency
     )
-    results = await verifier.verify_all(expanded_candidates)
+    verified_map = {item["ip"]: item for item in verified_list if item.get("ws_handshake_101")}
+    log.info("[+] 成功通過 %s:%s%s 101 握手合格節點: %d 筆",
+             origin_cfg.get('host'), origin_cfg.get('port'), origin_cfg.get('ws_path'), len(verified_map))
 
-    verified_items = [r.to_dict() for r in results.values() if r.ok and r.ws_handshake_101]
-    log.info("[+] 通過 101 回源握手合格節點: %d 筆", len(verified_items))
+    # 4. 階段四：對通過 101 握手的節點執行快速回源吞吐檢查
+    verified_ips = list(verified_map.keys())
+    port = int(origin_cfg.get("port", 2053))
+    sni_host = str(origin_cfg.get("sni", "node1.snowcat77.com"))
+    if verified_ips:
+        log.info("[*] 階段 4: 對 %d 個合格節點執行 %.1f 秒快速下行吞吐測速 (線程池: %d)...",
+                 len(verified_ips), speedtest_duration, speedtest_workers)
+        with ThreadPoolExecutor(max_workers=speedtest_workers) as executor:
+            futures = {
+                ip: executor.submit(measure_ip_bandwidth, ip, port, sni_host, speedtest_duration)
+                for ip in verified_ips
+            }
+            for ip, fut in futures.items():
+                try:
+                    verified_map[ip]["speed_mbps"] = fut.result()
+                    verified_map[ip]["download_speed"] = verified_map[ip]["speed_mbps"]
+                except Exception as exc:
+                    log.debug("測速異常 %s: %s", ip, exc)
+                    verified_map[ip]["speed_mbps"] = 50.0
 
-    # 4. 階段四：漏斗階梯限速測速 (僅挑選前 80 名精華節點執行 2.5 秒下行吞吐測速，防 Actions 超時)
-    if verified_items:
-        def _speedtest_priority(it: dict) -> tuple[int, float]:
-            hint_lat = it.get("source_hint", {}).get("latency_ms")
-            # 優先級 0: 大陸境內探針實測節點 (優先將測速資源分配給境內低延遲直連節點)
-            if hint_lat and 10.0 <= float(hint_lat) <= 300.0 and not it.get("is_shifted_neighbor"):
-                return (0, float(hint_lat))
-            # 優先級 1: 三網專屬種子節點
-            if it.get("carriers") and any(c in it["carriers"] for c in ("ct", "cu", "cm")):
-                return (1, float(it.get("latency_ms", 999.0)))
-            # 優先級 2: 其餘通用節點
-            return (2, float(it.get("latency_ms", 999.0)))
-
-        verified_items.sort(key=_speedtest_priority)
-
-        speedtest_targets = verified_items[:speedtest_limit]
-        backup_targets = verified_items[speedtest_limit:]
-
-        log.info(
-            "[*] 階段四：挑選前 %d 名節點進行 %.1f 秒下行吞吐測速 (線程池: %d)，其餘 %d 節點保留基準分作為備援...",
-            len(speedtest_targets), speedtest_duration, speedtest_workers, len(backup_targets)
-        )
-
-        measured_targets = batch_measure_bandwidth(
-            items=speedtest_targets,
-            port=int(origin_cfg.get("port", 2053)),
-            sni_host=str(origin_cfg.get("sni", "node1.snowcat77.com")),
-            duration_limit=speedtest_duration,
-            max_workers=speedtest_workers,
-        )
-        verified_items = measured_targets + backup_targets
-
-    # 5. 階段五：四層階梯降級、EWMA 歷史評分衰減與檔案輸出
+    # 5. 階段五：三網各自重新結算最終分數並輸出 Top 50 (IP#COUNTRY)
     output_dir = PROJECT_ROOT / config.get("exporter", {}).get("output_dir", "output")
     if args.dry_run:
         output_dir = PROJECT_ROOT / "output_dryrun"
         log.info("模擬模式：輸出將儲存至臨時目錄 %s", output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    summary = export_all(verified_items, config, output_dir)
+    carrier_summary = {}
+    carrier_results = {}
+
+    for carrier in ["ct", "cu", "cm"]:
+        valid_carrier_pool = []
+        seen_pool_ips = set()
+        # 優先納入該網專屬初選通過者
+        for cand in carrier_finalists[carrier]:
+            ip = cand["ip"]
+            if ip in verified_map and ip not in seen_pool_ips:
+                merged = dict(verified_map[ip])
+                merged.update({
+                    "source_carrier": cand.get("source_carrier", ""),
+                    "cn_latency_ms": cand.get("cn_latency_ms"),
+                    "cn_speed_mbps": cand.get("cn_speed_mbps", 0.0),
+                    "cn_loss_percent": cand.get("cn_loss_percent", 0.0),
+                    "source_country": cand.get("source_country", "") or merged.get("source_country", ""),
+                    "source_colo": cand.get("source_colo", "") or merged.get("source_colo", ""),
+                    "is_shifted_neighbor": cand.get("is_shifted_neighbor", False),
+                })
+                final_item = evaluate_for_carrier(merged, carrier)
+                valid_carrier_pool.append(final_item)
+                seen_pool_ips.add(ip)
+
+        # 若專屬初選合格數不足，從其餘通過 101 的合格節點依該網評分模型補充
+        for ip, v_node in verified_map.items():
+            if ip not in seen_pool_ips:
+                merged = dict(v_node)
+                final_item = evaluate_for_carrier(merged, carrier)
+                valid_carrier_pool.append(final_item)
+                seen_pool_ips.add(ip)
+
+        res = export_carrier_ips(
+            valid_carrier_pool,
+            carrier,
+            output_dir / f"{carrier}.txt",
+            max_count=target_output_count,
+            max_per_subnet=max_per_subnet,
+            max_per_country=max_per_country,
+        )
+        carrier_summary[carrier] = res
+        carrier_results[carrier] = res["data"]
+
+    # 輸出結構化 JSON 總表
+    now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))
+    summary_data = {
+        "version": __version__,
+        "updated_at": now.isoformat(timespec="seconds"),
+        "timestamp": int(now.timestamp()),
+        "total_verified_ok": len(verified_map),
+        "carriers_status": {k: v["status"] for k, v in carrier_summary.items()},
+        "by_carrier": carrier_results,
+        "carriers": carrier_results,
+    }
+    json_path = output_dir / "best_ips.json"
+    json_path.write_text(json.dumps(summary_data, ensure_ascii=False, indent=2), encoding="utf-8")
+    log.info("結構化總表已輸出 -> %s", json_path)
 
     # 6. 終端報表渲染 (三網前 50)
     carrier_rows = []
     carriers_meta = [
-        ("ct", "中國電信 (CT)", "output/ct.txt"),
-        ("cu", "中國聯通 (CU)", "output/cu.txt"),
-        ("cm", "中國移動 (CM)", "output/cm.txt"),
+        ("ct", "中國電信 (CT)", f"{output_dir.name}/ct.txt"),
+        ("cu", "中國聯通 (CU)", f"{output_dir.name}/cu.txt"),
+        ("cm", "中國移動 (CM)", f"{output_dir.name}/cm.txt"),
     ]
     for c_key, c_name, out_file in carriers_meta:
-        items = summary.get("by_carrier", {}).get(c_key, [])
-        status = summary.get("carriers_status", {}).get(c_key, "UNKNOWN")
+        items = carrier_results.get(c_key, [])
+        status = carrier_summary.get(c_key, {}).get("status", "UNKNOWN")
         if items:
-            best_ip = f"{items[0]['ip']}#{items[0].get('country_code', 'US')}"
+            best_ip = f"{items[0]['ip']}#{items[0].get('country_code', items[0].get('country', 'US'))}"
             colos = ",".join(sorted(set(it.get("colo", "") for it in items if it.get("colo"))))
-            lats = [it["latency_ms"] for it in items if "latency_ms" in it]
+            lats = [float(it.get("est_cn_latency_ms", it.get("latency_ms", 0))) for it in items]
             lat_range = f"{min(lats):.1f}~{max(lats):.1f}ms" if lats else "-"
             top_spd = items[0].get("speed_mbps") or items[0].get("download_speed", 0)
             top_loss = items[0].get("loss_percent") or items[0].get("loss_rate", 0)
             speed_info = f"{top_spd:.0f}Mbps / {top_loss:.1f}%"
-            carrier_rows.append([c_name, out_file, str(len(items)), best_ip, colos, lat_range, speed_info, status])
+            carrier_rows.append([c_name, out_file, str(len(items)), best_ip, colos or "-", lat_range, speed_info, status])
         else:
             carrier_rows.append([c_name, out_file, "0", "-", "-", "-", "-", status])
 
-    print_table("三網優選 Top 50 產出成果", ["運營商", "匯出檔案", "挑選數", "最佳節點 (Top 1)", "機房分佈", "握手延遲區間", "實測頻寬/丟包", "階梯狀態"], carrier_rows)
+    print_table("三網優選 Top 50 產出成果 (v1.4.0 大陸三網視角雙引擎)", ["運營商", "匯出檔案", "挑選數", "最佳節點 (Top 1)", "機房分佈", "境內預估延遲", "實測頻寬/丟包", "階梯狀態"], carrier_rows)
 
     elapsed = time.time() - started_at
-    log.info("全流程執行完畢，總耗時: %.1f 秒，合格回源節點總數: %d 個", elapsed, summary["total_verified_ok"])
+    log.info("v1.4.0 三網獨立境內視角篩選管線執行完畢，總耗時: %.1f 秒，合格回源節點總數: %d 個", elapsed, len(verified_map))
     return 0
 
 
