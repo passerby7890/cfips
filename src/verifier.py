@@ -38,6 +38,8 @@ class VerifyResult:
     carriers: set[str] = field(default_factory=set)
     countries: set[str] = field(default_factory=set)
     sources: set[str] = field(default_factory=set)
+    loss_rate: float = 0.0
+    download_speed: float = 50.0
     stage: str = ""
     reason: str = ""
 
@@ -46,6 +48,8 @@ class VerifyResult:
             "ip": self.ip,
             "ok": self.ok,
             "latency_ms": round(self.latency_ms, 2),
+            "loss_rate": round(self.loss_rate, 2),
+            "download_speed": round(self.download_speed, 2),
             "colo": self.colo,
             "country": self.country,
             "countries": sorted(self.countries),
@@ -188,6 +192,8 @@ class OriginVerifier:
                 carriers=set(cand.carriers),
                 countries=set(cand.countries),
                 sources=set(cand.sources),
+                loss_rate=cand.loss_rate,
+                download_speed=cand.download_speed,
             )
             latencies: list[float] = []
 

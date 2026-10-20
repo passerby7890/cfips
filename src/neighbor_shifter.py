@@ -60,6 +60,8 @@ def shift_neighbors(
                         countries=set(cand.countries),
                         sources={f"neighbor:{ip}"},
                         is_shifted_neighbor=True,
+                        loss_rate=cand.loss_rate,
+                        download_speed=cand.download_speed,
                     )
                     expanded[neighbor_ip] = neighbor_cand
                     shifted_count += 1

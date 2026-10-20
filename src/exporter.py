@@ -17,90 +17,10 @@ from pathlib import Path
 from typing import Any
 
 from .region_mapper import get_supported_countries
+from .scorer import ScoredItem, score_for_carrier, score_for_country
 from .verifier import VerifyResult
 
 log = logging.getLogger(__name__)
-
-
-@dataclass
-class ScoredItem:
-    ip: str
-    colo: str
-    country: str | None
-    loc: str
-    latency_ms: float
-    is_shifted_neighbor: bool
-    score: float
-    carriers: list[str]
-    sources: list[str]
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "ip": self.ip,
-            "colo": self.colo,
-            "country": self.country,
-            "loc": self.loc,
-            "latency_ms": round(self.latency_ms, 2),
-            "is_shifted_neighbor": self.is_shifted_neighbor,
-            "score": round(self.score, 2),
-            "carriers": self.carriers,
-            "sources": self.sources,
-        }
-
-
-def score_for_carrier(
-    res: VerifyResult,
-    carrier: str,
-    carrier_prefs: dict[str, Any],
-    neighbor_bonus: float = 15.0,
-) -> ScoredItem:
-    """為指定四網運營商計算候選分（越低越佳）。"""
-    score = float(res.latency_ms)
-
-    # 1. 冷門鄰居獎勵
-    if res.is_shifted_neighbor:
-        score -= neighbor_bonus
-
-    # 2. 運營商機房偏好獎勵
-    pref = carrier_prefs.get(carrier, {})
-    colos = pref.get("preferred_colos", [])
-    bonus = float(pref.get("bonus_ms", 30.0))
-    if res.colo and res.colo.upper() in [c.upper() for c in colos]:
-        score -= bonus
-
-    return ScoredItem(
-        ip=res.ip,
-        colo=res.colo,
-        country=res.country,
-        loc=res.loc,
-        latency_ms=res.latency_ms,
-        is_shifted_neighbor=res.is_shifted_neighbor,
-        score=score,
-        carriers=sorted(res.carriers),
-        sources=sorted(res.sources),
-    )
-
-
-def score_for_country(
-    res: VerifyResult,
-    neighbor_bonus: float = 15.0,
-) -> ScoredItem:
-    """為指定國家/地區計算評分（越低越佳）。"""
-    score = float(res.latency_ms)
-    if res.is_shifted_neighbor:
-        score -= neighbor_bonus
-
-    return ScoredItem(
-        ip=res.ip,
-        colo=res.colo,
-        country=res.country,
-        loc=res.loc,
-        latency_ms=res.latency_ms,
-        is_shifted_neighbor=res.is_shifted_neighbor,
-        score=score,
-        carriers=sorted(res.carriers),
-        sources=sorted(res.sources),
-    )
 
 
 def filter_subnet_diversity(

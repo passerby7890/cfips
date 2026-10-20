@@ -44,6 +44,41 @@ TAG_RE = re.compile(r"<[^>]+>")
 LATENCY_RE = re.compile(r"(\d+(?:\.\d+)?)\s*(?:ms|毫秒)", re.I)
 COLO_CELL_RE = re.compile(r"^[A-Z]{3}$")
 
+# 頻寬與丟包率硬性門檻
+MAX_LOSS_RATE = 1.0        # 丟包率必須 <= 1.0%
+MIN_DOWNLOAD_SPEED = 20.0  # 實測下載頻寬必須 >= 20.0 Mbps
+
+LOSS_RE = re.compile(r"(\d+(?:\.\d+)?)\s*%", re.I)
+SPEED_KBPS_RE = re.compile(r"(\d+(?:\.\d+)?)\s*(?:kbps|kb/s|kb)", re.I)
+
+
+def extract_speed_mbps(text: str) -> float | None:
+    """從文字中萃取下載速率並統一轉換為 Mbps。"""
+    if not text:
+        return None
+    # 匹配 MB/s 或 MByte
+    m_byte = re.search(r"(\d+(?:\.\d+)?)\s*(?:mb/s|mbyte/s|mbps|mb|兆)", text, re.I)
+    if m_byte:
+        val = float(m_byte.group(1))
+        if "mb/s" in text.lower():
+            return val * 8.0
+        return val
+    # 匹配 KB/s
+    m_k = SPEED_KBPS_RE.search(text)
+    if m_k:
+        return (float(m_k.group(1)) * 8.0) / 1000.0
+    return None
+
+
+def extract_loss_rate(text: str) -> float | None:
+    """從文字中萃取丟包率 (%)。"""
+    if not text:
+        return None
+    m = LOSS_RE.search(text)
+    if m:
+        return float(m.group(1))
+    return None
+
 CARRIER_KEYWORDS = {
     "ct": ("电信", "電信", "telecom", "189"),
     "cu": ("联通", "聯通", "unicom", "10010"),
@@ -65,6 +100,8 @@ class Candidate:
     countries: set[str] = field(default_factory=set)     # {"hk", "tw", "jp", ...}
     sources: set[str] = field(default_factory=set)       # {"ecs:gz_ct", "wetest", ...}
     is_shifted_neighbor: bool = False
+    loss_rate: float = 0.0                               # 丟包率百分比 (%)
+    download_speed: float = 50.0                         # 實測下載頻寬 (Mbps)
     source_hint: dict[str, Any] = field(default_factory=dict)
 
 
@@ -225,11 +262,26 @@ def parse_html_table(body: str) -> list[dict[str, Any]]:
             continue
         colo = next((c for c in cells if COLO_CELL_RE.match(c)), None)
         lat = LATENCY_RE.search(row_text)
+
+        loss_rate = extract_loss_rate(row_text)
+        speed_mbps = extract_speed_mbps(row_text)
+        # WeTest 中 '5 MB' 視為 40 Mbps (5 MB/s)
+        if "5 mb" in row_text.lower() and (speed_mbps is None or speed_mbps < 40.0):
+            speed_mbps = 40.0
+
+        # 硬性門檻過濾：丟包率 <= 1.0%，下載頻寬 >= 20.0 Mbps
+        if loss_rate is not None and loss_rate > MAX_LOSS_RATE:
+            continue
+        if speed_mbps is not None and speed_mbps < MIN_DOWNLOAD_SPEED:
+            continue
+
         rows.append({
             "ip": m.group(1),
             "carrier": _detect_carrier(row_text),
             "colo": colo,
             "latency_ms": float(lat.group(1)) if lat else None,
+            "loss_rate": loss_rate if loss_rate is not None else 0.0,
+            "download_speed": speed_mbps if speed_mbps is not None else 50.0,
         })
     return rows
 
@@ -244,11 +296,25 @@ def parse_hostmonit(payload: Any) -> list[dict[str, Any]]:
             continue
         colo = str(item.get("colo") or "").upper()
         lat = item.get("latency")
+
+        loss_raw = item.get("loss", 0.0)
+        speed_raw = item.get("speed", 50.0)
+        loss_rate = float(loss_raw) if isinstance(loss_raw, (int, float)) else 0.0
+        speed_mbps = float(speed_raw) if isinstance(speed_raw, (int, float)) else 50.0
+
+        # 硬性門檻過濾：丟包率 <= 1.0%，下載頻寬 >= 20.0 Mbps
+        if loss_rate > MAX_LOSS_RATE:
+            continue
+        if speed_mbps < MIN_DOWNLOAD_SPEED:
+            continue
+
         rows.append({
             "ip": item["ip"],
             "carrier": HOSTMONIT_LINES.get(str(item.get("line", "")).upper()),
             "colo": colo if COLO_CELL_RE.match(colo) else None,
             "latency_ms": float(lat) if isinstance(lat, (int, float)) else None,
+            "loss_rate": loss_rate,
+            "download_speed": speed_mbps,
         })
     return rows
 
@@ -256,7 +322,14 @@ def parse_hostmonit(payload: Any) -> list[dict[str, Any]]:
 def parse_text(body: str) -> list[dict[str, Any]]:
     seen: dict[str, dict[str, Any]] = {}
     for m in IPV4_RE.finditer(body):
-        seen.setdefault(m.group(1), {"ip": m.group(1), "carrier": None, "colo": None, "latency_ms": None})
+        seen.setdefault(m.group(1), {
+            "ip": m.group(1),
+            "carrier": None,
+            "colo": None,
+            "latency_ms": None,
+            "loss_rate": 0.0,
+            "download_speed": 50.0,
+        })
     return list(seen.values())
 
 
@@ -277,18 +350,39 @@ def parse_json_feed(payload: Any) -> list[dict[str, Any]]:
     elif isinstance(payload, list):
         for item in payload:
             if isinstance(item, str) and IPV4_RE.fullmatch(item.strip()):
-                rows.append({"ip": item.strip(), "carrier": None, "colo": None, "latency_ms": None})
+                rows.append({
+                    "ip": item.strip(),
+                    "carrier": None,
+                    "colo": None,
+                    "latency_ms": None,
+                    "loss_rate": 0.0,
+                    "download_speed": 50.0,
+                })
             elif isinstance(item, dict):
                 ip = str(item.get("ip") or item.get("address") or "").strip()
                 if IPV4_RE.fullmatch(ip):
                     c = _detect_carrier(str(item.get("carrier") or item.get("line") or ""))
                     colo = str(item.get("colo") or "").upper()
                     lat = item.get("latency") or item.get("delay")
+
+                    loss = item.get("loss") or item.get("loss_rate") or item.get("packet_loss")
+                    speed = item.get("speed") or item.get("download_speed") or item.get("bandwidth")
+                    loss_f = float(loss) if isinstance(loss, (int, float)) else extract_loss_rate(str(loss)) if loss else None
+                    speed_f = float(speed) if isinstance(speed, (int, float)) else extract_speed_mbps(str(speed)) if speed else None
+
+                    # 硬性門檻過濾：丟包率 <= 1.0%，下載頻寬 >= 20.0 Mbps
+                    if loss_f is not None and loss_f > MAX_LOSS_RATE:
+                        continue
+                    if speed_f is not None and speed_f < MIN_DOWNLOAD_SPEED:
+                        continue
+
                     rows.append({
                         "ip": ip,
                         "carrier": c,
                         "colo": colo if COLO_CELL_RE.match(colo) else None,
                         "latency_ms": float(lat) if isinstance(lat, (int, float)) else None,
+                        "loss_rate": loss_f if loss_f is not None else 0.0,
+                        "download_speed": speed_f if speed_f is not None else 50.0,
                     })
     return rows
 
@@ -507,6 +601,10 @@ async def collect_all_candidates(
             cand.source_hint["colo"] = row["colo"]
         if row.get("latency_ms"):
             cand.source_hint["latency_ms"] = row["latency_ms"]
+        if row.get("loss_rate") is not None:
+            cand.loss_rate = float(row["loss_rate"])
+        if row.get("download_speed") is not None:
+            cand.download_speed = max(cand.download_speed, float(row["download_speed"]))
 
     log.info("Cloudflare 官方段過濾與去重後獨立 IP 數：%d 個", len(candidates))
     return candidates

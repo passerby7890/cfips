@@ -171,11 +171,12 @@ async def run_pipeline(args: argparse.Namespace) -> int:
             best_ip = items[0]["ip"]
             colos = ",".join(sorted(set(it["colo"] for it in items)))
             lat_range = f"{min(it['latency_ms'] for it in items):.1f}~{max(it['latency_ms'] for it in items):.1f}ms"
-            carrier_rows.append([c_name, f"output/carriers/{c_key}.txt", str(len(items)), best_ip, colos, lat_range])
+            speed_info = f"{items[0].get('download_speed', 50):.0f}Mbps / {items[0].get('loss_rate', 0):.1f}%"
+            carrier_rows.append([c_name, f"output/carriers/{c_key}.txt", str(len(items)), best_ip, colos, lat_range, speed_info])
         else:
-            carrier_rows.append([c_name, f"output/carriers/{c_key}.txt", "0", "-", "-", "-"])
+            carrier_rows.append([c_name, f"output/carriers/{c_key}.txt", "0", "-", "-", "-", "-"])
 
-    print_table("大陸四網優選結果", ["運營商", "匯出檔案", "挑選數", "最佳 IP", "機房分佈", "握手延遲區間"], carrier_rows)
+    print_table("大陸四網優選結果", ["運營商", "匯出檔案", "挑選數", "最佳 IP", "機房分佈", "握手延遲區間", "實測頻寬/丟包"], carrier_rows)
 
     country_rows = []
     for c_code, items in summary["by_country"].items():
@@ -184,11 +185,12 @@ async def run_pipeline(args: argparse.Namespace) -> int:
             best_ip = items[0]["ip"]
             colos = ",".join(sorted(set(it["colo"] for it in items)))
             lat_range = f"{min(it['latency_ms'] for it in items):.1f}~{max(it['latency_ms'] for it in items):.1f}ms"
-            country_rows.append([f"{c_name} ({c_code.upper()})", f"output/countries/{c_code}.txt", str(len(items)), best_ip, colos, lat_range])
+            speed_info = f"{items[0].get('download_speed', 50):.0f}Mbps / {items[0].get('loss_rate', 0):.1f}%"
+            country_rows.append([f"{c_name} ({c_code.upper()})", f"output/countries/{c_code}.txt", str(len(items)), best_ip, colos, lat_range, speed_info])
         else:
-            country_rows.append([f"{c_name} ({c_code.upper()})", f"output/countries/{c_code}.txt", "0", "-", "-", "-"])
+            country_rows.append([f"{c_name} ({c_code.upper()})", f"output/countries/{c_code}.txt", "0", "-", "-", "-", "-"])
 
-    print_table("國際與地區優選結果", ["地區", "匯出檔案", "挑選數", "最佳 IP", "機房分佈", "握手延遲區間"], country_rows)
+    print_table("國際與地區優選結果", ["地區", "匯出檔案", "挑選數", "最佳 IP", "機房分佈", "握手延遲區間", "實測頻寬/丟包"], country_rows)
 
     elapsed = time.time() - started_at
     log.info("全流程執行完畢，總耗時: %.1f 秒，合格回源節點總數: %d 個", elapsed, summary["total_verified_ok"])
