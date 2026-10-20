@@ -133,27 +133,7 @@ def single_ecs_probe(qname: str, anchor_ip: str, auth_ns_ips: List[str]) -> List
     msg = build_ecs_query(qname, anchor_ip)
     wire_data = msg.to_wire()
 
-    # 1. 直接詢問權威 NS 伺服器 (零快取，直接命中分省與輪詢池)
-    for ns_ip in auth_ns_ips:
-        try:
-            resp = dns.query.udp(msg, ns_ip, timeout=1.8)
-            ips = extract_a_records_from_msg(resp)
-            if ips:
-                collected.extend(ips)
-        except Exception:
-            pass
-
-    # 2. 詢問支援 ECS 的公共 UDP 伺服器 (119.29.29.29 / 223.5.5.5 / 8.8.8.8)
-    for pub_dns in PUBLIC_ECS_UDP_SERVERS:
-        try:
-            resp = dns.query.udp(msg, pub_dns, timeout=1.8)
-            ips = extract_a_records_from_msg(resp)
-            if ips:
-                collected.extend(ips)
-        except Exception:
-            pass
-
-    # 3. 詢問 RFC 8484 標準二進位 DoH (application/dns-message)
+    # 1. 詢問 RFC 8484 標準二進位 DoH (application/dns-message) - 走 HTTPS 443，雲端 Runner 100% 直通
     headers = {
         "Content-Type": "application/dns-message",
         "Accept": "application/dns-message",
@@ -170,7 +150,7 @@ def single_ecs_probe(qname: str, anchor_ip: str, auth_ns_ips: List[str]) -> List
         except Exception:
             pass
 
-    # 4. 阿里雲 DoH JSON ECS 深度兜底 (極度穩定命中分省 Anycast)
+    # 2. 阿里雲 DoH JSON ECS 深度兜底 (極度穩定命中分省 Anycast)
     try:
         r = _DOH_SESSION.get(
             DOH_JSON_FALLBACK,
@@ -185,6 +165,26 @@ def single_ecs_probe(qname: str, anchor_ip: str, auth_ns_ips: List[str]) -> List
                         collected.append(ip)
     except Exception:
         pass
+
+    # 3. 直接詢問權威 NS 伺服器 (零快取直擊輪詢池，設定 0.6s 極短超時防止海外雲端 UDP 53 封鎖阻塞)
+    for ns_ip in auth_ns_ips:
+        try:
+            resp = dns.query.udp(msg, ns_ip, timeout=0.6)
+            ips = extract_a_records_from_msg(resp)
+            if ips:
+                collected.extend(ips)
+        except Exception:
+            pass
+
+    # 4. 詢問支援 ECS 的公共 UDP 伺服器 (設定 0.6s 極短超時)
+    for pub_dns in PUBLIC_ECS_UDP_SERVERS:
+        try:
+            resp = dns.query.udp(msg, pub_dns, timeout=0.6)
+            ips = extract_a_records_from_msg(resp)
+            if ips:
+                collected.extend(ips)
+        except Exception:
+            pass
 
     return collected
 

@@ -1,11 +1,15 @@
 # CF-Global-QuadNet-Feed (Cloudflare 三網前 50 優選 IP 自動產出系統)
 
-> **版本**：v2.1.0 終極修訂版 (簡化三網前 50 輸出架構)  
-> **GitHub Actions 雲端全自動化**：ECS 偽裝大陸四網錨點解析 + 境內公開情報榜單 + 同 `/24` 冷門鄰居隨機抽樣 + 0.6 秒極短超時 TCP 端口快篩 + `node1.snowcat77.com:2053/ws` 端到端真實 **TLS + WebSocket 101 Switching Protocols** 回源測活 + 10MB 切片限時吞吐測速 + EWMA 歷史衰減加權評分 + 四層階梯降級輸出。
+> **版本**：`v3.1.0` (ITDog 同款：全國七大區三網 ECS 深度 DNS 解析榨取與防牆測活引擎)  
+> **運營交付手冊**：詳見 [docs/OPERATIONS_MANUAL.md](docs/OPERATIONS_MANUAL.md)  
+> **GitHub Actions 雲端全自動化**：覆蓋華東、華南、華中、華北、西南、西北、東北七大區 12 省三網真實子網 (`data/cn_ecs_matrix.json`) + `dnspython` RFC 7871 ECSOption 二進位封包 + 權威 NS 直查與 RFC 8484 DoH + 官方邊緣憑證 (`cdnjs.cloudflare.com:443`) 防牆測活 + 跨省命中率 (`hit_ratio`) 權重排序，每 30 分鐘全自動更新三網前 50 優選清單。
 
 ---
 
-## 一、 系統核心設計與關鍵矛盾修訂
+## 📖 專案交付與運營文件
+- 📘 **完整運營手冊**：請參閱 [docs/OPERATIONS_MANUAL.md](docs/OPERATIONS_MANUAL.md)，涵蓋架構原理、資產維護 SOP、自測驗收規範、Clash/Sing-box 客戶端訂閱範例與故障排查。
+- 📝 **版本更新歷史**：請參閱 [CHANGELOG.md](CHANGELOG.md)。
+- 💡 **架構演化筆記**：請參閱 [DEV_NOTES.md](DEV_NOTES.md)。
 
 本系統構建於兩段分離的傳輸路徑之上：
 - **前半段 (大陸客戶端 → Cloudflare 邊緣節點)：** 走普通公網，受限於國際出口擁塞、晚高峰潮汐與省級防火牆動態 QoS 限速。此段是最易發生丟包與斷流的瓶頸。
