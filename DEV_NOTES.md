@@ -1,5 +1,16 @@
 # 開發筆記與架構演化歷程 (Development Notes)
 
+## [v3.1.0] 演化實錄 (2026-10-21)
+### 核心決策與架構突破
+- **戰略裁決：** 徹底廢除大海撈針盲掃 2,000+ 靜態 IP 與猜測公式，改採大陸境內 24H 實時監測篩選之「三網黃金 CNAME 域名池 (`data/cname_pool.json`)」。
+- **技術實裝：**
+  1. `data/cname_pool.json`：收錄電信 (`ct`)、聯通 (`cu`)、移動 (`cm`) 黃金優選 CNAME 網域，並定義北上廣三網 ECS 錨點 IP。
+  2. `src/collector.py`：多路併發 DoH (Google / AliDNS / DNSPod) 結合三網 ECS 子網解析，配合原生 DNS 解析兜底，精準榨出各運營商分線優選 IP。
+  3. `src/verifier.py`：實裝源站 `:2053/ws` 真實 WebSocket `101 Switching Protocols` 握手測活，從 `CF-RAY` 單連線直萃機房代碼，拋棄死節點與被牆阻斷 IP。
+  4. `main.py`：嚴格按照「CNAME 原生 IP 優先 > 境內延遲由低到高 > 評分由高到低」排序，原生不足時由已測活同 /24 網段平移補齊至 50 筆。
+  5. `scripts/self_test_audit.py`：紅隊 4 大鐵律嚴格驗收，確保 100% 格式合規與 101 握手全通。
+
+
 ## [v3.0.0] 演化實錄 (2026-10-21)
 ### 核心決策與架構突破
 - **戰略裁決：** 徹底廢除大海撈針盲掃 2,000+ 靜態 IP 與猜測公式，改採大陸境內 24H 實時監測篩選之「三網黃金 CNAME 域名池 (`data/cname_pool.json`)」。

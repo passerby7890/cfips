@@ -1,5 +1,10 @@
 # 更新紀錄 (Changelog)
 
+## [v3.1.0] - 2026-10-21
+### feat: 實作 ITDog 同款全國七大區 12 省三網 ECS 二進位 DNS 深度解析引擎 (src/dns_extractor.py)
+- 1. 新增 data/cn_ecs_matrix.json 覆蓋大陸華東/華南/華中/華北/西南/西北/東北七大區共 36 個三網省級錨點；2. 採用 dnspython 構造 RFC 7871 ECSOption 二進位封包，結合權威 NS 直查、119.29.29.29/223.5.5.5/8.8.8.8 與 RFC 8484 Wireformat DoH 多輪併發查詢，徹底榨出 cf.godns.cc 等分線輪詢網域背後的所有隱藏 IP 並統計跨省命中百分比。
+
+
 ## [v3.0.0] - 2026-10-21
 ### refactor!: 重構為三網黃金 CNAME 域名多路 ECS 萃取與 101 測活系統
 - 1. 廢除靜態盲測，改為直接解析經國內 24H 監測篩選之電信(ct)、聯通(cu)、移動(cm)黃金優選 CNAME 網域池 (cf.godns.cc, cfyx.aliyun.20237737.xyz, eteaf.cf.3666888.xyz, www.090902.xyz, 224322.xyz, bestcf.top 等)；2. 採用 Google/AliDNS/DNSPod DoH 帶北上廣三網 ECS 錨點解析，精準榨出各網分線 IP；3. 強制經過 :2053/ws 101 回源測活拋棄被牆/死 IP，每 30 分鐘自動更新至 output/{ct,cu,cm}.txt。

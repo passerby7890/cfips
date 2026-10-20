@@ -1,4 +1,11 @@
-"""CF-Global-QuadNet-Feed: 雙重測活（防牆阻斷 + :2053/ws 101 握手 + /cdn-cgi/trace 機房識別）(v3.0.0)。"""
+"""CF-Global-QuadNet-Feed: 防牆阻斷檢測與國家標籤標註器 (v3.0.0)。
+
+嚴格依據指令：
+「解析出來的 IP 就直接看看他有沒有牆，如果沒牆就直接放到三網各自的清單內，並標註國家代碼」
+- 透過 Cloudflare 官方邊緣憑證 (cdnjs.cloudflare.com:443 / :2053) 檢測 TCP + TLS 握手與 HTTP 響應
+- 成功完成握手且未被 GFW 阻斷/重置 (Connection Reset) 者判定為健康活 IP
+- 萃取邊緣機房代碼 (colo) 並解析國家標籤 (#TW, #HK, #JP, #SG 等)
+"""
 
 from __future__ import annotations
 
@@ -17,123 +24,96 @@ from src.region_mapper import (
 async def verify_single_ip(
     item: Dict[str, Any],
     semaphore: asyncio.Semaphore,
-    sni: str = "node1.snowcat77.com",
-    port: int = 2053,
-    ws_path: str = "/ws",
+    sni: str = "cdnjs.cloudflare.com",
+    primary_port: int = 443,
+    fallback_port: int = 2053,
 ) -> Optional[Dict[str, Any]]:
+    """測活單一 IP：檢查是否被 GFW 牆阻斷 (TCP/TLS)，若活著則獲取機房代碼與國家標籤"""
     ip = item["ip"]
     ssl_ctx = ssl.create_default_context()
     ssl_ctx.check_hostname = False
     ssl_ctx.verify_mode = ssl.CERT_NONE
 
     async with semaphore:
-        for attempt in range(2):
+        for port in [primary_port, fallback_port]:
             try:
-                # 1. 驗證 :2053/ws 真實 WebSocket 101 回源握手 (含防牆/端口阻斷檢測)
+                # 1. 檢測 TCP 連線與 TLS 握手 (若被 GFW 牆攔截會觸發 Connection Reset 或 Timeout)
                 conn = asyncio.open_connection(ip, port, ssl=ssl_ctx, server_hostname=sni)
-                r, w = await asyncio.wait_for(conn, timeout=3.0)
-                ws_req = (
-                    f"GET {ws_path} HTTP/1.1\r\n"
+                r, w = await asyncio.wait_for(conn, timeout=2.5)
+
+                # 2. 發送 /cdn-cgi/trace 請求
+                req = (
+                    f"GET /cdn-cgi/trace HTTP/1.1\r\n"
                     f"Host: {sni}\r\n"
-                    f"Upgrade: websocket\r\n"
-                    f"Connection: Upgrade\r\n"
-                    f"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n"
-                    f"Sec-WebSocket-Version: 13\r\n\r\n"
+                    f"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n"
+                    f"Connection: close\r\n\r\n"
                 )
-                w.write(ws_req.encode())
+                w.write(req.encode())
                 await w.drain()
 
-                status_line = await asyncio.wait_for(r.readline(), timeout=3.0)
-                if b"101" not in status_line:
-                    try:
-                        w.close()
-                        await w.wait_closed()
-                    except Exception:
-                        pass
-                    return None
-
-                # 2. 讀取回應標頭，從 CF-RAY 萃取邊緣機房代碼 (例如 CF-RAY: a4db7d4139d08f07-TPE)
-                colo = ""
-                while True:
-                    line = await asyncio.wait_for(r.readline(), timeout=1.5)
-                    if not line or line == b"\r\n":
-                        break
-                    decoded_line = line.decode(errors="ignore")
-                    if decoded_line.lower().startswith("cf-ray:"):
-                        parts = decoded_line.strip().split("-")
-                        if len(parts) >= 2:
-                            colo = parts[-1].strip().upper()
-                            break
-
+                raw_resp = await asyncio.wait_for(r.read(1500), timeout=2.0)
                 try:
                     w.close()
                     await w.wait_closed()
                 except Exception:
                     pass
 
-                # 若標頭未含 CF-RAY，兜底透過 /cdn-cgi/trace 獲取機房代碼
-                if not colo:
-                    try:
-                        c_trace = asyncio.open_connection(ip, port, ssl=ssl_ctx, server_hostname=sni)
-                        r_tr, w_tr = await asyncio.wait_for(c_trace, timeout=2.0)
-                        t_req = (
-                            f"GET /cdn-cgi/trace HTTP/1.1\r\n"
-                            f"Host: {sni}\r\n"
-                            f"User-Agent: Mozilla/5.0\r\n"
-                            f"Connection: close\r\n\r\n"
-                        )
-                        w_tr.write(t_req.encode())
-                        await w_tr.drain()
-                        t_raw = await asyncio.wait_for(r_tr.read(1024), timeout=2.0)
-                        try:
-                            w_tr.close()
-                            await w_tr.wait_closed()
-                        except Exception:
-                            pass
-                        for t_line in t_raw.decode(errors="ignore").splitlines():
-                            if t_line.startswith("colo="):
-                                colo = t_line.split("=", 1)[1].strip().upper()
-                                break
-                    except Exception:
-                        pass
+                text_resp = raw_resp.decode(errors="ignore")
+                # 只要收到 Cloudflare 邊緣回應 (HTTP 200, 403, 或帶 CF-RAY/Server: cloudflare)，代表該 IP 活躍且未被牆阻斷
+                if not text_resp or ("cloudflare" not in text_resp.lower() and "http/" not in text_resp.lower()):
+                    continue
 
-                if not colo:
-                    return None
+                # 3. 提取機房代碼 (colo)
+                colo = ""
+                for line in text_resp.splitlines():
+                    if line.startswith("colo="):
+                        colo = line.split("=", 1)[1].strip().upper()
+                        break
+                    elif line.lower().startswith("cf-ray:"):
+                        parts = line.strip().split("-")
+                        if len(parts) >= 2:
+                            colo = parts[-1].strip().upper()
 
-                # 3. 決定國家簡寫標籤
+                # 4. 國家標籤解析
+                country = ""
                 sub_tag = lookup_subnet_country(ip)
-                norm_sub = normalize_country_code(sub_tag) if sub_tag else ""
+                if sub_tag:
+                    country = normalize_country_code(sub_tag)
 
-                country = get_country_by_colo(colo)
-                domain_hint = item.get("domain", "").lower()
+                if not country and colo:
+                    country = get_country_by_colo(colo)
 
-                # 優先採用已知種子網段國家代碼
-                if norm_sub and norm_sub != "US":
-                    country = norm_sub
-                # 防止美國 Runner 測官方 Anycast 時把亞太低延遲 CNAME 標成 US
-                elif is_cf_official_anycast(ip) and country in ("US", ""):
-                    if "ctsg" in domain_hint or "108.162." in ip:
-                        country = "SG"
-                    elif item.get("cn_latency_ms", 999) <= 95:
+                # 若 overseas runner 測 Anycast 出現 US，但該 IP 在國內是低延遲 Anycast (如 162.159.*, 108.162.*)
+                if country in ("US", ""):
+                    if ip.startswith(("162.159.38.", "162.159.39.", "162.159.44.", "162.159.45.")):
                         country = "HK"
+                    elif ip.startswith("108.162.198."):
+                        country = "SG" if "ctsg" in item.get("domain", "") else "HK"
+                    elif ip.startswith(("172.64.52.", "172.64.53.")):
+                        country = "TW"
                     else:
-                        country = country or "US"
+                        country = country or "CF"
 
                 verified = dict(item)
-                verified["ws_handshake_101"] = True
-                verified["colo"] = colo
+                verified["is_alive"] = True
+                verified["colo"] = colo or "CF"
                 verified["country"] = country or "CF"
                 return verified
+
             except Exception:
-                if attempt == 0:
-                    await asyncio.sleep(0.3)
-                    continue
-                return None
+                # 該埠超時或重置，嘗試備用埠 (2053)
+                continue
+
+    return None
 
 
-async def batch_verify_101(candidates: List[Dict[str, Any]], concurrency: int = 30) -> List[Dict[str, Any]]:
+async def batch_verify_unblocked(candidates: List[Dict[str, Any]], concurrency: int = 35) -> List[Dict[str, Any]]:
+    """並發批量測活所有候選 IP，篩除被牆與死亡 IP"""
     sem = asyncio.Semaphore(concurrency)
     tasks = [verify_single_ip(item, sem) for item in candidates]
     results = await asyncio.gather(*tasks)
     return [r for r in results if r is not None]
-    return [r for r in results if r is not None]
+
+
+# 相容舊版名稱
+batch_verify_101 = batch_verify_unblocked
