@@ -1,0 +1,55 @@
+{
+  "ecs_anchors": {
+    "ct": ["183.47.126.35", "101.226.94.124", "49.7.37.74"],
+    "cu": ["157.148.58.29", "140.207.122.197", "111.206.209.44"],
+    "cm": ["120.233.18.250", "117.185.253.224", "112.34.111.194"]
+  },
+  "carriers": {
+    "ct": [
+      { "domain": "cf.godns.cc", "cn_latency_ms": 56, "loss": 0.0, "speed_mbs": 13.3, "score": 96 },
+      { "domain": "cfyx.aliyun.20237737.xyz", "cn_latency_ms": 56, "loss": 0.0, "speed_mbs": 13.3, "score": 92 },
+      { "domain": "eteaf.cf.3666888.xyz", "cn_latency_ms": 56, "loss": 0.0, "speed_mbs": 14.1, "score": 90 },
+      { "domain": "cloudflare.19931110.xyz", "cn_latency_ms": 57, "loss": 0.0, "speed_mbs": 13.5, "score": 92 },
+      { "domain": "224322.xyz", "cn_latency_ms": 60, "loss": 0.0, "speed_mbs": 11.8, "score": 90 },
+      { "domain": "cfsaas.080112.xyz", "cn_latency_ms": 62, "loss": 0.0, "speed_mbs": 11.6, "score": 90 },
+      { "domain": "www.090902.xyz", "cn_latency_ms": 47, "loss": 5.55, "speed_mbs": 12.0, "score": 88 },
+      { "domain": "cf.090227.xyz", "cn_latency_ms": 85, "loss": 0.0, "speed_mbs": 12.9, "score": 90 },
+      { "domain": "yg12.ygkkk.dpdns.org", "cn_latency_ms": 86, "loss": 0.21, "speed_mbs": 11.8, "score": 88 },
+      { "domain": "prompt.gzcrtw.com", "cn_latency_ms": 88, "loss": 0.0, "speed_mbs": 11.7, "score": 88 },
+      { "domain": "ctsg.cfyx.aliyun.20237737.xyz", "cn_latency_ms": 90, "loss": 0.48, "speed_mbs": 14.0, "score": 94 },
+      { "domain": "666.cf.cname.vvhan.com", "cn_latency_ms": 91, "loss": 0.0, "speed_mbs": 13.7, "score": 90 },
+      { "domain": "yg8.ygkkk.dpdns.org", "cn_latency_ms": 91, "loss": 0.21, "speed_mbs": 13.2, "score": 90 },
+      { "domain": "yg6.ygkkk.dpdns.org", "cn_latency_ms": 93, "loss": 0.0, "speed_mbs": 12.2, "score": 90 },
+      { "domain": "bestcf.top", "cn_latency_ms": 65, "loss": 0.0, "speed_mbs": 12.5, "score": 90 }
+    ],
+    "cm": [
+      { "domain": "cf.godns.cc", "cn_latency_ms": 68, "loss": 1.71, "speed_mbs": 13.3, "score": 96 },
+      { "domain": "ctsg.cfyx.aliyun.20237737.xyz", "cn_latency_ms": 70, "loss": 2.26, "speed_mbs": 14.0, "score": 94 },
+      { "domain": "cfyx.aliyun.20237737.xyz", "cn_latency_ms": 67, "loss": 2.47, "speed_mbs": 13.3, "score": 92 },
+      { "domain": "yg12.ygkkk.dpdns.org", "cn_latency_ms": 69, "loss": 1.78, "speed_mbs": 11.8, "score": 88 },
+      { "domain": "prompt.gzcrtw.com", "cn_latency_ms": 69, "loss": 2.47, "speed_mbs": 11.7, "score": 88 },
+      { "domain": "youxuan.cf.636949.xyz", "cn_latency_ms": 67, "loss": 2.33, "speed_mbs": 13.1, "score": 78 },
+      { "domain": "eteaf.cf.3666888.xyz", "cn_latency_ms": 70, "loss": 2.53, "speed_mbs": 14.1, "score": 90 },
+      { "domain": "yg8.ygkkk.dpdns.org", "cn_latency_ms": 64, "loss": 4.32, "speed_mbs": 13.2, "score": 90 },
+      { "domain": "666.cf.cname.vvhan.com", "cn_latency_ms": 72, "loss": 4.18, "speed_mbs": 13.7, "score": 90 },
+      { "domain": "cf.090227.xyz", "cn_latency_ms": 88, "loss": 4.66, "speed_mbs": 12.9, "score": 90 },
+      { "domain": "cloudflare.19931110.xyz", "cn_latency_ms": 118, "loss": 2.26, "speed_mbs": 13.5, "score": 92 },
+      { "domain": "bestcf.top", "cn_latency_ms": 68, "loss": 1.5, "speed_mbs": 12.5, "score": 90 }
+    ],
+    "cu": [
+      { "domain": "www.090902.xyz", "cn_latency_ms": 43, "loss": 0.82, "speed_mbs": 12.0, "score": 92 },
+      { "domain": "224322.xyz", "cn_latency_ms": 135, "loss": 0.0, "speed_mbs": 11.8, "score": 88 },
+      { "domain": "cf.877771.xyz", "cn_latency_ms": 138, "loss": 0.41, "speed_mbs": 3.0, "score": 80 },
+      { "domain": "cf.godns.cc", "cn_latency_ms": 187, "loss": 1.23, "speed_mbs": 13.3, "score": 96 },
+      { "domain": "ctsg.cfyx.aliyun.20237737.xyz", "cn_latency_ms": 188, "loss": 1.23, "speed_mbs": 14.0, "score": 94 },
+      { "domain": "cfsaas.080112.xyz", "cn_latency_ms": 188, "loss": 0.96, "speed_mbs": 11.6, "score": 90 },
+      { "domain": "cfyx.aliyun.20237737.xyz", "cn_latency_ms": 189, "loss": 1.85, "speed_mbs": 13.3, "score": 92 },
+      { "domain": "666.cf.cname.vvhan.com", "cn_latency_ms": 189, "loss": 1.23, "speed_mbs": 13.7, "score": 90 },
+      { "domain": "cf.090227.xyz", "cn_latency_ms": 191, "loss": 1.03, "speed_mbs": 12.9, "score": 90 },
+      { "domain": "yg8.ygkkk.dpdns.org", "cn_latency_ms": 191, "loss": 0.62, "speed_mbs": 13.2, "score": 90 },
+      { "domain": "cloudflare.19931110.xyz", "cn_latency_ms": 192, "loss": 2.47, "speed_mbs": 13.5, "score": 92 },
+      { "domain": "youxuan.cf.636949.xyz", "cn_latency_ms": 194, "loss": 2.05, "speed_mbs": 13.1, "score": 78 },
+      { "domain": "bestcf.top", "cn_latency_ms": 85, "loss": 0.5, "speed_mbs": 12.5, "score": 90 }
+    ]
+  }
+}

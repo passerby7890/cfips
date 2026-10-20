@@ -12,6 +12,7 @@ on:
       - 'src/**'
       - 'main.py'
       - 'config/**'
+      - 'data/**'
 
 permissions:
   contents: write

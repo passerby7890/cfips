@@ -1,5 +1,10 @@
 # 更新紀錄 (Changelog)
 
+## [v3.0.0] - 2026-10-21
+### refactor!: 重構為三網黃金 CNAME 域名多路 ECS 萃取與 101 測活系統
+- 1. 廢除靜態盲測，改為直接解析經國內 24H 監測篩選之電信(ct)、聯通(cu)、移動(cm)黃金優選 CNAME 網域池 (cf.godns.cc, cfyx.aliyun.20237737.xyz, eteaf.cf.3666888.xyz, www.090902.xyz, 224322.xyz, bestcf.top 等)；2. 採用 Google/AliDNS/DNSPod DoH 帶北上廣三網 ECS 錨點解析，精準榨出各網分線 IP；3. 強制經過 :2053/ws 101 回源測活拋棄被牆/死 IP，每 30 分鐘自動更新至 output/{ct,cu,cm}.txt。
+
+
 ## [v2.1.0] - 2026-10-20
 ### feat: 導入六人專家委員會自測自癒系統 (self_test_audit.py)，強制攔截繞美段與假活節點
 - **導入六人專家委員會 Skill (`.agent/skills/cf-ip-expert-committee/SKILL.md`)**：正式編制 `@DecisionMaker`、`@BGP_Architect`、`@Mainland_Probe`、`@Origin_Verifier`、`@QA_RedTeam`、`@DevOps_Release`，構建跨領域審查與自癒閉環機制。

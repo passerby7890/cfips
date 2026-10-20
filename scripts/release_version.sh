@@ -10,6 +10,10 @@ DESC="${3:-解決 Anycast IP 在 GitHub Actions 美東 IAD 機房測試時全部
 
 DATE_STR=$(date +'%Y-%m-%d')
 
+# 0. 更新 VERSION
+echo "$VERSION" > VERSION
+echo "✅ 已更新 VERSION -> $VERSION"
+
 # 1. 更新 CHANGELOG.md
 CHANGELOG_FILE="CHANGELOG.md"
 TMP_CL=$(mktemp)
@@ -36,13 +40,14 @@ cat <<EOF > "$TMP_DN"
 # 開發筆記與架構演化歷程 (Development Notes)
 
 ## [$VERSION] 演化實錄 ($DATE_STR)
-### 核心問題
-- **問題現象：** GitHub Actions (ubuntu-latest) 位於美東維吉尼亞 Azure 數據中心，連線 Anycast IP 發起 /cdn-cgi/trace 時 Cloudflare 一律就近分配 IAD / SJC 機房。原有的 trace_colo 判定邏輯導致所有 IP 被強制洗成 #US。
-- **解決方案：** 
-  1. \`src/region_mapper.py\`：導入 \`CF_OFFICIAL_CIDRS\` 官方 Anycast 網段辨識器 \`is_cf_official_anycast()\` 與 4 層優先級 \`resolve_country_tag()\`。
-  2. \`src/collector.py\`：支援解析種子檔案與情報源行末 \`#COUNTRY\` 標籤，並萃取 HostMonit / WeTest 探針的境內 \`source_colo\`。
-  3. \`src/neighbor_shifter.py\`：確保同 /24 鄰居平移 100% 繼承母體 \`source_country\` 與 \`source_colo\`。
-  4. \`src/verifier.py\`：隔離海外 Runner 的 \`trace_colo\`，僅作為通道存活依據，禁止覆蓋原生國家標籤。
+### 核心決策與架構突破
+- **戰略裁決：** 徹底廢除大海撈針盲掃 2,000+ 靜態 IP 與猜測公式，改採大陸境內 24H 實時監測篩選之「三網黃金 CNAME 域名池 (\`data/cname_pool.json\`)」。
+- **技術實裝：**
+  1. \`data/cname_pool.json\`：收錄電信 (\`ct\`)、聯通 (\`cu\`)、移動 (\`cm\`) 黃金優選 CNAME 網域，並定義北上廣三網 ECS 錨點 IP。
+  2. \`src/collector.py\`：多路併發 DoH (Google / AliDNS / DNSPod) 結合三網 ECS 子網解析，配合原生 DNS 解析兜底，精準榨出各運營商分線優選 IP。
+  3. \`src/verifier.py\`：實裝源站 \`:2053/ws\` 真實 WebSocket \`101 Switching Protocols\` 握手測活，從 \`CF-RAY\` 單連線直萃機房代碼，拋棄死節點與被牆阻斷 IP。
+  4. \`main.py\`：嚴格按照「CNAME 原生 IP 優先 > 境內延遲由低到高 > 評分由高到低」排序，原生不足時由已測活同 /24 網段平移補齊至 50 筆。
+  5. \`scripts/self_test_audit.py\`：紅隊 4 大鐵律嚴格驗收，確保 100% 格式合規與 101 握手全通。
 
 EOF
 
