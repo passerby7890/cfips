@@ -49,15 +49,14 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # 確保最新程式碼，避免衝突
-          git pull --rebase origin main
-
           # 檢查 output 目錄是否有變更
           if [ -d "output" ]; then
-            git add output/
+            git add -A output/
             # 只有當 output 有檔案異動時才 commit
             if git status --porcelain | grep -q 'output/'; then
               git commit -m "chore: auto update optimized IPs [skip ci]"
+              # 若在執行期間遠端有新 commit，拉取並 rebase
+              git pull --rebase origin main || true
               git push origin main
               echo "✅ IP 庫更新成功並已 Push 至倉庫！"
             else
