@@ -1,0 +1,126 @@
+{
+  "description": "北上廣四網基準錨點資料庫 (供 ECS DoH 偽裝解析與外部機器 TCPing 骨幹探測使用)",
+  "version": "2.0",
+  "anchors": [
+    {
+      "region": "廣州",
+      "region_en": "Guangzhou",
+      "carrier": "ct",
+      "carrier_name": "中國電信",
+      "code": "gz_ct",
+      "ipv4": "183.47.126.35",
+      "ipv6": "240e:97c:2f:3000::44",
+      "domain": "gz.telecom.818198.xyz"
+    },
+    {
+      "region": "廣州",
+      "region_en": "Guangzhou",
+      "carrier": "cu",
+      "carrier_name": "中國聯通",
+      "code": "gz_cu",
+      "ipv4": "157.148.58.29",
+      "ipv6": "2408:8756:f50:1001::c",
+      "domain": "gz.unicom.818198.xyz"
+    },
+    {
+      "region": "廣州",
+      "region_en": "Guangzhou",
+      "carrier": "cm",
+      "carrier_name": "中國移動",
+      "code": "gz_cm",
+      "ipv4": "120.233.18.250",
+      "ipv6": "2409:8c54:871:1001::12",
+      "domain": "gz.mobile.818198.xyz"
+    },
+    {
+      "region": "廣州",
+      "region_en": "Guangzhou",
+      "carrier": "edu",
+      "carrier_name": "教育網",
+      "code": "gz_edu",
+      "ipv4": "202.116.64.8",
+      "ipv6": "2001:da8:2004:1000:202:116:160:17",
+      "domain": "gz.edu.818198.xyz"
+    },
+    {
+      "region": "上海",
+      "region_en": "Shanghai",
+      "carrier": "ct",
+      "carrier_name": "中國電信",
+      "code": "sh_ct",
+      "ipv4": "101.226.94.124",
+      "ipv6": "240e:e1:aa00:4000::24",
+      "domain": "sh.telecom.818198.xyz"
+    },
+    {
+      "region": "上海",
+      "region_en": "Shanghai",
+      "carrier": "cu",
+      "carrier_name": "中國聯通",
+      "code": "sh_cu",
+      "ipv4": "140.207.122.197",
+      "ipv6": "2408:80f1:21:5003::a",
+      "domain": "sh.unicom.818198.xyz"
+    },
+    {
+      "region": "上海",
+      "region_en": "Shanghai",
+      "carrier": "cm",
+      "carrier_name": "中國移動",
+      "code": "sh_cm",
+      "ipv4": "117.185.253.224",
+      "ipv6": "2409:8c1e:75b0:3003::26",
+      "domain": "sh.mobile.818198.xyz"
+    },
+    {
+      "region": "上海",
+      "region_en": "Shanghai",
+      "carrier": "edu",
+      "carrier_name": "教育網",
+      "code": "sh_edu",
+      "ipv4": "202.120.2.119",
+      "ipv6": "2001:da8:8000:6fc0:102:1200:2:48",
+      "domain": "sh.edu.818198.xyz"
+    },
+    {
+      "region": "北京",
+      "region_en": "Beijing",
+      "carrier": "ct",
+      "carrier_name": "中國電信",
+      "code": "bj_ct",
+      "ipv4": "49.7.37.74",
+      "ipv6": "2400:89c0:1053:3::69",
+      "domain": "bj.telecom.818198.xyz"
+    },
+    {
+      "region": "北京",
+      "region_en": "Beijing",
+      "carrier": "cu",
+      "carrier_name": "中國聯通",
+      "code": "bj_cu",
+      "ipv4": "111.206.209.44",
+      "ipv6": "2400:89c0:1013:3::54",
+      "domain": "bj.unicom.818198.xyz"
+    },
+    {
+      "region": "北京",
+      "region_en": "Beijing",
+      "carrier": "cm",
+      "carrier_name": "中國移動",
+      "code": "bj_cm",
+      "ipv4": "112.34.111.194",
+      "ipv6": "2409:8c00:8421:1303::55",
+      "domain": "bj.mobile.818198.xyz"
+    },
+    {
+      "region": "北京",
+      "region_en": "Beijing",
+      "carrier": "edu",
+      "carrier_name": "教育網",
+      "code": "bj_edu",
+      "ipv4": "166.111.4.100",
+      "ipv6": "2402:f000:1:404:166:111:4:100",
+      "domain": "bj.edu.818198.xyz"
+    }
+  ]
+}

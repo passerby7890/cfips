@@ -1,0 +1,101 @@
+# ==============================================================================
+# CF-Global-QuadNet-Feed 系統配置檔
+# ==============================================================================
+
+# 源站回源驗證基準參數
+origin:
+  sni: "node1.snowcat77.com"              # TLS 握手 SNI 標頭（需開啟 Cloudflare 代理）
+  host: "node1.snowcat77.com"             # HTTP Host 標頭
+  port: 2053                              # 驗證端口
+  ws_path: "/ws"                          # WebSocket 升級路徑
+  expected_status: 101                    # 期望握手成功碼 (HTTP 101 Switching Protocols)
+  timeout_sec: 3.0                        # 單次握手超時上限（秒）
+  handshake_rounds: 2                     # 測試次數以計算平均握手延遲
+
+# 併發測活設定
+concurrency: 50
+
+# 階段一：情報收集策略
+collector:
+  # 策略 A: 基於北上廣四網錨點的 ECS (EDNS Client Subnet) DoH 偽裝解析
+  ecs_doh:
+    enabled: true
+    doh_url: "https://dns.google/resolve"
+    anchors_file: "data/cn_anchors.json"
+    domains:
+      - "www.visa.com.sg"
+      - "www.visa.hk"
+      - "time.is"
+      - "cf.090227.xyz"
+      - "cf.877774.xyz"
+      - "freeyx.cloudflare88.eu.org"
+
+  # 策略 B: 大陸境內公開三網實測榜單抓取
+  mainland_sources:
+    enabled: true
+    timeout_sec: 15
+    sources:
+      - name: "wetest"
+        type: "html_table"
+        url: "https://www.wetest.vip/page/cloudflare/address_v4.html"
+      - name: "hostmonit"
+        type: "hostmonit"
+        url: "https://api.hostmonit.com/get_optimization_ip"
+        key: "iDetkOys"
+      - name: "uouin"
+        type: "html_table"
+        url: "https://api.uouin.com/cloudflare.html"
+      - name: "ip_164746"
+        type: "text"
+        url: "https://ip.164746.xyz/ipTop10.html"
+
+  # 策略 C: 分國家地區公開優選/反代來源
+  country_sources:
+    enabled: true
+    timeout_sec: 15
+    sources:
+      # 可配置 GitHub 定時更新庫或公開優選端點
+      - name: "github_badafans"
+        type: "json"
+        url: "https://raw.githubusercontent.com/badafans/better-cloudflare-ip/master/shell/cf.json"
+
+  # 策略 D: 本地精選種子庫補充
+  local_seeds:
+    enabled: true
+    sample_per_cidr: 5                    # 每個 CIDR 抽樣個數
+    files:
+      ct: "data/seeds_ct.txt"
+      cu: "data/seeds_cu.txt"
+      cm: "data/seeds_cm.txt"
+
+# 階段二：同 /24 網段冷門鄰居平移演算法
+neighbor_shifter:
+  enabled: true
+  samples_per_ip: 3                       # 每個公開熱門 IP 在同 /24 網段抽取的非公開冷門鄰居數
+  bonus_score_ms: 15.0                    # 通過驗證的冷門鄰居獲得的延遲獎勵扣分 (-15ms)
+
+# 階段四：四網機房偏好加權 (符合者給予 -30ms 獎勵)
+carrier_preferences:
+  ct:
+    name: "中國電信"
+    preferred_colos: ["SJC", "LAX", "SEA"]
+    bonus_ms: 30.0
+  cu:
+    name: "中國聯通"
+    preferred_colos: ["SJC", "LAX", "NRT", "FRA"]
+    bonus_ms: 30.0
+  cm:
+    name: "中國移動"
+    preferred_colos: ["HKG", "SIN", "NRT", "SJC"]
+    bonus_ms: 30.0
+  edu:
+    name: "教育網"
+    preferred_colos: ["SJC", "LAX", "HKG"]
+    bonus_ms: 30.0
+
+# 輸出控制與容災保護
+exporter:
+  output_dir: "output"
+  top_n: 15                               # 每個分類挑選前 15 名
+  max_per_subnet: 2                       # 跨 /24 網段分散保護：同一個 C 段最多 2 個 IP
+  anti_empty_protection: true             # 若當次無合格 IP，保留前次有效檔案避免空白覆寫
