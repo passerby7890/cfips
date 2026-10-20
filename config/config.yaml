@@ -54,7 +54,26 @@ collector:
     enabled: true
     timeout_sec: 15
     sources:
-      # 可配置 GitHub 定時更新庫或公開優選端點
+      - name: "tiancheng_hk"
+        type: "text"
+        country: "hk"
+        url: "https://bestcf.tools12345.com/tiancheng/hk.txt"
+      - name: "tiancheng_jp"
+        type: "text"
+        country: "jp"
+        url: "https://bestcf.tools12345.com/tiancheng/jp.txt"
+      - name: "tiancheng_sg"
+        type: "text"
+        country: "sg"
+        url: "https://bestcf.tools12345.com/tiancheng/sg.txt"
+      - name: "tiancheng_kr"
+        type: "text"
+        country: "kr"
+        url: "https://bestcf.tools12345.com/tiancheng/kr.txt"
+      - name: "tiancheng_us"
+        type: "text"
+        country: "us"
+        url: "https://bestcf.tools12345.com/tiancheng/us.txt"
       - name: "github_badafans"
         type: "json"
         url: "https://raw.githubusercontent.com/badafans/better-cloudflare-ip/master/shell/cf.json"
@@ -67,6 +86,14 @@ collector:
       ct: "data/seeds_ct.txt"
       cu: "data/seeds_cu.txt"
       cm: "data/seeds_cm.txt"
+    country_files:
+      hk: "data/countries/hk.txt"
+      tw: "data/countries/tw.txt"
+      jp: "data/countries/jp.txt"
+      sg: "data/countries/sg.txt"
+      kr: "data/countries/kr.txt"
+      us: "data/countries/us.txt"
+      eu: "data/countries/eu.txt"
 
 # 階段二：同 /24 網段冷門鄰居平移演算法
 neighbor_shifter:

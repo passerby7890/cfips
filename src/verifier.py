@@ -36,6 +36,7 @@ class VerifyResult:
     ws_status_line: str = ""
     is_shifted_neighbor: bool = False
     carriers: set[str] = field(default_factory=set)
+    countries: set[str] = field(default_factory=set)
     sources: set[str] = field(default_factory=set)
     stage: str = ""
     reason: str = ""
@@ -47,6 +48,7 @@ class VerifyResult:
             "latency_ms": round(self.latency_ms, 2),
             "colo": self.colo,
             "country": self.country,
+            "countries": sorted(self.countries),
             "loc": self.loc,
             "ws_status": self.ws_status,
             "is_shifted_neighbor": self.is_shifted_neighbor,
@@ -146,7 +148,10 @@ class OriginVerifier:
 
         res.colo = colo
         res.loc = info.get("loc", "")
-        res.country = colo_to_country(colo)
+        detected_c = colo_to_country(colo)
+        res.country = detected_c
+        if detected_c:
+            res.countries.add(detected_c)
 
     async def _check_ws(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter, res: VerifyResult) -> None:
         req = (
@@ -181,6 +186,7 @@ class OriginVerifier:
                 ip=cand.ip,
                 is_shifted_neighbor=cand.is_shifted_neighbor,
                 carriers=set(cand.carriers),
+                countries=set(cand.countries),
                 sources=set(cand.sources),
             )
             latencies: list[float] = []

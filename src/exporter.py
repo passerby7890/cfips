@@ -169,7 +169,11 @@ def export_all(
     country_keys = get_supported_countries()
     by_country: dict[str, list[ScoredItem]] = {}
     for country in country_keys:
-        candidates_for_country = [r for r in passed_results if r.country == country]
+        # 雙重判定：若候選 IP 具備該國家來源標籤，或即時 trace 命中該國家，均視為該國合格候選池
+        candidates_for_country = [
+            r for r in passed_results
+            if country in r.countries or r.country == country
+        ]
         scored = [score_for_country(r, neighbor_bonus) for r in candidates_for_country]
         selected = filter_subnet_diversity(scored, max_per_subnet=max_per_subnet, top_n=top_n)
         by_country[country] = selected

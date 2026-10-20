@@ -175,12 +175,25 @@ async def collect_ecs_doh(
                     if ans.get("type") == 1:
                         target_ip = str(ans.get("data", "")).strip()
                         if IPV4_RE.fullmatch(target_ip):
-                            out.append({
+                            c_tag = None
+                            if "visa.hk" in domain or domain.endswith(".hk"):
+                                c_tag = "hk"
+                            elif "visa.com.sg" in domain or domain.endswith(".sg"):
+                                c_tag = "sg"
+                            elif domain.endswith(".tw"):
+                                c_tag = "tw"
+                            elif domain.endswith(".jp"):
+                                c_tag = "jp"
+
+                            item = {
                                 "ip": target_ip,
                                 "carrier": carrier,
                                 "source": f"ecs:{code}",
                                 "domain": domain,
-                            })
+                            }
+                            if c_tag:
+                                item["country"] = c_tag
+                            out.append(item)
         except Exception as exc:
             log.debug("ECS DoH 查詢失敗 [%s / %s]: %s", domain, code, exc)
         return out
@@ -343,8 +356,11 @@ async def collect_country_sources(
     nested = await asyncio.gather(*(_fetch_public_source(session, s) for s in sources), return_exceptions=True)
     for src_def, rows in zip(sources, nested):
         if isinstance(rows, list):
+            country_tag = src_def.get("country")
             for r in rows:
                 r["source"] = src_def.get("name", "country_feed")
+                if country_tag and not r.get("country"):
+                    r["country"] = str(country_tag).lower()
                 results.append(r)
     log.info("策略 C (分國來源) 成功獲取 %d 筆記錄", len(results))
     return results
@@ -405,6 +421,7 @@ def collect_local_seeds(cfg: dict[str, Any], root_dir: Path) -> list[dict[str, A
         return []
     sample_count = int(cfg.get("sample_per_cidr", 5))
     files = cfg.get("files", {})
+    country_files = cfg.get("country_files", {})
     rng = random.Random(42)
     results: list[dict[str, Any]] = []
 
@@ -417,6 +434,17 @@ def collect_local_seeds(cfg: dict[str, Any], root_dir: Path) -> list[dict[str, A
                 "carrier": carrier,
                 "source": f"seeds_{carrier}",
             })
+
+    for country, rel_path in country_files.items():
+        full_path = root_dir / rel_path
+        loaded = load_seed_file(full_path, sample_count, rng)
+        for ip in loaded:
+            results.append({
+                "ip": ip,
+                "country": country,
+                "source": f"seeds_{country}",
+            })
+
     log.info("策略 D (本地種子) 成功展開 %d 筆記錄", len(results))
     return results
 
@@ -466,6 +494,10 @@ async def collect_all_candidates(
             cand.carriers.add(carrier)
         elif carrier == "all":
             cand.carriers.update(["ct", "cu", "cm", "edu"])
+
+        country = row.get("country")
+        if country:
+            cand.countries.add(str(country).lower())
 
         source = row.get("source")
         if source:
