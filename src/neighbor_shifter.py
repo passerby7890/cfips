@@ -53,7 +53,11 @@ def shift_neighbors(
             picked_ints = rng.sample(possible, min(samples_per_ip, len(possible)))
             for n_int in picked_ints:
                 neighbor_ip = str(ipaddress.IPv4Address(n_int))
+                if neighbor_ip.startswith("172.67.") or neighbor_ip.startswith("104.21."):
+                    continue
                 if neighbor_ip not in expanded:
+                    n_hint = dict(cand.source_hint)
+                    n_hint["is_neighbor"] = True
                     neighbor_cand = Candidate(
                         ip=neighbor_ip,
                         carriers=set(cand.carriers),
@@ -64,6 +68,7 @@ def shift_neighbors(
                         download_speed=cand.download_speed,
                         source_country=cand.source_country,
                         source_colo=cand.source_colo,
+                        source_hint=n_hint,
                     )
                     expanded[neighbor_ip] = neighbor_cand
                     shifted_count += 1

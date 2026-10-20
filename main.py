@@ -197,8 +197,18 @@ async def run_pipeline(args: argparse.Namespace) -> int:
 
     # 4. 階段四：漏斗階梯限速測速 (僅挑選前 80 名精華節點執行 2.5 秒下行吞吐測速，防 Actions 超時)
     if verified_items:
-        # 按初篩握手延遲由低到高排序
-        verified_items.sort(key=lambda x: float(x.get("latency_ms", 999.0)))
+        def _speedtest_priority(it: dict) -> tuple[int, float]:
+            hint_lat = it.get("source_hint", {}).get("latency_ms")
+            # 優先級 0: 大陸境內探針實測節點 (優先將測速資源分配給境內低延遲直連節點)
+            if hint_lat and 10.0 <= float(hint_lat) <= 300.0 and not it.get("is_shifted_neighbor"):
+                return (0, float(hint_lat))
+            # 優先級 1: 三網專屬種子節點
+            if it.get("carriers") and any(c in it["carriers"] for c in ("ct", "cu", "cm")):
+                return (1, float(it.get("latency_ms", 999.0)))
+            # 優先級 2: 其餘通用節點
+            return (2, float(it.get("latency_ms", 999.0)))
+
+        verified_items.sort(key=_speedtest_priority)
 
         speedtest_targets = verified_items[:speedtest_limit]
         backup_targets = verified_items[speedtest_limit:]

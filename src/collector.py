@@ -108,6 +108,20 @@ class Candidate:
     source_colo: str = ""                                # 來源實測之機房標籤 (例: HKG, TPE, NRT, SJC)
     source_hint: dict[str, Any] = field(default_factory=dict)
 
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "ip": self.ip,
+            "carriers": sorted(self.carriers),
+            "countries": sorted(self.countries),
+            "sources": sorted(self.sources),
+            "is_shifted_neighbor": self.is_shifted_neighbor,
+            "loss_rate": self.loss_rate,
+            "download_speed": self.download_speed,
+            "source_country": self.source_country,
+            "source_colo": self.source_colo,
+            "source_hint": dict(self.source_hint),
+        }
+
 
 def _strip(fragment: str) -> str:
     return html.unescape(TAG_RE.sub(" ", fragment)).strip()
@@ -658,7 +672,7 @@ def collect_local_seeds(cfg: dict[str, Any], root_dir: Path) -> list[dict[str, A
             c_tag = country_tag or country.upper()
             results.append({
                 "ip": ip,
-                "carrier": "all",
+                "carrier": None,
                 "country": c_tag.lower(),
                 "source_country": c_tag,
                 "source": f"seeds_{country}",
@@ -672,7 +686,7 @@ def collect_local_seeds(cfg: dict[str, Any], root_dir: Path) -> list[dict[str, A
         for ip, country_tag in loaded:
             results.append({
                 "ip": ip,
-                "carrier": "all",
+                "carrier": None,
                 "country": country_tag.lower() if country_tag else "cf",
                 "source_country": country_tag or "CF",
                 "source": f"seeds_{name}",
@@ -715,6 +729,10 @@ async def collect_all_candidates(
         if not ip or not in_networks(ip, cf_nets):
             continue
 
+        # 嚴格剔除 Cloudflare 免費層通用 Anycast 段 (172.67.* 與 104.21.*)，防大陸電信繞洋 250ms 與高丟包
+        if ip.startswith("172.67.") or ip.startswith("104.21."):
+            continue
+
         cand = candidates.get(ip)
         if cand is None:
             cand = Candidate(ip=ip)
@@ -746,11 +764,15 @@ async def collect_all_candidates(
         if row.get("colo"):
             cand.source_hint["colo"] = row["colo"]
         if row.get("latency_ms"):
-            cand.source_hint["latency_ms"] = row["latency_ms"]
+            cand.source_hint["latency_ms"] = float(row["latency_ms"])
         if row.get("loss_rate") is not None:
             cand.loss_rate = float(row["loss_rate"])
+            cand.source_hint["loss_rate"] = float(row["loss_rate"])
         if row.get("download_speed") is not None:
             cand.download_speed = max(cand.download_speed, float(row["download_speed"]))
+            cand.source_hint["download_speed"] = cand.download_speed
+        if row.get("carrier") in {"ct", "cu", "cm"}:
+            cand.source_hint["carrier"] = row["carrier"]
 
     log.info("Cloudflare 官方段過濾與去重後獨立 IP 數：%d 個", len(candidates))
     return candidates

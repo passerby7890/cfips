@@ -199,34 +199,38 @@ def export_all(
     carrier_results: Dict[str, List[Dict[str, Any]]] = {}
 
     for c_key in target_carriers:
-        # 1. 取得具備該運營商標籤的候選 IP (包含標註 all 的泛用亞太優選 IP)
-        cand_for_carrier = [
+        pref_colos = preferred_colos.get(c_key, [])
+        scored_candidates: List[Dict[str, Any]] = []
+
+        # 1. 第一優先：具備該運營商專屬標籤、或具備該運營商境內實測探針的節點
+        carrier_specific = [
             it for it in verified_items 
-            if c_key in it.get("carriers", []) or "all" in it.get("carriers", [])
+            if c_key in it.get("carriers", [])
+            or it.get("source_hint", {}).get("carrier") == c_key
         ]
 
-        # 2. 若該標籤下的數量不足 max_count，以符合該運營商 preferred_colos 的高分節點補充
-        pref_colos = preferred_colos.get(c_key, [])
-        if len(cand_for_carrier) < max_count:
-            for it in verified_items:
-                if it not in cand_for_carrier and it.get("colo") in pref_colos:
-                    cand_for_carrier.append(it)
+        # 2. 第二優先：通用亞太優選 (all) 與符合該運營商直連機房 (preferred_colos) 的節點
+        supplementary = [
+            it for it in verified_items 
+            if it not in carrier_specific
+            and ("all" in it.get("carriers", []) or it.get("colo") in pref_colos)
+        ]
 
-        # 3. 若仍不足 max_count，以其餘通過 101 驗證的高分節點備援
-        if len(cand_for_carrier) < max_count:
-            for it in verified_items:
-                if it not in cand_for_carrier and it.get("ws_handshake_101", False):
-                    cand_for_carrier.append(it)
+        # 3. 第三優先備援：其餘通過 101 握手的合格節點
+        fallback = [
+            it for it in verified_items
+            if it not in carrier_specific and it not in supplementary
+        ]
+
+        cand_pool = carrier_specific + supplementary + fallback
 
         # 4. 為候選池內每個節點計算針對該運營商的綜合評分與 EWMA 歷史平滑
-        scored_candidates: List[Dict[str, Any]] = []
-        for it in cand_for_carrier:
+        for it in cand_pool:
             it_copy = dict(it)
             instant = calculate_single_score(it_copy, c_key, preferred_colos)
             final_sc = apply_ewma_history(it_copy["ip"], instant, history_dict, decay=decay_ratio)
             it_copy["instant_score"] = instant
             it_copy["final_score"] = final_sc
-            # 確保 country_code 優先採用原生標籤與境內 Colo
             runner_c = it_copy.get("runner_colo", "")
             it_copy["country_code"] = it_copy.get("country_code") or resolve_country_tag(it_copy, runner_trace_colo=runner_c)
             scored_candidates.append(it_copy)

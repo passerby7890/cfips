@@ -72,76 +72,83 @@ class ScoredItem:
         }
 
 
-REGIONAL_TYPICAL_RTT = {
-    "HK": 25.0,
-    "MO": 30.0,
-    "TW": 40.0,
-    "JP": 50.0,
-    "KR": 50.0,
-    "SG": 65.0,
-    "US": 160.0,
-    "DE": 180.0,
-    "GB": 190.0,
-    "EU": 180.0,
-}
+
 
 
 def calculate_single_score(ip_data: dict, carrier: str, preferred_colos: dict) -> float:
-    """四部分加權綜合評分 (滿分 100，越高越佳)
+    """四部分加權綜合評分 (滿分 100，越高越佳) - 嚴格基於大陸境內實測指標：
 
-    修正點：
-    - 解決海外 Runner 跨洋回源延遲逆向淘汰亞洲節點的問題
-    - 優先採計境內探針 (cdtools/hostmonit/wetest) 實測延遲
-    - 分國節點採計大陸直連基準延遲，獎勵低延遲亞太節點 (HK/TW/JP/SG)
+    1. 吞吐頻寬分 (滿分 35)：基於 200 Mbps 下行基準實測
+    2. 丟包懲罰分 (滿分 25)：大陸實測丟包率 <= 0.5% 滿分，> 5% 歸零
+    3. 延遲得分 (滿分 25)：
+       - 若具備大陸境內探針實測 (HostMonit / WeTest / cdtools)：
+         採計真實 RTT (例: 48ms, 140ms)，並給予 +15 探針直連可信度獎勵！
+       - 若無境內探針實測：
+         嚴禁憑標籤虛構 40ms！依各運營商出海真實基線 (CT: 180ms, CU: 150ms, CM: 120ms) 保守計算，
+         確保未經驗證節點絕對無法霸榜！
+    4. 路由與運營商匹配 (滿分 15)：
+       - 專屬運營商種子 / 探針線路匹配：+10 分
+       - Colo 偏好匹配：+5 分
+       - 平移鄰居不額外加分，防止未測鄰居擠下母體實測節點
     """
     speed = float(ip_data.get("speed_mbps") or ip_data.get("download_speed") or 0.0)
     loss = float(ip_data.get("loss_percent") or ip_data.get("loss_rate") or 0.0)
     colo = str(ip_data.get("colo", "")).upper()
-    c_tag = str(ip_data.get("country_code") or ip_data.get("source_country") or "").upper()
     is_neighbor = bool(ip_data.get("is_shifted_neighbor", False))
+    source_hint = ip_data.get("source_hint") or {}
 
-    # 1. 吞吐頻寬分 (滿分 40，以 200 Mbps 為基準)
-    s_speed = min(40.0, (speed / 200.0) * 40.0)
+    # 1. 吞吐頻寬分 (滿分 35)
+    s_speed = min(35.0, (speed / 200.0) * 35.0)
 
-    # 2. 階梯非線性丟包得分 (滿分 30，適應跨境輕微丟包現實)
-    if loss <= 1.0:
-        s_loss = 30.0 - (loss * 3.0)
-    elif loss <= 3.0:
-        s_loss = 27.0 - ((loss - 1.0) * 5.0)
-    elif loss <= 5.0:
-        s_loss = max(0.0, 17.0 - ((loss - 3.0) * 8.5))
+    # 2. 丟包得分 (滿分 25)
+    hint_loss = source_hint.get("loss_rate")
+    effective_loss = float(hint_loss) if hint_loss is not None else loss
+    if effective_loss <= 0.5:
+        s_loss = 25.0
+    elif effective_loss <= 1.0:
+        s_loss = 22.0
+    elif effective_loss <= 3.0:
+        s_loss = 15.0
+    elif effective_loss <= 5.0:
+        s_loss = 5.0
     else:
         s_loss = 0.0
 
-    # 3. 延遲得分 (滿分 15，映射 20ms ~ 300ms)
-    # 若有境內探針實測數據 (如 cdtools 55ms、hostmonit 50ms)，優先採用
-    probe_lat = ip_data.get("source_hint", {}).get("latency_ms")
-    if not probe_lat and not is_neighbor:
-        probe_lat = ip_data.get("latency_ms")
+    # 3. 延遲得分與境內探針加權 (滿分 25 + 15 可信度獎勵)
+    probe_lat = source_hint.get("latency_ms")
+    has_domestic_probe = bool(probe_lat and 10.0 <= float(probe_lat) <= 300.0)
 
-    if probe_lat and 10.0 <= float(probe_lat) <= 350.0:
+    if has_domestic_probe and not is_neighbor:
+        # 大陸境內真實探針實測數據 (例: 48ms, 55ms, 140ms)
         effective_latency = float(probe_lat)
-    elif c_tag in REGIONAL_TYPICAL_RTT:
-        effective_latency = REGIONAL_TYPICAL_RTT[c_tag]
+        s_latency = max(0.0, min(25.0, ((300.0 - effective_latency) / (300.0 - 20.0)) * 25.0))
+        s_probe_bonus = 15.0  # 境內探針直連滿分獎勵
+    elif is_neighbor and probe_lat and 10.0 <= float(probe_lat) <= 300.0:
+        # 探針母體之鄰居節點：保守預估 (+15ms，無探針獎勵)
+        effective_latency = float(probe_lat) + 15.0
+        s_latency = max(0.0, min(25.0, ((300.0 - effective_latency) / (300.0 - 20.0)) * 25.0))
+        s_probe_bonus = 0.0
     else:
-        raw_lat = float(ip_data.get("latency_ms", 150.0))
-        effective_latency = min(raw_lat, 180.0)
+        # 完全未經境內實測之節點：依運營商出海真實基線保底，嚴禁憑標籤虛構 40ms！
+        carrier_baselines = {"ct": 180.0, "cu": 150.0, "cm": 120.0}
+        effective_latency = carrier_baselines.get(carrier.lower(), 160.0)
+        s_latency = max(0.0, min(15.0, ((300.0 - effective_latency) / (300.0 - 20.0)) * 15.0))
+        s_probe_bonus = 0.0
 
-    s_latency = max(0.0, min(15.0, ((300.0 - effective_latency) / (300.0 - 20.0)) * 15.0))
-
-    # 4. 路由與偏好地區獎勵 (滿分 15)
-    pref_list = preferred_colos.get(carrier.lower(), [])
-    colo_matches = colo in pref_list
-    country_matches = (
-        (carrier == "ct" and c_tag in ("TW", "HK", "JP", "US")) or
-        (carrier == "cu" and c_tag in ("JP", "HK", "DE", "GB", "US")) or
-        (carrier == "cm" and c_tag in ("HK", "SG", "JP", "TW", "US"))
+    # 4. 路由與運營商匹配 (滿分 15)
+    carrier_matched = (
+        carrier.lower() in ip_data.get("carriers", [])
+        or source_hint.get("carrier") == carrier.lower()
     )
-    s_colo = 10.0 if (colo_matches or country_matches) else 2.0
-    s_neighbor = 5.0 if is_neighbor else 0.0
-    s_routing = s_colo + s_neighbor
+    pref_list = preferred_colos.get(carrier.lower(), [])
+    colo_matched = colo in pref_list
 
-    return round(s_speed + s_loss + s_latency + s_routing, 2)
+    s_carrier = 10.0 if carrier_matched else 2.0
+    s_colo = 5.0 if colo_matched else 0.0
+    s_routing = min(15.0, s_carrier + s_colo)
+
+    total_score = s_speed + s_loss + s_latency + s_probe_bonus + s_routing
+    return round(min(100.0, total_score), 2)
 
 
 def calculate_country_score(ip_data: dict, country_code: str) -> float:

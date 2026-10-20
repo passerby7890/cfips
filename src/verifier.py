@@ -65,6 +65,7 @@ class VerifyResult:
     ws_handshake_101: bool = False
     stage: str = ""
     reason: str = ""
+    source_hint: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -88,6 +89,7 @@ class VerifyResult:
             "is_shifted_neighbor": self.is_shifted_neighbor,
             "carriers": sorted(self.carriers),
             "sources": sorted(self.sources),
+            "source_hint": dict(self.source_hint),
         }
 
 
@@ -316,6 +318,7 @@ class OriginVerifier:
             source_colo=cand.source_colo,
             country=initial_c,
             country_code=cand.source_country.upper() if cand.source_country else "",
+            source_hint=dict(cand.source_hint),
         )
 
         latencies: list[float] = []
@@ -439,6 +442,7 @@ class OriginVerifier:
                     sources=set(cand.sources),
                     source_country=cand.source_country,
                     source_colo=cand.source_colo,
+                    source_hint=dict(cand.source_hint),
                 )
 
         await asyncio.gather(*[_run_precheck(c) for c in candidates.values()])
@@ -494,6 +498,7 @@ async def batch_verify_101(
                 source_country=it.get("source_country", ""),
                 source_colo=it.get("source_colo", ""),
                 is_shifted_neighbor=it.get("is_shifted_neighbor", False),
+                source_hint=it.get("source_hint", {}),
             )
             cand_dict[it["ip"]] = c
         candidates = cand_dict
