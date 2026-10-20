@@ -1,18 +1,29 @@
 {
   "version": "v3.1.0",
-  "updated_at": "2026-10-20T23:46:03.398196+00:00",
+  "updated_at": "2026-10-20T23:50:53.655137+00:00",
   "carriers": {
     "ct": [
+      {
+        "ip": "172.64.53.155",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 34.0,
+        "speed_mbs": 13.3,
+        "score": 98.0,
+        "hit_ratio": 33.89,
+        "is_direct_cname": true,
+        "country": "HK",
+        "colo": "MSP"
+      },
       {
         "ip": "162.159.44.62",
         "domain": "cf.godns.cc",
         "cn_latency_ms": 34.0,
         "speed_mbs": 13.3,
         "score": 98.0,
-        "hit_ratio": 29.88,
+        "hit_ratio": 27.15,
         "is_direct_cname": true,
         "country": "HK",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
         "ip": "162.159.44.105",
@@ -20,21 +31,10 @@
         "cn_latency_ms": 34.0,
         "speed_mbs": 13.3,
         "score": 98.0,
-        "hit_ratio": 29.44,
+        "hit_ratio": 26.86,
         "is_direct_cname": true,
         "country": "HK",
-        "colo": "IAD"
-      },
-      {
-        "ip": "172.64.53.155",
-        "domain": "cf.godns.cc",
-        "cn_latency_ms": 34.0,
-        "speed_mbs": 13.3,
-        "score": 98.0,
-        "hit_ratio": 27.99,
-        "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
         "ip": "162.159.39.13",
@@ -42,32 +42,10 @@
         "cn_latency_ms": 34.0,
         "speed_mbs": 13.3,
         "score": 98.0,
-        "hit_ratio": 24.32,
+        "hit_ratio": 25.04,
         "is_direct_cname": true,
         "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "108.162.198.9",
-        "domain": "cf.godns.cc",
-        "cn_latency_ms": 34.0,
-        "speed_mbs": 13.3,
-        "score": 98.0,
-        "hit_ratio": 23.48,
-        "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
-      },
-      {
-        "ip": "172.64.52.31",
-        "domain": "cf.godns.cc",
-        "cn_latency_ms": 34.0,
-        "speed_mbs": 13.3,
-        "score": 98.0,
-        "hit_ratio": 20.61,
-        "is_direct_cname": true,
-        "country": "TW",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
         "ip": "162.159.44.27",
@@ -75,10 +53,10 @@
         "cn_latency_ms": 34.0,
         "speed_mbs": 13.3,
         "score": 98.0,
-        "hit_ratio": 20.48,
+        "hit_ratio": 23.18,
         "is_direct_cname": true,
         "country": "HK",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
         "ip": "108.162.198.190",
@@ -86,10 +64,32 @@
         "cn_latency_ms": 34.0,
         "speed_mbs": 13.3,
         "score": 98.0,
-        "hit_ratio": 15.52,
+        "hit_ratio": 17.75,
         "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "172.64.52.31",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 34.0,
+        "speed_mbs": 13.3,
+        "score": 98.0,
+        "hit_ratio": 17.74,
+        "is_direct_cname": true,
+        "country": "TW",
+        "colo": "MSP"
+      },
+      {
+        "ip": "108.162.198.9",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 34.0,
+        "speed_mbs": 13.3,
+        "score": 98.0,
+        "hit_ratio": 15.25,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
       },
       {
         "ip": "104.26.12.54",
@@ -97,10 +97,21 @@
         "cn_latency_ms": 34.0,
         "speed_mbs": 13.3,
         "score": 98.0,
-        "hit_ratio": 11.59,
+        "hit_ratio": 7.27,
         "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
+        "country": "CF",
+        "colo": "MSP"
+      },
+      {
+        "ip": "172.64.154.211",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 34.0,
+        "speed_mbs": 13.3,
+        "score": 98.0,
+        "hit_ratio": 7.13,
+        "is_direct_cname": true,
+        "country": "CF",
+        "colo": "MSP"
       },
       {
         "ip": "104.26.5.48",
@@ -108,32 +119,21 @@
         "cn_latency_ms": 34.0,
         "speed_mbs": 13.3,
         "score": 98.0,
-        "hit_ratio": 7.62,
+        "hit_ratio": 5.84,
         "is_direct_cname": true,
         "country": "HK",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
-        "ip": "104.26.5.46",
+        "ip": "104.18.33.45",
         "domain": "cf.godns.cc",
         "cn_latency_ms": 34.0,
         "speed_mbs": 13.3,
         "score": 98.0,
-        "hit_ratio": 4.21,
+        "hit_ratio": 5.52,
         "is_direct_cname": true,
         "country": "HK",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.26.6.52",
-        "domain": "cf.godns.cc",
-        "cn_latency_ms": 34.0,
-        "speed_mbs": 13.3,
-        "score": 98.0,
-        "hit_ratio": 2.39,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
         "ip": "104.26.13.54",
@@ -141,21 +141,32 @@
         "cn_latency_ms": 34.0,
         "speed_mbs": 13.3,
         "score": 98.0,
-        "hit_ratio": 2.1,
+        "hit_ratio": 4.47,
         "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
+        "country": "CF",
+        "colo": "MSP"
       },
       {
-        "ip": "104.18.43.204",
-        "domain": "eteaf.cf.3666888.xyz",
-        "cn_latency_ms": 40.0,
-        "speed_mbs": 14.1,
-        "score": 94.0,
-        "hit_ratio": 33.37,
+        "ip": "104.26.6.52",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 34.0,
+        "speed_mbs": 13.3,
+        "score": 98.0,
+        "hit_ratio": 4.05,
+        "is_direct_cname": true,
+        "country": "CF",
+        "colo": "MSP"
+      },
+      {
+        "ip": "104.26.5.46",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 34.0,
+        "speed_mbs": 13.3,
+        "score": 98.0,
+        "hit_ratio": 2.87,
         "is_direct_cname": true,
         "country": "HK",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
         "ip": "172.64.144.52",
@@ -163,21 +174,21 @@
         "cn_latency_ms": 40.0,
         "speed_mbs": 14.1,
         "score": 94.0,
-        "hit_ratio": 33.37,
+        "hit_ratio": 33.74,
         "is_direct_cname": true,
         "country": "HK",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
-        "ip": "172.64.52.173",
+        "ip": "104.18.43.204",
         "domain": "eteaf.cf.3666888.xyz",
         "cn_latency_ms": 40.0,
         "speed_mbs": 14.1,
         "score": 94.0,
-        "hit_ratio": 16.0,
+        "hit_ratio": 33.74,
         "is_direct_cname": true,
-        "country": "TW",
-        "colo": "IAD"
+        "country": "HK",
+        "colo": "MSP"
       },
       {
         "ip": "108.162.198.88",
@@ -185,10 +196,21 @@
         "cn_latency_ms": 40.0,
         "speed_mbs": 14.1,
         "score": 94.0,
-        "hit_ratio": 16.0,
+        "hit_ratio": 15.53,
         "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "172.64.52.173",
+        "domain": "eteaf.cf.3666888.xyz",
+        "cn_latency_ms": 40.0,
+        "speed_mbs": 14.1,
+        "score": 94.0,
+        "hit_ratio": 15.53,
+        "is_direct_cname": true,
+        "country": "TW",
+        "colo": "MSP"
       },
       {
         "ip": "104.17.188.61",
@@ -196,10 +218,10 @@
         "cn_latency_ms": 40.0,
         "speed_mbs": 14.1,
         "score": 94.0,
-        "hit_ratio": 1.26,
+        "hit_ratio": 1.46,
         "is_direct_cname": true,
         "country": "HK",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
         "ip": "172.66.47.45",
@@ -207,10 +229,10 @@
         "cn_latency_ms": 42.0,
         "speed_mbs": 13.5,
         "score": 94.0,
-        "hit_ratio": 4.34,
+        "hit_ratio": 4.27,
         "is_direct_cname": true,
         "country": "HK",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
         "ip": "172.66.44.211",
@@ -218,13 +240,24 @@
         "cn_latency_ms": 42.0,
         "speed_mbs": 13.5,
         "score": 94.0,
-        "hit_ratio": 4.34,
+        "hit_ratio": 4.27,
         "is_direct_cname": true,
         "country": "HK",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
-        "ip": "162.159.38.126",
+        "ip": "162.159.38.230",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.24,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.231",
         "domain": "cloudflare.19931110.xyz",
         "cn_latency_ms": 42.0,
         "speed_mbs": 13.5,
@@ -232,194 +265,40 @@
         "hit_ratio": 1.22,
         "is_direct_cname": true,
         "country": "JP",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
-        "ip": "162.159.38.111",
+        "ip": "162.159.38.47",
         "domain": "cloudflare.19931110.xyz",
         "cn_latency_ms": 42.0,
         "speed_mbs": 13.5,
         "score": 94.0,
-        "hit_ratio": 1.2,
+        "hit_ratio": 1.22,
         "is_direct_cname": true,
         "country": "JP",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
-        "ip": "162.159.38.122",
+        "ip": "162.159.38.43",
         "domain": "cloudflare.19931110.xyz",
         "cn_latency_ms": 42.0,
         "speed_mbs": 13.5,
         "score": 94.0,
-        "hit_ratio": 1.2,
+        "hit_ratio": 1.22,
         "is_direct_cname": true,
         "country": "JP",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
-        "ip": "162.159.38.128",
+        "ip": "162.159.38.39",
         "domain": "cloudflare.19931110.xyz",
         "cn_latency_ms": 42.0,
         "speed_mbs": 13.5,
         "score": 94.0,
-        "hit_ratio": 1.2,
+        "hit_ratio": 1.22,
         "is_direct_cname": true,
         "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.129",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.2,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.130",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.18,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.136",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.18,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.110",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.17,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.138",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.17,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.139",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.17,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.156",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.17,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.68",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.15,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.70",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.15,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.100",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.15,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.107",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.15,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.148",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.15,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.149",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.15,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.166",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.15,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
         "ip": "162.159.38.242",
@@ -427,10 +306,175 @@
         "cn_latency_ms": 42.0,
         "speed_mbs": 13.5,
         "score": 94.0,
-        "hit_ratio": 1.14,
+        "hit_ratio": 1.21,
         "is_direct_cname": true,
         "country": "JP",
-        "colo": "IAD"
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.239",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.21,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.219",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.21,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.208",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.21,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.200",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.21,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.50",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.21,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.196",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.19,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.9",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.17,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.193",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.17,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.53",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.17,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.35",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.17,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.20",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.17,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.13",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.16,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.11",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.16,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.68",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.16,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.65",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.16,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
       },
       {
         "ip": "162.159.38.59",
@@ -438,13 +482,24 @@
         "cn_latency_ms": 42.0,
         "speed_mbs": 13.5,
         "score": 94.0,
-        "hit_ratio": 1.14,
+        "hit_ratio": 1.16,
         "is_direct_cname": true,
         "country": "JP",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
-        "ip": "162.159.38.71",
+        "ip": "162.159.38.19",
+        "domain": "cloudflare.19931110.xyz",
+        "cn_latency_ms": 42.0,
+        "speed_mbs": 13.5,
+        "score": 94.0,
+        "hit_ratio": 1.16,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.38.185",
         "domain": "cloudflare.19931110.xyz",
         "cn_latency_ms": 42.0,
         "speed_mbs": 13.5,
@@ -452,7 +507,7 @@
         "hit_ratio": 1.14,
         "is_direct_cname": true,
         "country": "JP",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
         "ip": "162.159.38.179",
@@ -463,95 +518,40 @@
         "hit_ratio": 1.14,
         "is_direct_cname": true,
         "country": "JP",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
-        "ip": "162.159.38.239",
+        "ip": "162.159.38.178",
         "domain": "cloudflare.19931110.xyz",
         "cn_latency_ms": 42.0,
         "speed_mbs": 13.5,
         "score": 94.0,
-        "hit_ratio": 1.12,
+        "hit_ratio": 1.14,
         "is_direct_cname": true,
         "country": "JP",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
-        "ip": "162.159.38.9",
+        "ip": "162.159.38.175",
         "domain": "cloudflare.19931110.xyz",
         "cn_latency_ms": 42.0,
         "speed_mbs": 13.5,
         "score": 94.0,
-        "hit_ratio": 1.12,
+        "hit_ratio": 1.14,
         "is_direct_cname": true,
         "country": "JP",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
-        "ip": "162.159.38.11",
+        "ip": "162.159.38.166",
         "domain": "cloudflare.19931110.xyz",
         "cn_latency_ms": 42.0,
         "speed_mbs": 13.5,
         "score": 94.0,
-        "hit_ratio": 1.12,
+        "hit_ratio": 1.14,
         "is_direct_cname": true,
         "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.13",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.12,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.19",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.12,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.50",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.12,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.53",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.12,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
-      },
-      {
-        "ip": "162.159.38.65",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 42.0,
-        "speed_mbs": 13.5,
-        "score": 94.0,
-        "hit_ratio": 1.12,
-        "is_direct_cname": true,
-        "country": "JP",
-        "colo": "IAD"
+        "colo": "MSP"
       }
     ],
     "cu": [
@@ -561,10 +561,10 @@
         "cn_latency_ms": 85.0,
         "speed_mbs": 12.5,
         "score": 90.0,
-        "hit_ratio": 46.19,
+        "hit_ratio": 45.93,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
         "ip": "104.19.59.227",
@@ -572,10 +572,10 @@
         "cn_latency_ms": 85.0,
         "speed_mbs": 12.5,
         "score": 90.0,
-        "hit_ratio": 3.81,
+        "hit_ratio": 4.07,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
         "ip": "104.17.30.233",
@@ -583,32 +583,10 @@
         "cn_latency_ms": 85.0,
         "speed_mbs": 12.5,
         "score": 90.0,
-        "hit_ratio": 3.81,
+        "hit_ratio": 4.07,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "108.162.198.44",
-        "domain": "224322.xyz",
-        "cn_latency_ms": 135.0,
-        "speed_mbs": 11.8,
-        "score": 88.0,
-        "hit_ratio": 5.66,
-        "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
-      },
-      {
-        "ip": "172.64.52.52",
-        "domain": "224322.xyz",
-        "cn_latency_ms": 135.0,
-        "speed_mbs": 11.8,
-        "score": 88.0,
-        "hit_ratio": 5.66,
-        "is_direct_cname": true,
-        "country": "TW",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
         "ip": "162.159.45.155",
@@ -616,21 +594,54 @@
         "cn_latency_ms": 135.0,
         "speed_mbs": 11.8,
         "score": 88.0,
-        "hit_ratio": 5.66,
+        "hit_ratio": 5.07,
         "is_direct_cname": true,
         "country": "HK",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
-        "ip": "162.159.153.2",
+        "ip": "108.162.198.44",
+        "domain": "224322.xyz",
+        "cn_latency_ms": 135.0,
+        "speed_mbs": 11.8,
+        "score": 88.0,
+        "hit_ratio": 5.07,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "172.64.52.52",
+        "domain": "224322.xyz",
+        "cn_latency_ms": 135.0,
+        "speed_mbs": 11.8,
+        "score": 88.0,
+        "hit_ratio": 5.07,
+        "is_direct_cname": true,
+        "country": "TW",
+        "colo": "MSP"
+      },
+      {
+        "ip": "172.67.152.183",
         "domain": "cf.877771.xyz",
         "cn_latency_ms": 138.0,
         "speed_mbs": 3.0,
         "score": 80.0,
-        "hit_ratio": 37.11,
+        "hit_ratio": 26.59,
         "is_direct_cname": true,
-        "country": "TW",
-        "colo": "IAD"
+        "country": "HK",
+        "colo": "MCI"
+      },
+      {
+        "ip": "104.21.80.180",
+        "domain": "cf.877771.xyz",
+        "cn_latency_ms": 138.0,
+        "speed_mbs": 3.0,
+        "score": 80.0,
+        "hit_ratio": 26.59,
+        "is_direct_cname": true,
+        "country": "HK",
+        "colo": "MCI"
       },
       {
         "ip": "162.159.152.2",
@@ -638,10 +649,43 @@
         "cn_latency_ms": 138.0,
         "speed_mbs": 3.0,
         "score": 80.0,
-        "hit_ratio": 37.11,
+        "hit_ratio": 12.06,
         "is_direct_cname": true,
         "country": "TW",
-        "colo": "IAD"
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.153.2",
+        "domain": "cf.877771.xyz",
+        "cn_latency_ms": 138.0,
+        "speed_mbs": 3.0,
+        "score": 80.0,
+        "hit_ratio": 12.06,
+        "is_direct_cname": true,
+        "country": "TW",
+        "colo": "MSP"
+      },
+      {
+        "ip": "188.114.97.3",
+        "domain": "cf.877771.xyz",
+        "cn_latency_ms": 138.0,
+        "speed_mbs": 3.0,
+        "score": 80.0,
+        "hit_ratio": 6.87,
+        "is_direct_cname": true,
+        "country": "EU",
+        "colo": "MCI"
+      },
+      {
+        "ip": "188.114.96.3",
+        "domain": "cf.877771.xyz",
+        "cn_latency_ms": 138.0,
+        "speed_mbs": 3.0,
+        "score": 80.0,
+        "hit_ratio": 6.87,
+        "is_direct_cname": true,
+        "country": "EU",
+        "colo": "MCI"
       },
       {
         "ip": "195.85.59.10",
@@ -649,21 +693,10 @@
         "cn_latency_ms": 138.0,
         "speed_mbs": 3.0,
         "score": 80.0,
-        "hit_ratio": 5.03,
+        "hit_ratio": 1.82,
         "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.26.5.48",
-        "domain": "cf.godns.cc",
-        "cn_latency_ms": 160.0,
-        "speed_mbs": 13.3,
-        "score": 96.0,
-        "hit_ratio": 42.25,
-        "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
+        "country": "CF",
+        "colo": "MSP"
       },
       {
         "ip": "172.67.68.157",
@@ -671,21 +704,10 @@
         "cn_latency_ms": 160.0,
         "speed_mbs": 13.3,
         "score": 96.0,
-        "hit_ratio": 41.09,
+        "hit_ratio": 36.77,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.26.13.54",
-        "domain": "cf.godns.cc",
-        "cn_latency_ms": 160.0,
-        "speed_mbs": 13.3,
-        "score": 96.0,
-        "hit_ratio": 40.96,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
         "ip": "104.26.12.54",
@@ -693,10 +715,10 @@
         "cn_latency_ms": 160.0,
         "speed_mbs": 13.3,
         "score": 96.0,
-        "hit_ratio": 34.72,
+        "hit_ratio": 36.02,
         "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
+        "country": "CF",
+        "colo": "MSP"
       },
       {
         "ip": "104.26.5.46",
@@ -704,10 +726,32 @@
         "cn_latency_ms": 160.0,
         "speed_mbs": 13.3,
         "score": 96.0,
-        "hit_ratio": 34.03,
+        "hit_ratio": 32.59,
         "is_direct_cname": true,
         "country": "HK",
-        "colo": "IAD"
+        "colo": "MSP"
+      },
+      {
+        "ip": "104.26.5.48",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 160.0,
+        "speed_mbs": 13.3,
+        "score": 96.0,
+        "hit_ratio": 32.08,
+        "is_direct_cname": true,
+        "country": "HK",
+        "colo": "MSP"
+      },
+      {
+        "ip": "104.26.13.54",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 160.0,
+        "speed_mbs": 13.3,
+        "score": 96.0,
+        "hit_ratio": 31.44,
+        "is_direct_cname": true,
+        "country": "CF",
+        "colo": "MSP"
       },
       {
         "ip": "104.26.6.52",
@@ -715,10 +759,32 @@
         "cn_latency_ms": 160.0,
         "speed_mbs": 13.3,
         "score": 96.0,
-        "hit_ratio": 30.42,
+        "hit_ratio": 26.99,
         "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
+        "country": "CF",
+        "colo": "MSP"
+      },
+      {
+        "ip": "172.64.154.211",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 160.0,
+        "speed_mbs": 13.3,
+        "score": 96.0,
+        "hit_ratio": 12.0,
+        "is_direct_cname": true,
+        "country": "CF",
+        "colo": "MSP"
+      },
+      {
+        "ip": "104.18.33.45",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 160.0,
+        "speed_mbs": 13.3,
+        "score": 96.0,
+        "hit_ratio": 11.18,
+        "is_direct_cname": true,
+        "country": "HK",
+        "colo": "MSP"
       },
       {
         "ip": "108.162.198.190",
@@ -726,10 +792,21 @@
         "cn_latency_ms": 160.0,
         "speed_mbs": 13.3,
         "score": 96.0,
-        "hit_ratio": 11.8,
+        "hit_ratio": 8.9,
         "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
+        "country": "JP",
+        "colo": "MSP"
+      },
+      {
+        "ip": "108.162.198.9",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 160.0,
+        "speed_mbs": 13.3,
+        "score": 96.0,
+        "hit_ratio": 4.75,
+        "is_direct_cname": true,
+        "country": "JP",
+        "colo": "MSP"
       },
       {
         "ip": "162.159.39.13",
@@ -737,10 +814,10 @@
         "cn_latency_ms": 160.0,
         "speed_mbs": 13.3,
         "score": 96.0,
-        "hit_ratio": 7.09,
+        "hit_ratio": 3.74,
         "is_direct_cname": true,
         "country": "JP",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
         "ip": "162.159.44.105",
@@ -748,10 +825,32 @@
         "cn_latency_ms": 160.0,
         "speed_mbs": 13.3,
         "score": 96.0,
-        "hit_ratio": 3.18,
+        "hit_ratio": 3.4,
         "is_direct_cname": true,
         "country": "HK",
-        "colo": "IAD"
+        "colo": "MSP"
+      },
+      {
+        "ip": "172.64.52.31",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 160.0,
+        "speed_mbs": 13.3,
+        "score": 96.0,
+        "hit_ratio": 2.94,
+        "is_direct_cname": true,
+        "country": "TW",
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.44.27",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 160.0,
+        "speed_mbs": 13.3,
+        "score": 96.0,
+        "hit_ratio": 1.95,
+        "is_direct_cname": true,
+        "country": "HK",
+        "colo": "MSP"
       },
       {
         "ip": "172.64.53.155",
@@ -759,10 +858,21 @@
         "cn_latency_ms": 160.0,
         "speed_mbs": 13.3,
         "score": 96.0,
-        "hit_ratio": 1.59,
+        "hit_ratio": 0.93,
         "is_direct_cname": true,
         "country": "HK",
-        "colo": "IAD"
+        "colo": "MSP"
+      },
+      {
+        "ip": "162.159.44.62",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 160.0,
+        "speed_mbs": 13.3,
+        "score": 96.0,
+        "hit_ratio": 0.91,
+        "is_direct_cname": true,
+        "country": "HK",
+        "colo": "MSP"
       },
       {
         "ip": "172.64.149.209",
@@ -770,21 +880,10 @@
         "cn_latency_ms": 165.0,
         "speed_mbs": 14.0,
         "score": 94.0,
-        "hit_ratio": 5.69,
+        "hit_ratio": 4.8,
         "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "108.162.198.9",
-        "domain": "ctsg.cfyx.aliyun.20237737.xyz",
-        "cn_latency_ms": 165.0,
-        "speed_mbs": 14.0,
-        "score": 94.0,
-        "hit_ratio": 5.36,
-        "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
+        "country": "CF",
+        "colo": "MSP"
       },
       {
         "ip": "172.64.156.147",
@@ -792,21 +891,10 @@
         "cn_latency_ms": 165.0,
         "speed_mbs": 14.0,
         "score": 94.0,
-        "hit_ratio": 4.69,
+        "hit_ratio": 4.27,
         "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "172.64.52.31",
-        "domain": "ctsg.cfyx.aliyun.20237737.xyz",
-        "cn_latency_ms": 165.0,
-        "speed_mbs": 14.0,
-        "score": 94.0,
-        "hit_ratio": 3.35,
-        "is_direct_cname": true,
-        "country": "TW",
-        "colo": "IAD"
+        "country": "CF",
+        "colo": "MSP"
       },
       {
         "ip": "104.26.10.230",
@@ -814,10 +902,10 @@
         "cn_latency_ms": 170.0,
         "speed_mbs": 11.6,
         "score": 90.0,
-        "hit_ratio": 85.05,
+        "hit_ratio": 84.95,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
         "ip": "108.162.198.183",
@@ -825,10 +913,10 @@
         "cn_latency_ms": 170.0,
         "speed_mbs": 11.6,
         "score": 90.0,
-        "hit_ratio": 7.48,
+        "hit_ratio": 7.53,
         "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
+        "country": "JP",
+        "colo": "MSP"
       },
       {
         "ip": "172.64.153.74",
@@ -836,21 +924,10 @@
         "cn_latency_ms": 170.0,
         "speed_mbs": 11.6,
         "score": 90.0,
-        "hit_ratio": 7.48,
+        "hit_ratio": 7.53,
         "is_direct_cname": true,
         "country": "HK",
-        "colo": "IAD"
-      },
-      {
-        "ip": "172.64.144.82",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 180.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 30.52,
-        "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
         "ip": "104.18.43.174",
@@ -858,32 +935,21 @@
         "cn_latency_ms": 180.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 30.52,
+        "hit_ratio": 27.28,
         "is_direct_cname": true,
         "country": "HK",
-        "colo": "IAD"
+        "colo": "MSP"
       },
       {
-        "ip": "104.26.10.221",
+        "ip": "172.64.144.82",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 180.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 10.82,
+        "hit_ratio": 27.28,
         "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.26.11.221",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 180.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 10.82,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
+        "country": "HK",
+        "colo": "MSP"
       },
       {
         "ip": "172.67.73.25",
@@ -891,43 +957,32 @@
         "cn_latency_ms": 180.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 10.82,
+        "hit_ratio": 9.47,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
-        "ip": "172.67.74.151",
+        "ip": "104.26.10.221",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 180.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 8.83,
+        "hit_ratio": 9.47,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
-        "ip": "104.26.6.138",
+        "ip": "104.26.11.221",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 180.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 8.83,
+        "hit_ratio": 9.47,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.26.7.138",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 180.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 8.83,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
         "ip": "172.67.73.167",
@@ -935,21 +990,10 @@
         "cn_latency_ms": 180.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 5.81,
+        "hit_ratio": 9.15,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.26.14.26",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 180.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 5.81,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
         "ip": "104.26.15.26",
@@ -957,54 +1001,76 @@
         "cn_latency_ms": 180.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 5.81,
+        "hit_ratio": 9.15,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
-        "ip": "104.18.34.48",
+        "ip": "104.26.14.26",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 180.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 1.32,
+        "hit_ratio": 9.15,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
-        "ip": "172.64.153.208",
+        "ip": "104.26.7.138",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 180.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 1.32,
+        "hit_ratio": 8.93,
         "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
+        "country": "US",
+        "colo": "ORD"
       },
       {
-        "ip": "104.18.38.47",
+        "ip": "172.67.74.151",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 180.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 1.0,
+        "hit_ratio": 8.93,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
-        "ip": "104.18.38.97",
+        "ip": "104.26.6.138",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 180.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 0.77,
+        "hit_ratio": 8.93,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.18.39.141",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 180.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 1.72,
+        "is_direct_cname": true,
+        "country": "CF",
+        "colo": "MSP"
+      },
+      {
+        "ip": "172.64.148.115",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 180.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 1.72,
+        "is_direct_cname": true,
+        "country": "CF",
+        "colo": "MSP"
       },
       {
         "ip": "172.64.149.159",
@@ -1012,144 +1078,56 @@
         "cn_latency_ms": 180.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 0.77,
+        "hit_ratio": 1.07,
         "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
+        "country": "CF",
+        "colo": "MSP"
       },
       {
-        "ip": "172.64.154.75",
+        "ip": "104.18.38.97",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 180.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 0.66,
+        "hit_ratio": 1.07,
         "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
+        "country": "CF",
+        "colo": "MSP"
       },
       {
-        "ip": "104.18.33.181",
+        "ip": "104.18.38.47",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 180.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 0.66,
+        "hit_ratio": 0.53,
         "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.21.71.249",
-        "domain": "yg8.ygkkk.dpdns.org",
-        "cn_latency_ms": 185.0,
-        "speed_mbs": 13.2,
-        "score": 90.0,
-        "hit_ratio": 27.56,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "EWR"
-      },
-      {
-        "ip": "172.67.172.155",
-        "domain": "yg8.ygkkk.dpdns.org",
-        "cn_latency_ms": 185.0,
-        "speed_mbs": 13.2,
-        "score": 90.0,
-        "hit_ratio": 27.56,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "EWR"
-      },
-      {
-        "ip": "172.66.47.45",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 190.0,
-        "speed_mbs": 13.5,
-        "score": 92.0,
-        "hit_ratio": 4.15,
-        "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
-      },
-      {
-        "ip": "172.66.44.211",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 190.0,
-        "speed_mbs": 13.5,
-        "score": 92.0,
-        "hit_ratio": 4.15,
-        "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
-      },
-      {
-        "ip": "108.162.198.148",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 190.0,
-        "speed_mbs": 13.5,
-        "score": 92.0,
-        "hit_ratio": 2.11,
-        "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
-      },
-      {
-        "ip": "108.162.198.172",
-        "domain": "cloudflare.19931110.xyz",
-        "cn_latency_ms": 190.0,
-        "speed_mbs": 13.5,
-        "score": 92.0,
-        "hit_ratio": 2.11,
-        "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
+        "country": "CF",
+        "colo": "MSP"
       }
     ],
     "cm": [
+      {
+        "ip": "104.17.222.40",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.3,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
       {
         "ip": "104.16.150.78",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.75,
+        "hit_ratio": 4.3,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.19.54.28",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.74,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.19.50.188",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.74,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.16.144.114",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.74,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
         "ip": "104.16.146.234",
@@ -1157,186 +1135,10 @@
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.72,
+        "hit_ratio": 4.3,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.16.144.130",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.72,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.16.155.250",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.72,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.16.159.115",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.72,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.16.155.172",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.71,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.19.51.204",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.71,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.19.35.19",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.71,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.19.50.155",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.71,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.17.191.163",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.7,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.16.242.139",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.68,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.17.222.40",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.68,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.17.51.91",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.68,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.19.50.29",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.68,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.17.184.155",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.68,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.16.242.120",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.68,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.17.186.167",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.68,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.16.249.15",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.66,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
         "ip": "104.19.35.94",
@@ -1344,54 +1146,98 @@
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.66,
+        "hit_ratio": 4.3,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
-        "ip": "104.17.186.184",
+        "ip": "104.19.54.28",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.63,
+        "hit_ratio": 4.3,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
-        "ip": "104.17.176.174",
+        "ip": "104.17.191.163",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.63,
+        "hit_ratio": 4.29,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
-        "ip": "104.17.21.238",
+        "ip": "104.17.186.167",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.63,
+        "hit_ratio": 4.29,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
-        "ip": "104.17.21.219",
+        "ip": "104.16.155.250",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.63,
+        "hit_ratio": 4.28,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.16.155.172",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.28,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.16.144.130",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.28,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.16.144.114",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.28,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.19.35.19",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.28,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
       },
       {
         "ip": "104.16.249.77",
@@ -1399,54 +1245,54 @@
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.6,
+        "hit_ratio": 4.28,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
-        "ip": "104.17.31.250",
+        "ip": "104.19.50.29",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.6,
+        "hit_ratio": 4.28,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
-        "ip": "104.17.112.66",
+        "ip": "104.17.186.184",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.6,
+        "hit_ratio": 4.27,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
-        "ip": "104.17.55.175",
+        "ip": "104.16.242.120",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.6,
+        "hit_ratio": 4.27,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
-        "ip": "104.17.21.246",
+        "ip": "104.16.159.115",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.6,
+        "hit_ratio": 4.27,
         "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
+        "country": "CF",
+        "colo": "MSP"
       },
       {
         "ip": "104.17.104.166",
@@ -1454,10 +1300,10 @@
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.58,
+        "hit_ratio": 4.26,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
         "ip": "104.17.61.49",
@@ -1465,87 +1311,21 @@
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.58,
+        "hit_ratio": 4.26,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
-        "ip": "104.17.116.123",
+        "ip": "104.16.249.15",
         "domain": "666.cf.cname.vvhan.com",
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.57,
+        "hit_ratio": 4.26,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.17.156.25",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.57,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.17.29.61",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.57,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.17.120.129",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.57,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.17.161.88",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.56,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.17.121.215",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.55,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
-      },
-      {
-        "ip": "104.17.149.220",
-        "domain": "666.cf.cname.vvhan.com",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.7,
-        "score": 90.0,
-        "hit_ratio": 4.53,
-        "is_direct_cname": true,
-        "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
         "ip": "104.17.170.218",
@@ -1553,10 +1333,131 @@
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.53,
+        "hit_ratio": 4.25,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.17.21.238",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.25,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.16.242.139",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.25,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.19.51.204",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.25,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.17.184.155",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.24,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.17.116.123",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.24,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.17.176.174",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.24,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.17.161.88",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.24,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.17.156.25",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.24,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.19.50.188",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.24,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.19.50.155",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.24,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.17.21.219",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.23,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
       },
       {
         "ip": "104.17.112.149",
@@ -1564,10 +1465,32 @@
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.52,
+        "hit_ratio": 4.22,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.17.55.175",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.22,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.17.149.220",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.22,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
       },
       {
         "ip": "104.17.124.179",
@@ -1575,76 +1498,109 @@
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.7,
         "score": 90.0,
-        "hit_ratio": 4.51,
+        "hit_ratio": 4.22,
         "is_direct_cname": true,
         "country": "US",
-        "colo": "IAD"
+        "colo": "ORD"
       },
       {
-        "ip": "198.41.208.128",
+        "ip": "104.17.120.129",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.22,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.17.21.246",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.22,
+        "is_direct_cname": true,
+        "country": "CF",
+        "colo": "MSP"
+      },
+      {
+        "ip": "104.17.112.66",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.2,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.17.51.91",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.2,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.17.121.215",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.2,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.17.31.250",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.2,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.17.29.61",
+        "domain": "666.cf.cname.vvhan.com",
+        "cn_latency_ms": 64.0,
+        "speed_mbs": 13.7,
+        "score": 90.0,
+        "hit_ratio": 4.2,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "ORD"
+      },
+      {
+        "ip": "172.67.172.155",
         "domain": "yg8.ygkkk.dpdns.org",
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.2,
         "score": 90.0,
-        "hit_ratio": 0.03,
+        "hit_ratio": 4.08,
         "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
+        "country": "CF",
+        "colo": "MCI"
       },
       {
-        "ip": "198.41.208.224",
+        "ip": "104.21.71.249",
         "domain": "yg8.ygkkk.dpdns.org",
         "cn_latency_ms": 64.0,
         "speed_mbs": 13.2,
         "score": 90.0,
-        "hit_ratio": 0.03,
+        "hit_ratio": 4.08,
         "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
-      },
-      {
-        "ip": "198.41.209.183",
-        "domain": "yg8.ygkkk.dpdns.org",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.2,
-        "score": 90.0,
-        "hit_ratio": 0.03,
-        "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
-      },
-      {
-        "ip": "198.41.209.206",
-        "domain": "yg8.ygkkk.dpdns.org",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.2,
-        "score": 90.0,
-        "hit_ratio": 0.03,
-        "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
-      },
-      {
-        "ip": "198.41.209.208",
-        "domain": "yg8.ygkkk.dpdns.org",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.2,
-        "score": 90.0,
-        "hit_ratio": 0.03,
-        "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
-      },
-      {
-        "ip": "198.41.209.242",
-        "domain": "yg8.ygkkk.dpdns.org",
-        "cn_latency_ms": 64.0,
-        "speed_mbs": 13.2,
-        "score": 90.0,
-        "hit_ratio": 0.03,
-        "is_direct_cname": true,
-        "country": "HK",
-        "colo": "IAD"
+        "country": "CF",
+        "colo": "MCI"
       },
       {
         "ip": "104.17.185.207",
@@ -1652,10 +1608,54 @@
         "cn_latency_ms": 67.0,
         "speed_mbs": 13.3,
         "score": 96.0,
-        "hit_ratio": 150.0,
+        "hit_ratio": 141.39,
         "is_direct_cname": true,
         "country": "TW",
-        "colo": "IAD"
+        "colo": "ORD"
+      },
+      {
+        "ip": "104.17.101.139",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 67.0,
+        "speed_mbs": 13.3,
+        "score": 96.0,
+        "hit_ratio": 141.39,
+        "is_direct_cname": true,
+        "country": "TW",
+        "colo": "ORD"
+      },
+      {
+        "ip": "172.64.154.211",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 67.0,
+        "speed_mbs": 13.3,
+        "score": 96.0,
+        "hit_ratio": 8.89,
+        "is_direct_cname": true,
+        "country": "CF",
+        "colo": "MSP"
+      },
+      {
+        "ip": "104.18.33.45",
+        "domain": "cf.godns.cc",
+        "cn_latency_ms": 67.0,
+        "speed_mbs": 13.3,
+        "score": 96.0,
+        "hit_ratio": 8.33,
+        "is_direct_cname": true,
+        "country": "HK",
+        "colo": "MSP"
+      },
+      {
+        "ip": "141.101.121.216",
+        "domain": "bestcf.top",
+        "cn_latency_ms": 68.0,
+        "speed_mbs": 12.5,
+        "score": 90.0,
+        "hit_ratio": 50.0,
+        "is_direct_cname": true,
+        "country": "US",
+        "colo": "DFW"
       }
     ]
   }
