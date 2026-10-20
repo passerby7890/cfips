@@ -1,17 +1,62 @@
 {
-  "updated_at": "2026-10-20T12:50:31+08:00",
-  "timestamp": 1792471831,
-  "total_verified_ok": 1072,
+  "updated_at": "2026-10-20T13:14:29+08:00",
+  "timestamp": 1792473269,
+  "total_verified_ok": 1081,
   "by_carrier": {
     "ct": [
       {
-        "ip": "104.18.12.242",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 26.36,
+        "ip": "104.17.157.251",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.36,
         "is_shifted_neighbor": true,
-        "score": 11.36,
+        "score": 2.36,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.17.157.24"
+        ]
+      },
+      {
+        "ip": "104.17.157.141",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.47,
+        "is_shifted_neighbor": true,
+        "score": 2.47,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.17.157.8"
+        ]
+      },
+      {
+        "ip": "104.17.117.138",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.57,
+        "is_shifted_neighbor": true,
+        "score": 2.57,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.17.117.23"
+        ]
+      },
+      {
+        "ip": "104.18.12.190",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.61,
+        "is_shifted_neighbor": true,
+        "score": 2.61,
         "carriers": [
           "cm",
           "ct",
@@ -23,85 +68,43 @@
         ]
       },
       {
-        "ip": "104.18.13.150",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 30.27,
+        "ip": "104.16.251.211",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.63,
         "is_shifted_neighbor": true,
-        "score": 15.27,
+        "score": 2.63,
         "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
+          "ct"
         ],
         "sources": [
-          "neighbor:104.18.13.229"
+          "neighbor:104.16.251.77"
         ]
       },
       {
-        "ip": "104.18.13.7",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 34.4,
+        "ip": "172.64.82.137",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.91,
         "is_shifted_neighbor": true,
-        "score": 19.4,
+        "score": 2.91,
         "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
+          "ct"
         ],
         "sources": [
-          "neighbor:104.18.13.229"
+          "neighbor:172.64.82.167"
         ]
       },
       {
-        "ip": "172.67.68.29",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 36.19,
+        "ip": "172.67.68.161",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.99,
         "is_shifted_neighbor": true,
-        "score": 21.19,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:172.67.68.157"
-        ]
-      },
-      {
-        "ip": "104.18.12.112",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 37.9,
-        "is_shifted_neighbor": true,
-        "score": 22.9,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.12.229"
-        ]
-      },
-      {
-        "ip": "172.67.68.190",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 38.54,
-        "is_shifted_neighbor": true,
-        "score": 23.54,
+        "score": 2.99,
         "carriers": [
           "cm",
           "ct",
@@ -113,103 +116,103 @@
         ]
       },
       {
-        "ip": "104.18.38.53",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 46.44,
+        "ip": "104.17.22.90",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.07,
         "is_shifted_neighbor": true,
-        "score": 31.44,
+        "score": 3.07,
         "carriers": [
           "ct"
         ],
         "sources": [
-          "neighbor:104.18.38.97"
+          "neighbor:104.17.22.130"
         ]
       },
       {
-        "ip": "172.64.149.98",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 47.39,
+        "ip": "104.17.159.147",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.1,
         "is_shifted_neighbor": true,
-        "score": 32.39,
+        "score": 3.1,
         "carriers": [
           "ct"
         ],
         "sources": [
-          "neighbor:172.64.149.159"
+          "neighbor:104.17.159.247"
         ]
       },
       {
-        "ip": "172.64.149.179",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 47.71,
+        "ip": "104.17.22.127",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.14,
         "is_shifted_neighbor": true,
-        "score": 32.71,
+        "score": 3.14,
         "carriers": [
           "ct"
         ],
         "sources": [
-          "neighbor:172.64.149.159"
+          "neighbor:104.17.22.130"
         ]
       },
       {
-        "ip": "104.18.38.111",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 48.07,
+        "ip": "172.64.229.28",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.16,
         "is_shifted_neighbor": true,
-        "score": 33.07,
+        "score": 3.16,
         "carriers": [
           "ct"
         ],
         "sources": [
-          "neighbor:104.18.38.97"
+          "neighbor:172.64.229.161"
         ]
       },
       {
-        "ip": "104.17.117.246",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 77.71,
+        "ip": "172.64.82.178",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.21,
         "is_shifted_neighbor": true,
-        "score": 62.71,
+        "score": 3.21,
         "carriers": [
           "ct"
         ],
         "sources": [
-          "neighbor:104.17.117.229"
+          "neighbor:172.64.82.180"
         ]
       },
       {
-        "ip": "172.64.154.75",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 65.74,
-        "is_shifted_neighbor": false,
-        "score": 65.74,
+        "ip": "104.18.39.131",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.23,
+        "is_shifted_neighbor": true,
+        "score": 3.23,
         "carriers": [
           "ct"
         ],
         "sources": [
-          "ecs:sh_ct"
+          "neighbor:104.18.39.141"
         ]
       },
       {
-        "ip": "104.26.13.8",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 81.22,
+        "ip": "104.26.13.109",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.27,
         "is_shifted_neighbor": true,
-        "score": 66.22,
+        "score": 3.27,
         "carriers": [
           "cm",
           "ct",
@@ -221,183 +224,45 @@
         ]
       },
       {
-        "ip": "104.17.117.249",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 86.14,
+        "ip": "104.16.251.125",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.38,
         "is_shifted_neighbor": true,
-        "score": 71.14,
+        "score": 3.38,
         "carriers": [
           "ct"
         ],
         "sources": [
-          "neighbor:104.17.117.190"
-        ]
-      },
-      {
-        "ip": "104.17.159.129",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 88.69,
-        "is_shifted_neighbor": true,
-        "score": 73.69,
-        "carriers": [
-          "ct"
-        ],
-        "sources": [
-          "neighbor:104.17.159.71"
+          "neighbor:104.16.251.189"
         ]
       }
     ],
     "cu": [
       {
-        "ip": "172.67.73.154",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 26.16,
+        "ip": "104.16.141.235",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.04,
         "is_shifted_neighbor": true,
-        "score": 11.16,
+        "score": 2.04,
         "carriers": [
           "cu"
         ],
         "sources": [
-          "neighbor:172.67.73.25"
+          "neighbor:104.16.141.98"
         ]
       },
       {
-        "ip": "104.18.12.242",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 26.36,
+        "ip": "104.19.148.184",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.3,
         "is_shifted_neighbor": true,
-        "score": 11.36,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.12.229"
-        ]
-      },
-      {
-        "ip": "172.67.73.204",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 28.71,
-        "is_shifted_neighbor": true,
-        "score": 13.71,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.67.73.25"
-        ]
-      },
-      {
-        "ip": "104.18.13.150",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 30.27,
-        "is_shifted_neighbor": true,
-        "score": 15.27,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.13.229"
-        ]
-      },
-      {
-        "ip": "104.18.13.7",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 34.4,
-        "is_shifted_neighbor": true,
-        "score": 19.4,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.13.229"
-        ]
-      },
-      {
-        "ip": "172.67.68.29",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 36.19,
-        "is_shifted_neighbor": true,
-        "score": 21.19,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:172.67.68.157"
-        ]
-      },
-      {
-        "ip": "104.18.12.112",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 37.9,
-        "is_shifted_neighbor": true,
-        "score": 22.9,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.12.229"
-        ]
-      },
-      {
-        "ip": "172.67.68.190",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 38.54,
-        "is_shifted_neighbor": true,
-        "score": 23.54,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:172.67.68.157"
-        ]
-      },
-      {
-        "ip": "104.19.148.171",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 45.83,
-        "is_shifted_neighbor": true,
-        "score": 30.83,
+        "score": 2.3,
         "carriers": [
           "cu"
         ],
@@ -406,106 +271,28 @@
         ]
       },
       {
-        "ip": "104.19.148.151",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 52.86,
+        "ip": "104.16.141.18",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.37,
         "is_shifted_neighbor": true,
-        "score": 37.86,
+        "score": 2.37,
         "carriers": [
           "cu"
         ],
         "sources": [
-          "neighbor:104.19.148.253"
+          "neighbor:104.16.141.25"
         ]
       },
       {
-        "ip": "172.64.229.41",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 56.26,
+        "ip": "104.18.12.190",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.61,
         "is_shifted_neighbor": true,
-        "score": 41.26,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.64.229.50"
-        ]
-      },
-      {
-        "ip": "172.64.229.8",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 64.58,
-        "is_shifted_neighbor": true,
-        "score": 49.58,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:172.64.229.50"
-        ]
-      },
-      {
-        "ip": "104.18.37.144",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 70.88,
-        "is_shifted_neighbor": true,
-        "score": 55.88,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.18.37.92"
-        ]
-      },
-      {
-        "ip": "104.17.156.2",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 71.79,
-        "is_shifted_neighbor": true,
-        "score": 56.79,
-        "carriers": [
-          "cm",
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.17.156.25"
-        ]
-      },
-      {
-        "ip": "104.26.11.174",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 76.37,
-        "is_shifted_neighbor": true,
-        "score": 61.37,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.26.11.221"
-        ]
-      }
-    ],
-    "cm": [
-      {
-        "ip": "104.18.12.242",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 26.36,
-        "is_shifted_neighbor": true,
-        "score": 11.36,
+        "score": 2.61,
         "carriers": [
           "cm",
           "ct",
@@ -517,639 +304,13 @@
         ]
       },
       {
-        "ip": "104.25.255.128",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 28.66,
+        "ip": "104.26.4.100",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.63,
         "is_shifted_neighbor": true,
-        "score": 13.66,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.25.255.55"
-        ]
-      },
-      {
-        "ip": "104.16.249.23",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 28.79,
-        "is_shifted_neighbor": true,
-        "score": 13.79,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.16.249.15"
-        ]
-      },
-      {
-        "ip": "172.67.202.149",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 28.93,
-        "is_shifted_neighbor": true,
-        "score": 13.93,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:172.67.202.57"
-        ]
-      },
-      {
-        "ip": "104.18.2.76",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 29.09,
-        "is_shifted_neighbor": true,
-        "score": 14.09,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.18.2.15"
-        ]
-      },
-      {
-        "ip": "104.25.66.195",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 29.29,
-        "is_shifted_neighbor": true,
-        "score": 14.29,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.25.66.59"
-        ]
-      },
-      {
-        "ip": "172.67.164.60",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 29.64,
-        "is_shifted_neighbor": true,
-        "score": 14.64,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:172.67.164.137"
-        ]
-      },
-      {
-        "ip": "172.67.164.1",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 29.67,
-        "is_shifted_neighbor": true,
-        "score": 14.67,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:172.67.164.187"
-        ]
-      },
-      {
-        "ip": "104.25.66.97",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 30.18,
-        "is_shifted_neighbor": true,
-        "score": 15.18,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.25.66.59"
-        ]
-      },
-      {
-        "ip": "104.18.13.150",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 30.27,
-        "is_shifted_neighbor": true,
-        "score": 15.27,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.13.229"
-        ]
-      },
-      {
-        "ip": "104.24.217.88",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 31.38,
-        "is_shifted_neighbor": true,
-        "score": 16.38,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.24.217.187"
-        ]
-      },
-      {
-        "ip": "104.25.255.220",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 32.76,
-        "is_shifted_neighbor": true,
-        "score": 17.76,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.25.255.55"
-        ]
-      },
-      {
-        "ip": "104.24.217.120",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 33.41,
-        "is_shifted_neighbor": true,
-        "score": 18.41,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.24.217.187"
-        ]
-      },
-      {
-        "ip": "104.18.13.7",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 34.4,
-        "is_shifted_neighbor": true,
-        "score": 19.4,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.13.229"
-        ]
-      },
-      {
-        "ip": "104.19.50.218",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 34.84,
-        "is_shifted_neighbor": true,
-        "score": 19.84,
-        "carriers": [
-          "cm"
-        ],
-        "sources": [
-          "neighbor:104.19.50.155"
-        ]
-      }
-    ],
-    "edu": [
-      {
-        "ip": "104.18.12.242",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 26.36,
-        "is_shifted_neighbor": true,
-        "score": 11.36,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.12.229"
-        ]
-      },
-      {
-        "ip": "104.18.13.150",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 30.27,
-        "is_shifted_neighbor": true,
-        "score": 15.27,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.13.229"
-        ]
-      },
-      {
-        "ip": "104.18.13.7",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 34.4,
-        "is_shifted_neighbor": true,
-        "score": 19.4,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.13.229"
-        ]
-      },
-      {
-        "ip": "172.67.68.29",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 36.19,
-        "is_shifted_neighbor": true,
-        "score": 21.19,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:172.67.68.157"
-        ]
-      },
-      {
-        "ip": "104.18.12.112",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 37.9,
-        "is_shifted_neighbor": true,
-        "score": 22.9,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.12.229"
-        ]
-      },
-      {
-        "ip": "172.67.68.190",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 38.54,
-        "is_shifted_neighbor": true,
-        "score": 23.54,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:172.67.68.157"
-        ]
-      },
-      {
-        "ip": "104.26.13.8",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 81.22,
-        "is_shifted_neighbor": true,
-        "score": 36.22,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.26.13.54"
-        ]
-      },
-      {
-        "ip": "104.26.12.138",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 91.59,
-        "is_shifted_neighbor": true,
-        "score": 46.59,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.26.12.54"
-        ]
-      },
-      {
-        "ip": "104.26.12.249",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 93.53,
-        "is_shifted_neighbor": true,
-        "score": 48.53,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.26.12.54"
-        ]
-      },
-      {
-        "ip": "104.26.13.39",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 107.31,
-        "is_shifted_neighbor": true,
-        "score": 62.31,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.26.13.54"
-        ]
-      },
-      {
-        "ip": "172.64.144.82",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 71.0,
-        "is_shifted_neighbor": false,
-        "score": 71.0,
-        "carriers": [
-          "edu"
-        ],
-        "sources": [
-          "ecs:gz_edu"
-        ]
-      },
-      {
-        "ip": "104.18.43.174",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 72.25,
-        "is_shifted_neighbor": false,
-        "score": 72.25,
-        "carriers": [
-          "edu"
-        ],
-        "sources": [
-          "ecs:gz_edu"
-        ]
-      },
-      {
-        "ip": "104.18.41.225",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 123.51,
-        "is_shifted_neighbor": true,
-        "score": 108.51,
-        "carriers": [
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.41.190"
-        ]
-      },
-      {
-        "ip": "104.18.41.18",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 123.75,
-        "is_shifted_neighbor": true,
-        "score": 108.75,
-        "carriers": [
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.18.41.190"
-        ]
-      },
-      {
-        "ip": "104.18.35.15",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 118.19,
-        "is_shifted_neighbor": false,
-        "score": 118.19,
-        "carriers": [
-          "edu"
-        ],
-        "sources": [
-          "ecs:bj_edu",
-          "ecs:sh_edu"
-        ]
-      }
-    ]
-  },
-  "by_country": {
-    "hk": [
-      {
-        "ip": "104.26.11.174",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 76.37,
-        "is_shifted_neighbor": true,
-        "score": 61.37,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.26.11.221"
-        ]
-      },
-      {
-        "ip": "104.26.13.8",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 81.22,
-        "is_shifted_neighbor": true,
-        "score": 66.22,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.26.13.54"
-        ]
-      },
-      {
-        "ip": "104.26.10.26",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 81.34,
-        "is_shifted_neighbor": true,
-        "score": 66.34,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.26.10.221"
-        ]
-      },
-      {
-        "ip": "104.26.10.196",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 83.96,
-        "is_shifted_neighbor": true,
-        "score": 68.96,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.26.10.221"
-        ]
-      },
-      {
-        "ip": "104.26.12.138",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 91.59,
-        "is_shifted_neighbor": true,
-        "score": 76.59,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.26.12.54"
-        ]
-      },
-      {
-        "ip": "104.26.12.249",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 93.53,
-        "is_shifted_neighbor": true,
-        "score": 78.53,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.26.12.54"
-        ]
-      },
-      {
-        "ip": "104.26.11.36",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 97.23,
-        "is_shifted_neighbor": true,
-        "score": 82.23,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "neighbor:104.26.11.221"
-        ]
-      },
-      {
-        "ip": "104.26.13.39",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 107.31,
-        "is_shifted_neighbor": true,
-        "score": 92.31,
-        "carriers": [
-          "cm",
-          "ct",
-          "cu",
-          "edu"
-        ],
-        "sources": [
-          "neighbor:104.26.13.54"
-        ]
-      },
-      {
-        "ip": "104.26.15.26",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 155.16,
-        "is_shifted_neighbor": false,
-        "score": 155.16,
-        "carriers": [
-          "cu"
-        ],
-        "sources": [
-          "ecs:bj_cu",
-          "ecs:sh_cu"
-        ]
-      },
-      {
-        "ip": "104.26.4.191",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 172.66,
-        "is_shifted_neighbor": true,
-        "score": 157.66,
+        "score": 2.63,
         "carriers": [
           "cu"
         ],
@@ -1158,106 +319,291 @@
         ]
       },
       {
-        "ip": "104.26.4.152",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 172.78,
+        "ip": "172.67.68.161",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.99,
         "is_shifted_neighbor": true,
-        "score": 157.78,
+        "score": 2.99,
         "carriers": [
-          "cu"
+          "cm",
+          "ct",
+          "cu",
+          "edu"
         ],
         "sources": [
-          "neighbor:104.26.4.237"
+          "neighbor:172.67.68.157"
         ]
       },
       {
-        "ip": "104.26.15.27",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 187.28,
+        "ip": "104.18.42.132",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.06,
         "is_shifted_neighbor": true,
-        "score": 172.28,
+        "score": 3.06,
         "carriers": [
           "cu"
         ],
         "sources": [
-          "neighbor:104.26.15.26"
+          "neighbor:104.18.42.54"
         ]
       },
       {
-        "ip": "104.26.14.26",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 174.15,
-        "is_shifted_neighbor": false,
-        "score": 174.15,
+        "ip": "104.26.4.77",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.22,
+        "is_shifted_neighbor": true,
+        "score": 3.22,
         "carriers": [
           "cu"
         ],
         "sources": [
-          "ecs:bj_cu",
-          "ecs:sh_cu"
+          "neighbor:104.26.4.32"
         ]
       },
       {
-        "ip": "104.26.5.2",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 206.08,
+        "ip": "172.64.83.53",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.24,
         "is_shifted_neighbor": true,
-        "score": 191.08,
+        "score": 3.24,
         "carriers": [
           "cu"
         ],
         "sources": [
-          "neighbor:104.26.5.134"
+          "neighbor:172.64.83.52"
         ]
       },
       {
-        "ip": "104.26.5.12",
-        "colo": "HKG",
-        "country": "hk",
-        "loc": "TW",
-        "latency_ms": 206.37,
+        "ip": "104.26.13.109",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.27,
         "is_shifted_neighbor": true,
-        "score": 191.37,
+        "score": 3.27,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.13.54"
+        ]
+      },
+      {
+        "ip": "104.26.6.152",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.4,
+        "is_shifted_neighbor": true,
+        "score": 3.4,
         "carriers": [
           "cu"
         ],
         "sources": [
-          "neighbor:104.26.5.134"
+          "neighbor:104.26.6.138"
+        ]
+      },
+      {
+        "ip": "104.21.229.195",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.44,
+        "is_shifted_neighbor": true,
+        "score": 3.44,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.21.229.161"
+        ]
+      },
+      {
+        "ip": "162.159.236.183",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.59,
+        "is_shifted_neighbor": true,
+        "score": 3.59,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:162.159.236.207"
+        ]
+      },
+      {
+        "ip": "104.18.37.1",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.77,
+        "is_shifted_neighbor": true,
+        "score": 3.77,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.18.37.89"
+        ]
+      },
+      {
+        "ip": "162.159.128.201",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.78,
+        "is_shifted_neighbor": true,
+        "score": 3.78,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:162.159.128.253"
         ]
       }
     ],
-    "tw": [
+    "cm": [
       {
-        "ip": "172.67.73.154",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 26.16,
+        "ip": "172.67.202.161",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 16.19,
         "is_shifted_neighbor": true,
-        "score": 11.16,
+        "score": 1.19,
         "carriers": [
-          "cu"
+          "cm"
         ],
         "sources": [
-          "neighbor:172.67.73.25"
+          "neighbor:172.67.202.89"
         ]
       },
       {
-        "ip": "104.18.12.242",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 26.36,
+        "ip": "104.16.155.123",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 16.73,
         "is_shifted_neighbor": true,
-        "score": 11.36,
+        "score": 1.73,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.16.155.172"
+        ]
+      },
+      {
+        "ip": "104.17.156.64",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.26,
+        "is_shifted_neighbor": true,
+        "score": 2.26,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.17.156.25"
+        ]
+      },
+      {
+        "ip": "104.17.161.148",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.36,
+        "is_shifted_neighbor": true,
+        "score": 2.36,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.17.161.88"
+        ]
+      },
+      {
+        "ip": "104.17.139.32",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.37,
+        "is_shifted_neighbor": true,
+        "score": 2.37,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.17.139.37"
+        ]
+      },
+      {
+        "ip": "104.16.85.78",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.52,
+        "is_shifted_neighbor": true,
+        "score": 2.52,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.16.85.81"
+        ]
+      },
+      {
+        "ip": "104.16.149.95",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.53,
+        "is_shifted_neighbor": true,
+        "score": 2.53,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.16.149.10"
+        ]
+      },
+      {
+        "ip": "104.17.222.56",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.56,
+        "is_shifted_neighbor": true,
+        "score": 2.56,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.17.222.40"
+        ]
+      },
+      {
+        "ip": "104.18.12.190",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.61,
+        "is_shifted_neighbor": true,
+        "score": 2.61,
         "carriers": [
           "cm",
           "ct",
@@ -1269,43 +615,46 @@
         ]
       },
       {
-        "ip": "104.25.255.128",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 28.66,
+        "ip": "104.17.152.111",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.98,
         "is_shifted_neighbor": true,
-        "score": 13.66,
+        "score": 2.98,
         "carriers": [
           "cm"
         ],
         "sources": [
-          "neighbor:104.25.255.55"
+          "neighbor:104.17.152.166"
         ]
       },
       {
-        "ip": "172.67.73.204",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 28.71,
+        "ip": "172.67.68.161",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.99,
         "is_shifted_neighbor": true,
-        "score": 13.71,
+        "score": 2.99,
         "carriers": [
-          "cu"
+          "cm",
+          "ct",
+          "cu",
+          "edu"
         ],
         "sources": [
-          "neighbor:172.67.73.25"
+          "neighbor:172.67.68.157"
         ]
       },
       {
-        "ip": "104.16.249.23",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 28.79,
+        "ip": "104.16.249.180",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.01,
         "is_shifted_neighbor": true,
-        "score": 13.79,
+        "score": 3.01,
         "carriers": [
           "cm"
         ],
@@ -1314,103 +663,228 @@
         ]
       },
       {
-        "ip": "172.67.202.149",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 28.93,
+        "ip": "104.16.85.200",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.02,
         "is_shifted_neighbor": true,
-        "score": 13.93,
+        "score": 3.02,
         "carriers": [
           "cm"
         ],
         "sources": [
-          "neighbor:172.67.202.57"
+          "neighbor:104.16.85.69"
         ]
       },
       {
-        "ip": "104.18.2.76",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 29.09,
+        "ip": "172.67.202.178",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.07,
         "is_shifted_neighbor": true,
-        "score": 14.09,
+        "score": 3.07,
         "carriers": [
           "cm"
         ],
         "sources": [
-          "neighbor:104.18.2.15"
+          "neighbor:172.67.202.216"
         ]
       },
       {
-        "ip": "104.25.66.195",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 29.29,
+        "ip": "104.16.144.210",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.08,
         "is_shifted_neighbor": true,
-        "score": 14.29,
+        "score": 3.08,
         "carriers": [
           "cm"
         ],
         "sources": [
-          "neighbor:104.25.66.59"
+          "neighbor:104.16.144.130"
         ]
-      },
+      }
+    ],
+    "edu": [
       {
-        "ip": "172.67.164.60",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 29.64,
+        "ip": "104.18.12.190",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.61,
         "is_shifted_neighbor": true,
-        "score": 14.64,
+        "score": 2.61,
         "carriers": [
-          "cm"
+          "cm",
+          "ct",
+          "cu",
+          "edu"
         ],
         "sources": [
-          "neighbor:172.67.164.137"
+          "neighbor:104.18.12.229"
         ]
       },
       {
-        "ip": "172.67.164.1",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 29.67,
+        "ip": "172.67.68.161",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.99,
         "is_shifted_neighbor": true,
-        "score": 14.67,
+        "score": 2.99,
         "carriers": [
-          "cm"
+          "cm",
+          "ct",
+          "cu",
+          "edu"
         ],
         "sources": [
-          "neighbor:172.67.164.187"
+          "neighbor:172.67.68.157"
         ]
       },
       {
-        "ip": "104.25.66.97",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 30.18,
+        "ip": "104.26.13.109",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 18.27,
         "is_shifted_neighbor": true,
-        "score": 15.18,
+        "score": 3.27,
         "carriers": [
-          "cm"
+          "cm",
+          "ct",
+          "cu",
+          "edu"
         ],
         "sources": [
-          "neighbor:104.25.66.59"
+          "neighbor:104.26.13.54"
         ]
       },
       {
-        "ip": "104.18.13.150",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 30.27,
+        "ip": "172.64.152.130",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 19.27,
         "is_shifted_neighbor": true,
-        "score": 15.27,
+        "score": 4.27,
+        "carriers": [
+          "edu"
+        ],
+        "sources": [
+          "neighbor:172.64.152.241"
+        ]
+      },
+      {
+        "ip": "104.26.13.182",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 19.27,
+        "is_shifted_neighbor": true,
+        "score": 4.27,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.13.54"
+        ]
+      },
+      {
+        "ip": "104.26.12.132",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 19.85,
+        "is_shifted_neighbor": true,
+        "score": 4.85,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.12.54"
+        ]
+      },
+      {
+        "ip": "104.18.41.134",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 20.28,
+        "is_shifted_neighbor": true,
+        "score": 5.28,
+        "carriers": [
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.18.41.190"
+        ]
+      },
+      {
+        "ip": "172.64.152.94",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 20.38,
+        "is_shifted_neighbor": true,
+        "score": 5.38,
+        "carriers": [
+          "edu"
+        ],
+        "sources": [
+          "neighbor:172.64.152.241"
+        ]
+      },
+      {
+        "ip": "172.64.144.175",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 21.13,
+        "is_shifted_neighbor": true,
+        "score": 6.13,
+        "carriers": [
+          "edu"
+        ],
+        "sources": [
+          "neighbor:172.64.144.82"
+        ]
+      },
+      {
+        "ip": "104.26.12.119",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 21.18,
+        "is_shifted_neighbor": true,
+        "score": 6.18,
+        "carriers": [
+          "cm",
+          "ct",
+          "cu",
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.26.12.54"
+        ]
+      },
+      {
+        "ip": "104.18.13.48",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 21.51,
+        "is_shifted_neighbor": true,
+        "score": 6.51,
         "carriers": [
           "cm",
           "ct",
@@ -1422,83 +896,296 @@
         ]
       },
       {
-        "ip": "104.24.217.88",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 31.38,
+        "ip": "172.64.146.82",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 22.12,
         "is_shifted_neighbor": true,
-        "score": 16.38,
+        "score": 7.12,
         "carriers": [
-          "cm"
+          "edu"
         ],
         "sources": [
-          "neighbor:104.24.217.187"
+          "neighbor:172.64.146.66"
         ]
       },
       {
-        "ip": "104.25.255.220",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 32.76,
+        "ip": "104.18.13.180",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 22.15,
         "is_shifted_neighbor": true,
-        "score": 17.76,
+        "score": 7.15,
         "carriers": [
-          "cm"
+          "cm",
+          "ct",
+          "cu",
+          "edu"
         ],
         "sources": [
-          "neighbor:104.25.255.55"
+          "neighbor:104.18.13.229"
         ]
       },
       {
-        "ip": "104.24.217.120",
-        "colo": "TPE",
-        "country": "tw",
-        "loc": "TW",
-        "latency_ms": 33.41,
+        "ip": "172.64.146.239",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 22.17,
         "is_shifted_neighbor": true,
-        "score": 18.41,
+        "score": 7.17,
         "carriers": [
-          "cm"
+          "edu"
         ],
         "sources": [
-          "neighbor:104.24.217.187"
+          "neighbor:172.64.146.66"
+        ]
+      },
+      {
+        "ip": "104.18.35.68",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 22.18,
+        "is_shifted_neighbor": true,
+        "score": 7.18,
+        "carriers": [
+          "edu"
+        ],
+        "sources": [
+          "neighbor:104.18.35.15"
         ]
       }
-    ],
+    ]
+  },
+  "by_country": {
+    "hk": [],
+    "tw": [],
     "jp": [],
     "sg": [],
     "kr": [],
     "us": [
       {
-        "ip": "162.159.237.94",
-        "colo": "SJC",
+        "ip": "172.67.202.161",
+        "colo": "MSP",
         "country": "us",
-        "loc": "TW",
-        "latency_ms": 310.15,
+        "loc": "US",
+        "latency_ms": 16.19,
         "is_shifted_neighbor": true,
-        "score": 295.15,
+        "score": 1.19,
         "carriers": [
-          "cu"
+          "cm"
         ],
         "sources": [
-          "neighbor:162.159.237.170"
+          "neighbor:172.67.202.89"
         ]
       },
       {
-        "ip": "162.159.237.167",
-        "colo": "SEA",
+        "ip": "104.18.40.6",
+        "colo": "MSP",
         "country": "us",
-        "loc": "TW",
-        "latency_ms": 316.37,
+        "loc": "US",
+        "latency_ms": 16.62,
         "is_shifted_neighbor": true,
-        "score": 301.37,
+        "score": 1.62,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.18.40.100"
+        ]
+      },
+      {
+        "ip": "104.16.155.123",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 16.73,
+        "is_shifted_neighbor": true,
+        "score": 1.73,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.16.155.172"
+        ]
+      },
+      {
+        "ip": "104.16.141.235",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.04,
+        "is_shifted_neighbor": true,
+        "score": 2.04,
         "carriers": [
           "cu"
         ],
         "sources": [
-          "neighbor:162.159.237.181"
+          "neighbor:104.16.141.98"
+        ]
+      },
+      {
+        "ip": "104.17.156.64",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.26,
+        "is_shifted_neighbor": true,
+        "score": 2.26,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.17.156.25"
+        ]
+      },
+      {
+        "ip": "104.16.65.218",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.29,
+        "is_shifted_neighbor": true,
+        "score": 2.29,
+        "carriers": [],
+        "sources": [
+          "neighbor:104.16.65.1"
+        ]
+      },
+      {
+        "ip": "104.19.148.184",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.3,
+        "is_shifted_neighbor": true,
+        "score": 2.3,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.19.148.21"
+        ]
+      },
+      {
+        "ip": "104.17.161.148",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.36,
+        "is_shifted_neighbor": true,
+        "score": 2.36,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.17.161.88"
+        ]
+      },
+      {
+        "ip": "104.17.157.251",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.36,
+        "is_shifted_neighbor": true,
+        "score": 2.36,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.17.157.24"
+        ]
+      },
+      {
+        "ip": "104.16.141.18",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.37,
+        "is_shifted_neighbor": true,
+        "score": 2.37,
+        "carriers": [
+          "cu"
+        ],
+        "sources": [
+          "neighbor:104.16.141.25"
+        ]
+      },
+      {
+        "ip": "104.17.139.32",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.37,
+        "is_shifted_neighbor": true,
+        "score": 2.37,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.17.139.37"
+        ]
+      },
+      {
+        "ip": "104.17.157.141",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.47,
+        "is_shifted_neighbor": true,
+        "score": 2.47,
+        "carriers": [
+          "ct"
+        ],
+        "sources": [
+          "neighbor:104.17.157.8"
+        ]
+      },
+      {
+        "ip": "104.16.85.78",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.52,
+        "is_shifted_neighbor": true,
+        "score": 2.52,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.16.85.81"
+        ]
+      },
+      {
+        "ip": "104.16.149.95",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.53,
+        "is_shifted_neighbor": true,
+        "score": 2.53,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.16.149.10"
+        ]
+      },
+      {
+        "ip": "104.17.222.56",
+        "colo": "MSP",
+        "country": "us",
+        "loc": "US",
+        "latency_ms": 17.56,
+        "is_shifted_neighbor": true,
+        "score": 2.56,
+        "carriers": [
+          "cm"
+        ],
+        "sources": [
+          "neighbor:104.17.222.40"
         ]
       }
     ],
