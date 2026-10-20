@@ -219,35 +219,42 @@ def check_unblocked_sync(ip: str, port: int = 443, timeout: float = 1.5) -> tupl
 
 
 def get_ip_country(ip: str, carrier: str) -> str:
-    """決定 IP 的二字元大寫國別代碼 (#TW, #HK, #JP 等)"""
+    """決定 IP 的二字元大寫國別代碼 (#TW, #HK, #JP 等)，防範海外 Runner 誤染 #US。"""
     # 1. 優先匹配已知的網段地圖
     sub_tag = lookup_subnet_country(ip)
     if sub_tag:
         norm = normalize_country_code(sub_tag)
-        if norm:
+        if norm and norm != "US":
             return norm
 
-    # 2. 嘗試自 Cloudflare 邊緣 trace 獲取機房
+    # 2. 嘗試自 Cloudflare 邊緣 trace 獲取機房 (僅採信亞太/歐洲真實落地，海外 Runner 測得的 US 視為 Anycast 就近路由不採信)
     try:
         r = requests.get(f"http://{ip}/cdn-cgi/trace", headers={"Host": "speed.cloudflare.com"}, timeout=1.2)
         lines = dict(l.split("=", 1) for l in r.text.strip().split("\n") if "=" in l)
         colo = lines.get("colo", "").upper()
         c = get_country_by_colo(colo)
-        if c:
+        if c and c in ("TW", "HK", "JP", "SG", "KR", "DE", "GB", "NL"):
             return c
     except Exception:
         pass
 
-    # 3. 依據前綴與運營商智慧兜底
-    if ip.startswith("162.159.38."):
+    # 3. 依據已知亞太網段前綴智慧判斷
+    if ip.startswith(("162.159.38.", "162.159.39.", "162.159.130.", "162.159.193.", "188.114.97.")):
         return "JP"
-    if ip.startswith("162.159.44."):
+    if ip.startswith((
+        "162.159.44.", "162.159.192.", "108.162.198.", "108.162.236.",
+        "104.18.33.", "104.18.43.", "104.19.153.", "172.64.144.",
+        "172.64.153.", "172.64.53.", "172.66.44.", "172.66.47."
+    )):
         return "HK"
-    if ip.startswith("162.159.152.") or ip.startswith("162.159.153."):
-        return "TW"
-    if ip.startswith("172.64.229.") or ip.startswith("172.64.52."):
+    if ip.startswith((
+        "162.159.152.", "162.159.153.", "172.64.229.", "172.64.52.", "172.64.145.",
+        "104.16.151.", "104.18.42.", "104.17.101.", "104.17.185.",
+        "104.21.87.", "104.21.76.", "172.67.202.", "188.114.96."
+    )):
         return "TW"
 
+    # 4. 運營商專屬預設亞太落地
     if carrier == "ct":
         return "HK"
     elif carrier == "cm":
