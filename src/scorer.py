@@ -1,23 +1,20 @@
-"""綜合評分加權模組 (Scorer)。
+"""歷史衰減與綜合評分模型 (Scorer - v2.0 終極修訂版)。
 
-依據規格實作最終排序綜合得分計算公式：
-    score = latency_ms + (loss_rate * 25.0) - (min(speed_mbps, 100.0) * 0.4) - bonus
-
-設計理念：
-- 將「高頻寬 (Throughput)、零丟包 (0% Loss)」作為核心考量，避免選出延遲低但頻寬被鎖死或嚴重丟包的節點。
-- 丟包率懲罰：每增加 1% 丟包率增加 25ms 懲罰。
-- 下載頻寬獎勵：每增加 1 Mbps 抵扣 0.4ms（最高採計至 100 Mbps，最多抵扣 40ms）。
-- 偏好機房與冷門鄰居獎勵：扣除相應 bonus。
-- 最終得分越低越佳。
+- EWMA 指數平滑：結合歷史穩定性，防範短跑選手誤登榜首。
+- 吞吐頻寬分 (滿分 40，以 200 Mbps 為基準)。
+- 階梯非線性丟包得分 (滿分 30，適應跨境輕微丟包現實)。
+- 握手延遲得分 (滿分 15，80ms ~ 320ms 區間映射)。
+- 路由與冷門獎勵 (滿分 15，Colo 偏好 + 冷門平移獎勵)。
+- 總分最高 100 分，分數越高越優質。
 """
 
 from __future__ import annotations
 
+import json
 import logging
 from dataclasses import dataclass, field
-from typing import Any
-
-from .region_mapper import colo_to_country
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 log = logging.getLogger(__name__)
 
@@ -32,14 +29,19 @@ class ScoredItem:
     loss_rate: float
     download_speed: float
     is_shifted_neighbor: bool
-    score: float
-    carriers: list[str]
-    sources: list[str]
+    instant_score: float
+    final_score: float
+    carriers: list[str] = field(default_factory=list)
+    sources: list[str] = field(default_factory=list)
     countries: list[str] = field(default_factory=list)
+    tier: str = "HEALTHY"
+
+    @property
+    def score(self) -> float:
+        return self.final_score
 
     @property
     def country_code(self) -> str:
-        """取得 IP 純國家二字碼（大寫，如 HK, TW, US, JP）。"""
         if self.country:
             return str(self.country).upper()
         if self.loc:
@@ -57,106 +59,107 @@ class ScoredItem:
             "loc": self.loc,
             "latency_ms": round(self.latency_ms, 2),
             "loss_rate": round(self.loss_rate, 2),
+            "loss_percent": round(self.loss_rate, 2),
             "download_speed": round(self.download_speed, 2),
+            "speed_mbps": round(self.download_speed, 2),
             "is_shifted_neighbor": self.is_shifted_neighbor,
-            "score": round(self.score, 2),
+            "instant_score": round(self.instant_score, 2),
+            "final_score": round(self.final_score, 2),
+            "tier": self.tier,
             "carriers": self.carriers,
             "sources": self.sources,
             "countries": self.countries,
         }
 
 
-def calculate_score(
-    latency_ms: float,
-    loss_rate: float,
-    speed_mbps: float,
-    bonus: float = 0.0,
-) -> float:
-    """計算綜合評分。
-    
-    公式：score = latency_ms + (loss_rate * 25.0) - (min(speed_mbps, 100.0) * 0.4) - bonus
-    """
-    capped_speed = min(max(float(speed_mbps), 0.0), 100.0)
-    loss_penalty = max(float(loss_rate), 0.0) * 25.0
-    speed_bonus = capped_speed * 0.4
-    return float(latency_ms) + loss_penalty - speed_bonus - float(bonus)
+def calculate_single_score(ip_data: dict, carrier: str, preferred_colos: dict) -> float:
+    """四部分加權綜合評分 (滿分 100，越高越佳)"""
+    speed = float(ip_data.get("speed_mbps") or ip_data.get("download_speed") or 0.0)
+    loss = float(ip_data.get("loss_percent") or ip_data.get("loss_rate") or 0.0)
+    latency = float(ip_data.get("latency_ms", 999.0))
+    colo = str(ip_data.get("colo", "")).upper()
+    is_neighbor = bool(ip_data.get("is_shifted_neighbor", False))
+
+    # 1. 吞吐頻寬分 (滿分 40，以 200 Mbps 為基準)
+    s_speed = min(40.0, (speed / 200.0) * 40.0)
+
+    # 2. 階梯非線性丟包得分 (滿分 30，適應跨境輕微丟包現實)
+    if loss <= 1.0:
+        s_loss = 30.0 - (loss * 3.0)
+    elif loss <= 3.0:
+        s_loss = 27.0 - ((loss - 1.0) * 5.0)
+    elif loss <= 5.0:
+        s_loss = max(0.0, 17.0 - ((loss - 3.0) * 8.5))
+    else:
+        s_loss = 0.0
+
+    # 3. 延遲得分 (滿分 15，80ms ~ 320ms 映射)
+    s_latency = max(0.0, min(15.0, ((320.0 - latency) / (320.0 - 80.0)) * 15.0))
+
+    # 4. 路由與冷門獎勵 (滿分 15)
+    pref_list = preferred_colos.get(carrier.lower(), [])
+    s_colo = 10.0 if colo in pref_list else 2.0
+    s_neighbor = 5.0 if is_neighbor else 0.0
+    s_routing = s_colo + s_neighbor
+
+    return round(s_speed + s_loss + s_latency + s_routing, 2)
 
 
-def score_for_carrier(
-    res: Any,
-    carrier: str,
-    carrier_prefs: dict[str, Any],
-    neighbor_bonus: float = 15.0,
-) -> ScoredItem:
-    """為指定四網運營商計算候選分（越低越佳）。"""
-    bonus = 0.0
+def calculate_country_score(ip_data: dict, country_code: str) -> float:
+    """分國維度綜合評分 (滿分 100，越高越佳)"""
+    speed = float(ip_data.get("speed_mbps") or ip_data.get("download_speed") or 0.0)
+    loss = float(ip_data.get("loss_percent") or ip_data.get("loss_rate") or 0.0)
+    latency = float(ip_data.get("latency_ms", 999.0))
+    is_neighbor = bool(ip_data.get("is_shifted_neighbor", False))
 
-    # 1. 冷門鄰居獎勵
-    if getattr(res, "is_shifted_neighbor", False):
-        bonus += neighbor_bonus
+    s_speed = min(40.0, (speed / 200.0) * 40.0)
 
-    # 2. 運營商機房偏好獎勵
-    pref = carrier_prefs.get(carrier, {})
-    colos = pref.get("preferred_colos", [])
-    pref_bonus = float(pref.get("bonus_ms", 30.0))
-    if getattr(res, "colo", "") and res.colo.upper() in [c.upper() for c in colos]:
-        bonus += pref_bonus
+    if loss <= 1.0:
+        s_loss = 30.0 - (loss * 3.0)
+    elif loss <= 3.0:
+        s_loss = 27.0 - ((loss - 1.0) * 5.0)
+    elif loss <= 5.0:
+        s_loss = max(0.0, 17.0 - ((loss - 3.0) * 8.5))
+    else:
+        s_loss = 0.0
 
-    loss_rate = getattr(res, "loss_rate", 0.0)
-    download_speed = getattr(res, "download_speed", 50.0)
-    score = calculate_score(
-        latency_ms=res.latency_ms,
-        loss_rate=loss_rate,
-        speed_mbps=download_speed,
-        bonus=bonus,
-    )
+    s_latency = max(0.0, min(15.0, ((320.0 - latency) / (320.0 - 80.0)) * 15.0))
 
-    return ScoredItem(
-        ip=res.ip,
-        colo=res.colo,
-        country=res.country,
-        loc=res.loc,
-        latency_ms=res.latency_ms,
-        loss_rate=loss_rate,
-        download_speed=download_speed,
-        is_shifted_neighbor=res.is_shifted_neighbor,
-        score=score,
-        carriers=sorted(res.carriers),
-        sources=sorted(res.sources),
-        countries=sorted(getattr(res, "countries", [])),
-    )
+    # 若 trace 偵測國家精準匹配目標國家，給予 10 分獎勵
+    detected_country = str(ip_data.get("country") or ip_data.get("loc") or "").upper()
+    s_geo = 10.0 if detected_country == country_code.upper() else 5.0
+    s_neighbor = 5.0 if is_neighbor else 0.0
+    s_routing = s_geo + s_neighbor
+
+    return round(s_speed + s_loss + s_latency + s_routing, 2)
 
 
-def score_for_country(
-    res: Any,
-    country_code: str | None = None,
-    neighbor_bonus: float = 15.0,
-) -> ScoredItem:
-    """為指定國家/地區計算評分（越低越佳）。"""
-    bonus = 0.0
-    if getattr(res, "is_shifted_neighbor", False):
-        bonus += neighbor_bonus
+def apply_ewma_history(current_ip: str, instant_score: float, history_dict: dict, decay: float = 0.7) -> float:
+    """EWMA 指數平滑：結合歷史穩定性，防範短跑選手誤登榜首"""
+    prev_score = history_dict.get(current_ip, instant_score)
+    final_score = (prev_score * decay) + (instant_score * (1.0 - decay))
+    history_dict[current_ip] = round(final_score, 2)
+    return round(final_score, 2)
 
-    loss_rate = getattr(res, "loss_rate", 0.0)
-    download_speed = getattr(res, "download_speed", 50.0)
-    score = calculate_score(
-        latency_ms=res.latency_ms,
-        loss_rate=loss_rate,
-        speed_mbps=download_speed,
-        bonus=bonus,
-    )
 
-    return ScoredItem(
-        ip=res.ip,
-        colo=res.colo,
-        country=country_code or res.country,
-        loc=res.loc,
-        latency_ms=res.latency_ms,
-        loss_rate=loss_rate,
-        download_speed=download_speed,
-        is_shifted_neighbor=res.is_shifted_neighbor,
-        score=score,
-        carriers=sorted(res.carriers),
-        sources=sorted(res.sources),
-        countries=sorted(getattr(res, "countries", [])),
-    )
+def load_history(history_file: Path | str) -> dict[str, float]:
+    p = Path(history_file)
+    if not p.is_file():
+        return {}
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        if isinstance(data, dict):
+            return {k: float(v) for k, v in data.items()}
+    except Exception as exc:
+        log.warning("讀取歷史加權檔案失敗：%s", exc)
+    return {}
+
+
+def save_history(history_dict: dict[str, float], history_file: Path | str) -> None:
+    p = Path(history_file)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        p.write_text(json.dumps(history_dict, ensure_ascii=False, indent=2), encoding="utf-8")
+        log.info("成功持久化 %d 筆 IP 歷史加權分數 -> %s", len(history_dict), p)
+    except Exception as exc:
+        log.error("儲存歷史加權檔案失敗：%s", exc)

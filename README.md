@@ -1,207 +1,129 @@
-# CF-Global-QuadNet-Feed (Cloudflare 全球四網與多國優選 IP 自動產出系統)
+# CF-Global-QuadNet-Feed (Cloudflare 三網前 50 優選 IP 自動產出系統)
 
-> **GitHub Actions 雲端全自動化**：ECS 偽裝大陸四網錨點解析 + 境內公開榜單 + 同 `/24` 冷門鄰居平移演算法 + `node1.snowcat77.com:2053/ws` 真實 **TLS + WebSocket 101 Switching Protocols** 回源閉環測活。
+> **版本**：v2.1.0 終極修訂版 (簡化三網前 50 輸出架構)  
+> **GitHub Actions 雲端全自動化**：ECS 偽裝大陸四網錨點解析 + 境內公開情報榜單 + 同 `/24` 冷門鄰居隨機抽樣 + 0.6 秒極短超時 TCP 端口快篩 + `node1.snowcat77.com:2053/ws` 端到端真實 **TLS + WebSocket 101 Switching Protocols** 回源測活 + 10MB 切片限時吞吐測速 + EWMA 歷史衰減加權評分 + 四層階梯降級輸出。
 
 ---
 
-## 1. 系統架構與設計定位
+## 一、 系統核心設計與關鍵矛盾修訂
 
-本系統徹底解決了傳統 Cloudflare 優選腳本的兩大根本問題：
-1. **GitHub Actions / 海外 VPS 的 Anycast 測速失真**：海外機器直連 Cloudflare 測得的超低延遲往往只是海外機房到 CF 邊緣的延遲，而非大陸境內三網訪問的路徑。本系統透過 **Google DoH API + EDNS Client Subnet (ECS)**，直接攜帶北上廣 12 個電信/聯通/移動/教育網骨幹錨點的 IP 段向權威 DNS 查詢，精準取得 DNS 派發給大陸各地三網的入口 IP！
-2. **公開熱門 IP 在晚高峰被 QoS 限速擠爆**：針對收集到的公開榜單熱門 IP，創新採用 **「同 /24 網段冷門鄰居平移演算法」**，在同一個 `/24` 網段內隨機抽取 3 個未公開的冷門鄰居 IP 一併測活，並享有 `-15ms` 優先加權，保障晚高峰時段擁有獨立、乾淨且低擁塞的優選通道。
+本系統構建於兩段分離的傳輸路徑之上：
+- **前半段 (大陸客戶端 → Cloudflare 邊緣節點)：** 走普通公網，受限於國際出口擁塞、晚高峰潮汐與省級防火牆動態 QoS 限速。此段是最易發生丟包與斷流的瓶頸。
+- **後半段 (Cloudflare 邊緣節點 → 落地 VPS):** 走 Cloudflare 全球私有光纖骨幹網回源至指定 VPS（`70.36.96.110:2053`）。此段具備高穩定性與低丟包特性。
+
+### 關鍵工程矛盾與對策 (Engineering Fixes)
+1. **海外 Runner 測速失真矛盾：**
+   - *矛盾：* GitHub Actions 伺服器位於歐美機房，其發起的下載測速僅代表「海外機房 → CF」的數百兆頻寬，無法反映「大陸境內 → CF」的真實出口帶寬。
+   - *對策：* 境內頻寬指標改由**境內實測情報源（WeTest、HostMonit 等）提取**，作為網段基礎分；GitHub 上的 `speed_tester.py` 嚴格定位為「端到端回源頻寬與節點抗過載快篩」，設定「10MB 切片 + 2.5 秒限時截斷」。
+2. **同 /24 網段平移的假死損耗矛盾：**
+   - *矛盾：* 隨機平移抽樣的冷門鄰居 IP 可能未在該機房開放 `2053` 端口，若直接執行 2.5 秒測速會浪費大量時間。
+   - *對策：* 引入 `fast_precheck()`，以極短的異步 TCP 握手（0.6 秒超時）進行前置快篩，未開放端口者瞬間剔除。
+3. **短期衝刺型 IP 誤判矛盾：**
+   - *矛盾：* 某些 IP 剛好在測速的 2 秒內爆發，但連線 10 分鐘後極度不穩定。
+   - *對策：* 引入微型狀態持久化 `data/ip_history.json`，計算 EWMA 指數加權平均分：
+     $$\text{Final\_Score} = 0.7 \times \text{History\_Score} + 0.3 \times \text{Current\_Score}$$
+     只有多次排程均穩定的節點才能維持在 Top 50。
+4. **輸出檔案精簡與跨 C 段抗 QoS：**
+   - 簡化為 `output/ct.txt` (中國電信)、`output/cu.txt` (中國聯通)、`output/cm.txt` (中國移動) 三個核心檔案，取消多檔案國家目錄分散。
+   - 每個檔案嚴格收錄綜合評分最高的前 50 個優選節點。
+   - 每一行固定格式化為 `<IP>#<國家簡寫>`（例如：`172.67.140.251#TW` 或 `104.16.132.229#US`），國家簡寫由該 IP 的 `colo` 透過 `region_mapper` 精確解析。
+   - 同一個 `/24` 網段最多收錄 3 個 IP，防止單一 C 段遭受 QoS 靶向封鎖時導致全盤斷連。
 
 ```mermaid
 flowchart TD
     subgraph S1["階段一：多維度情報收集 (src/collector.py)"]
         A1["策略 A：ECS DoH 偽裝解析<br/>(北上廣 12 錨點 *.818198.xyz)"]
         A2["策略 B：大陸境內實測榜單<br/>(HostMonit / WeTest / uouin)"]
-        A3["策略 C：分國優選/反代來源<br/>(HK/TW/JP/SG/KR/US/EU)"]
-        A4["策略 D：本地精選種子庫<br/>(seeds_ct / seeds_cu / seeds_cm)"]
-        A1 & A2 & A3 & A4 --> CF["Cloudflare 官方段過濾與去重"]
+        A3["策略 C：公開分國優選/反代來源"]
+        A4["策略 D：本地精選種子庫<br/>(seeds_ct/cu/cm)"]
+        A1 & A2 & A3 & A4 --> CF["Cloudflare 官方段過濾與去重<br/>門檻：丟包 <= 1% 且 頻寬 >= 20Mbps"]
     end
 
     subgraph S2["階段二：同 /24 冷門鄰居平移 (src/neighbor_shifter.py)"]
-        CF --> SHIFT["每個公開熱門 IP 隨機抽取<br/>3 個同 /24 冷門鄰居 IP (標記 is_shifted_neighbor)"]
+        CF --> SHIFT["每個公開熱門 IP 隨機抽取<br/>3 個同 /24 冷門鄰居 IP (避開熱點限速)"]
     end
 
-    subgraph S3["階段三：端到端回源精驗 (src/verifier.py)"]
-        SHIFT --> V["asyncio 併發 50 測活<br/>目標: node1.snowcat77.com:2053/ws"]
-        V --> C1["1. 雙輪 TLS 握手延遲測試 (超時 3.0s)"]
-        C1 --> C2["2. /cdn-cgi/trace 提取 colo & loc<br/>(src/region_mapper.py 映射國家)"]
-        C2 --> C3{"3. WebSocket 升級握手<br/>檢查 101 Switching Protocols"}
+    subgraph S3["階段三：端到端真實回源測活 (src/verifier.py)"]
+        SHIFT --> TCP["1. 0.6s 極短超時 TCP 端口快篩 (fast_precheck)"]
+        TCP -->|端口開放| V["2. TLS 雙輪握手 + /cdn-cgi/trace (提取 colo/loc)"]
+        V --> WS{"3. WebSocket 升級握手<br/>嚴格檢查 101 Switching Protocols"}
     end
 
-    subgraph S4["階段四：雙維度排序與匯出 (src/exporter.py)"]
-        C3 -->|通過 101| SCORE["綜合評分 (延遲 - 鄰居獎勵 - 四網機房加權)"]
-        SCORE --> DIVERSE["跨 /24 網段分散保護<br/>(同 C 段最多保留 2 個 IP，取 Top 15)"]
-        DIVERSE --> OUT["自動 Commit 輸出至 output/ 目錄<br/>(含防空覆寫保護)"]
+    subgraph S4["階段四：10MB 限時吞吐測速 (src/speed_tester.py)"]
+        WS -->|通過 101| SPEED["10MB 數據切片 + 2.5s 限時截斷<br/>(支援境內實測頻寬平滑回退)"]
+    end
+
+    subgraph S5["階段五：EWMA 歷史評分與階梯輸出 (src/scorer.py + src/exporter.py)"]
+        SPEED --> EWMA["EWMA 指數平滑加權：<br/>0.7*History + 0.3*Current<br/>(持久化至 data/ip_history.json)"]
+        EWMA --> DEGRADE["四層階梯降級與 C 段分散限制<br/>(同 /24 網段最多收錄 3 個 IP)"]
+        DEGRADE --> OUT1["output/ct.txt (電信 Top 50, IP#國家簡寫)"]
+        DEGRADE --> OUT2["output/cu.txt (聯通 Top 50, IP#國家簡寫)"]
+        DEGRADE --> OUT3["output/cm.txt (移動 Top 50, IP#國家簡寫)"]
+        DEGRADE --> OUT4["output/best_ips.json (結構化雙維度總表)"]
     end
 ```
 
 ---
 
-## 2. 外部機器消費端調用方式 (無須任何 Token)
+## 二、 外部調用與訂閱方式 (無須 Token)
 
-本系統部署於 GitHub Actions 後，將自動定時發布最新的有效優選 IP 至倉庫的 `output/` 目錄。**您在另一台機器上完全無需存放 Cloudflare API Token**，只需透過 `curl` 即可直接拉取 100% 通過 `node1.snowcat77.com:2053/ws` 驗證的可用節點！
+本系統每 30 分鐘由 GitHub Actions 自動更新，產出成果直接以標準文字檔呈現，相容於所有主流客戶端（Clash、Mihomo、Sing-box、V2Ray、Shadowrocket 等）：
 
-### 2.1 快速 curl 單一清單
-只需將 URL 中的 `<帳號>` 與 `<倉庫名>` 替換為您的 GitHub 倉庫：
+### 1. 輸出檔案清單
+
+| 運營商分類 | 匯出檔案路徑 | 節點數量 | 行格式範例 |
+| :--- | :--- | :--- | :--- |
+| **中國電信 (CT)** | `output/ct.txt` | Top 50 | `104.19.137.24#TW` |
+| **中國聯通 (CU)** | `output/cu.txt` | Top 50 | `162.159.236.175#TW` |
+| **中國移動 (CM)** | `output/cm.txt` | Top 50 | `172.67.67.189#TW` |
+| **結構化詳細總表** | `output/best_ips.json` | 完整元數據 | 包含機房、延遲、丟包率、頻寬與評分 |
+
+### 2. 快速 curl 單一清單
 
 ```bash
-# 1. 取得大陸電信 (CT) Top 15 優選 IP
-curl -sSL https://raw.githubusercontent.com/passerby7890/cfips/main/output/carriers/ct.txt
+# 1. 取得中國電信 (CT) Top 50 優選 IP
+curl -sSL https://raw.githubusercontent.com/passerby7890/cfips/main/output/ct.txt
 
-# 2. 取得大陸聯通 (CU) Top 15 優選 IP
-curl -sSL https://raw.githubusercontent.com/passerby7890/cfips/main/output/carriers/cu.txt
+# 2. 取得中國聯通 (CU) Top 50 優選 IP
+curl -sSL https://raw.githubusercontent.com/passerby7890/cfips/main/output/cu.txt
 
-# 3. 取得大陸移動 (CM) Top 15 優選 IP
-curl -sSL https://raw.githubusercontent.com/passerby7890/cfips/main/output/carriers/cm.txt
+# 3. 取得中國移動 (CM) Top 50 優選 IP
+curl -sSL https://raw.githubusercontent.com/passerby7890/cfips/main/output/cm.txt
 
-# 4. 取得大陸教育網 (EDU) Top 15 優選 IP
-curl -sSL https://raw.githubusercontent.com/passerby7890/cfips/main/output/carriers/edu.txt
-
-# 5. 取得日本 (JP - NRT/KIX) Top 15 優選 IP
-curl -sSL https://raw.githubusercontent.com/passerby7890/cfips/main/output/countries/jp.txt
-
-# 6. 取得台灣 (TW - TPE/KHH) Top 15 優選 IP
-curl -sSL https://raw.githubusercontent.com/passerby7890/cfips/main/output/countries/tw.txt
-
-# 7. 取得香港 (HK - HKG) Top 15 優選 IP
-curl -sSL https://raw.githubusercontent.com/passerby7890/cfips/main/output/countries/hk.txt
-
-# 8. 取得完整 JSON 總表 (含機房、延遲、冷門鄰居標籤與評分)
+# 4. 取得完整結構化 JSON 總表
 curl -sSL https://raw.githubusercontent.com/passerby7890/cfips/main/output/best_ips.json
 ```
 
-### 2.2 使用內建同步腳本 (`scripts/fetch_ips.sh`)
-本專案提供了一鍵消費端腳本，支援自訂下載路徑以及選配的 Cloudflare DNS A 記錄自動同步：
-
+若您的消費端腳本僅需純 IP，可透過 `cut` 快速分離：
 ```bash
-# 拉取電信 IP 並顯示
-bash scripts/fetch_ips.sh ct
-
-# 拉取日本 IP 並儲存至指定檔案
-bash scripts/fetch_ips.sh jp /etc/v2ray/jp_ips.txt
-
-# 同步拉取全部四網與各國清單
-bash scripts/fetch_ips.sh all
-
-# [選配] 拉取電信優選 IP 並自動更新自己的 Cloudflare DNS A 記錄
-export CF_API_TOKEN="your_cloudflare_api_token"
-export CF_ZONE_ID="your_zone_id"
-export CF_RECORD_NAME="ct.yourdomain.com"
-bash scripts/fetch_ips.sh ct
+curl -sSL https://raw.githubusercontent.com/passerby7890/cfips/main/output/ct.txt | cut -d'#' -f1
 ```
 
 ---
 
-## 3. 專案目錄結構
+## 三、 本地開發與手動執行
 
-```text
-cf-global-quadnet-feed/
-├── .github/
-│   └── workflows/
-│       └── update_ips.yml          # GitHub Actions 自動定時排程 (含晚高峰加密) 與自動 Push
-├── config/
-│   └── config.yaml                 # 源站參數 (node1.snowcat77.com:2053/ws) 與四網/國家規則配置
-├── data/
-│   ├── cn_anchors.json             # 北上廣四網 12 個基準錨點 (IPv4/IPv6/818198.xyz 域名)
-│   ├── seeds_ct.txt                # 電信精選種子 IP / CIDR 池
-│   ├── seeds_cu.txt                # 聯通精選種子 IP / CIDR 池
-│   └── seeds_cm.txt                # 移動精選種子 IP / CIDR 池
-├── output/
-│   ├── carriers/
-│   │   ├── ct.txt                  # [自動生成] 大陸電信 Top 15 優選 IP
-│   │   ├── cu.txt                  # [自動生成] 大陸聯通 Top 15 優選 IP
-│   │   ├── cm.txt                  # [自動生成] 大陸移動 Top 15 優選 IP
-│   │   └── edu.txt                 # [自動生成] 大陸教育網 Top 15 優選 IP
-│   ├── countries/
-│   │   ├── hk.txt                  # [自動生成] 香港 HKG 優選 IP
-│   │   ├── tw.txt                  # [自動生成] 台灣 TPE/KHH 優選 IP
-│   │   ├── jp.txt                  # [自動生成] 日本 NRT/KIX 優選 IP
-│   │   ├── sg.txt                  # [自動生成] 新加坡 SIN 優選 IP
-│   │   ├── kr.txt                  # [自動生成] 韓國 ICN 優選 IP
-│   │   ├── us.txt                  # [自動生成] 美國美西 SJC/LAX/SEA 優選 IP
-│   │   └── eu.txt                  # [自動生成] 歐洲 FRA/AMS/LHR 優選 IP
-│   └── best_ips.json               # [自動生成] 包含四網與各國完整指標的 JSON 總表
-├── src/
-│   ├── __init__.py
-│   ├── region_mapper.py            # IATA 三字機場代碼 (colo) 與國家/地區映射表
-│   ├── collector.py                # ECS DoH 偽裝解析 + 境內榜單抓取 + 分國源 + 本地種子
-│   ├── neighbor_shifter.py         # 同 /24 網段冷門鄰居抽樣展開器
-│   ├── verifier.py                 # 非同步 TLS + Trace (colo) + WebSocket 101 真實回源驗證器
-│   └── exporter.py                 # 雙維度加權排序、跨 /24 網段去重與檔案匯出
-├── scripts/
-│   ├── fetch_ips.sh                # 給「另一台機器」一鍵拉取指定四網/國家 IP 並選配更新 CF DNS 的腳本
-│   └── tcping_cn_anchors.py        # 給「另一台機器/VPS」用來 TCPing 北上廣 12 個錨點 (80/443) 的探測工具
-├── main.py                         # CLI 主程式入口
-├── requirements.txt                # Python 依賴套件 (aiohttp, PyYAML, requests)
-└── README.md                       # 完整說明文件
-```
-
----
-
-## 4. 北上廣四網基準錨點資料庫 (`data/cn_anchors.json`)
-
-本系統採用最新 2.0 遷移之北上廣四網可用地址，包含動態解析域名與備用靜態 IP：
-
-| 地區 | 運營商 | 代碼 | IPv4 地址 | IPv6 地址 | 動態維護域名 (2.0) |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| 廣州 | 電信 | `gz_ct` | `183.47.126.35` | `240e:97c:2f:3000::44` | `gz.telecom.818198.xyz` |
-| 廣州 | 聯通 | `gz_cu` | `157.148.58.29` | `2408:8756:f50:1001::c` | `gz.unicom.818198.xyz` |
-| 廣州 | 移動 | `gz_cm` | `120.233.18.250` | `2409:8c54:871:1001::12` | `gz.mobile.818198.xyz` |
-| 廣州 | 教育 | `gz_edu` | `202.116.64.8` | `2001:da8:2004:1000:202:116:160:17` | `gz.edu.818198.xyz` |
-| 上海 | 電信 | `sh_ct` | `101.226.94.124` | `240e:e1:aa00:4000::24` | `sh.telecom.818198.xyz` |
-| 上海 | 聯通 | `sh_cu` | `140.207.122.197` | `2408:80f1:21:5003::a` | `sh.unicom.818198.xyz` |
-| 上海 | 移動 | `sh_cm` | `117.185.253.224` | `2409:8c1e:75b0:3003::26` | `sh.mobile.818198.xyz` |
-| 上海 | 教育 | `sh_edu` | `202.120.2.119` | `2001:da8:8000:6fc0:102:1200:2:48` | `sh.edu.818198.xyz` |
-| 北京 | 電信 | `bj_ct` | `49.7.37.74` | `2400:89c0:1053:3::69` | `bj.telecom.818198.xyz` |
-| 北京 | 聯通 | `bj_cu` | `111.206.209.44` | `2400:89c0:1013:3::54` | `bj.unicom.818198.xyz` |
-| 北京 | 移動 | `bj_cm` | `112.34.111.194` | `2409:8c00:8421:1303::55` | `bj.mobile.818198.xyz` |
-| 北京 | 教育 | `bj_edu` | `166.111.4.100` | `2402:f000:1:404:166:111:4:100` | `bj.edu.818198.xyz` |
-
-在外部機器上，可執行探測工具檢測連線品質：
+### 1. 安裝環境依賴
 ```bash
-python scripts/tcping_cn_anchors.py
-```
-
----
-
-## 5. 本機執行與除錯
-
-### 5.1 安裝依賴
-```bash
-python3 -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+# 建議使用 Python 3.11 或 3.12
 pip install -r requirements.txt
 ```
 
-### 5.2 執行完整回源驗證流程
+### 2. 本地執行流水線
 ```bash
+# 完整執行收集、快篩、回源 101 驗證、測速與輸出
 python main.py
-```
 
-### 5.3 模擬執行模式 (Dry Run)
-不覆寫 `output/` 目錄，將結果輸出至 `output_dryrun/`：
-```bash
+# 模擬測試模式（不覆寫 output/ 目錄）
 python main.py --dry-run
+
+# 自訂併發數
+python main.py --concurrency 50
 ```
 
 ---
 
-## 6. GitHub Actions 自動化排程
+## 四、 授權協議與免責聲明
 
-在 `.github/workflows/update_ips.yml` 中已配置：
-- **常規排程**：每 4 小時執行一次 (`0 */4 * * *`)
-- **北京時間晚高峰加密排程**：
-  - 19:30 (UTC 11:30)
-  - 21:00 (UTC 13:00)
-  - 22:30 (UTC 14:30)
-- **手動觸發**：支援 GitHub 網頁 Actions 介面點擊 `workflow_dispatch` 立即執行。
-- **自動 Commit & Push**：當驗證出新的合格 IP 時，自動以 `github-actions[bot]` 提交並推送到主分支。
-
----
-
-## 7. License
-
-MIT License. Designed with excellence for high-performance Cloudflare proxy infrastructure.
+- 本專案僅供網路連線架構優化、路由分析與學術研究使用。
+- 嚴禁將本系統用於任何違反當地法律法規之用途。

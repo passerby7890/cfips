@@ -76,3 +76,40 @@ def shift_neighbors(
         len(candidates), len(expanded), shifted_count
     )
     return expanded
+
+
+def shift_to_clean_neighbors(base_records: list[dict[str, Any]], count_per_subnet: int = 3) -> list[dict[str, Any]]:
+    """針對每個已獲取的公開 IP，抽取同 /24 網段的冷門鄰居 IP，避開熱點限速與萬人擠爆"""
+    results: list[dict[str, Any]] = []
+    seen_ips = set()
+
+    for record in base_records:
+        ip_str = record.get("ip", "").strip()
+        try:
+            ip_obj = ipaddress.IPv4Address(ip_str)
+            network = ipaddress.IPv4Network(f"{ip_obj}/24", strict=False)
+
+            # 保留原 IP（帶有境內情報源數據）
+            if str(ip_obj) not in seen_ips:
+                item = dict(record)
+                item["is_shifted_neighbor"] = False
+                results.append(item)
+                seen_ips.add(str(ip_obj))
+
+            # 抽取同 /24 冷門鄰居 (排除保留地址與原 IP)
+            candidates = [
+                str(network[i]) for i in range(2, 254)
+                if str(network[i]) != str(ip_obj) and str(network[i]) not in seen_ips
+            ]
+            sampled = random.sample(candidates, min(count_per_subnet, len(candidates)))
+            for neighbor in sampled:
+                neighbor_item = dict(record)  # 繼承該網段的前半段實測指標
+                neighbor_item["ip"] = neighbor
+                neighbor_item["is_shifted_neighbor"] = True
+                results.append(neighbor_item)
+                seen_ips.add(neighbor)
+        except Exception:
+            continue
+
+    return results
+

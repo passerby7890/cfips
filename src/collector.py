@@ -173,7 +173,7 @@ async def _resolve_anchor_ip(anchor: dict[str, Any]) -> str:
                 return res[0][4][0]
         except Exception:
             pass
-    return str(anchor.get("ipv4", "")).strip()
+    return str(anchor.get("ip") or anchor.get("ipv4", "")).strip()
 
 
 async def collect_ecs_doh(

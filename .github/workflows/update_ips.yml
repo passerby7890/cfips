@@ -1,10 +1,10 @@
-name: Auto Update TriNet & Country IPs
+name: Auto Update TriNet IPs (CT, CU, CM)
 
 on:
   schedule:
     # 每 30 分鐘執行一次 (UTC 時間的第 0 與第 30 分鐘)
     - cron: '*/30 * * * *'
-  workflow_dispatch: # 支援在 GitHub 網頁手動點擊按鈕立即執行測試
+  workflow_dispatch: # 支援在 GitHub 網頁手動點擊按鈕立即執行
   push:
     branches:
       - main
@@ -13,7 +13,6 @@ on:
       - 'main.py'
       - 'config/**'
 
-# 關鍵權限：允許 Action 將生成的 output/* 提交並 Push 回倉庫
 permissions:
   contents: write
 
@@ -25,7 +24,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          # 取出完整歷史以避免 push 衝突
           fetch-depth: 0
 
       - name: Set up Python
@@ -41,7 +39,6 @@ jobs:
 
       - name: Run IP Optimizer & Verification
         run: |
-          # 執行測活、回源 101 驗證並產出 output/ 目錄檔案
           python main.py
 
       - name: Commit and Push Output
@@ -49,20 +46,21 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # 檢查 output 目錄是否有變更
-          if [ -d "output" ]; then
-            git add -A output/
-            # 只有當 output 有檔案異動時才 commit
-            if git status --porcelain | grep -q 'output/'; then
-              git commit -m "chore: auto update optimized IPs [skip ci]"
-              # 若在執行期間遠端有新 commit，拉取並 rebase
-              git pull --rebase origin main || true
-              git push origin main
-              echo "✅ IP 庫更新成功並已 Push 至倉庫！"
-            else
-              echo "ℹ️ IP 清單無變動，略過 Commit。"
+          # 檢查空檔案防呆
+          for f in output/ct.txt output/cu.txt output/cm.txt; do
+            if [ ! -s "$f" ]; then
+              echo "❌ 偵測到 $f 為空檔案，中止發布以保護現有清單！"
+              exit 1
             fi
+          done
+
+          # 檢查 output 與歷史檔案是否有變更
+          git add -A output/ data/ip_history.json
+          if git status --porcelain | grep -qE '(output/|data/ip_history.json)'; then
+            git commit -m "chore: auto update optimized IPs [skip ci]"
+            git pull --rebase origin main || true
+            git push origin main
+            echo "✅ 三網優選清單已成功更新並 Push 至 main 分支！"
           else
-            echo "⚠️ 未檢測到 output 目錄，請檢查 main.py 執行狀態！"
-            exit 1
+            echo "ℹ️ IP 清單無變動，略過 Commit。"
           fi

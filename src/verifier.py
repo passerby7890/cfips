@@ -1,6 +1,7 @@
-"""階段三：端到端真實回源 V2bX 驗證與國家機房識別。
+"""階段三：端到端真實回源 V2bX 驗證與國家機房識別 (v2.0 終極修訂版)。
 
-- TLS SNI 握手：連線至 <IP>:2053，SNI node1.snowcat77.com，測試 2 次計算平均握手耗時。
+- fast_precheck: 極短超時 (0.6s) TCP 端口前置快篩，秒殺過濾冷門鄰居假死 IP。
+- TLS SNI 握手：連線至 <IP>:2053，SNI node1.snowcat77.com。
 - /cdn-cgi/trace：解析機房 (colo) 與地區 (loc)，並映射為國家/地區代碼 (HK/TW/JP/SG/KR/US/EU)。
 - WebSocket 101：發送 Upgrade: websocket 至 /ws，嚴格確認 101 Switching Protocols。
 """
@@ -13,14 +14,26 @@ import logging
 import ssl
 import time
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any, Callable, Dict, Optional
 
 from .collector import Candidate
 from .region_mapper import colo_to_country
 
 log = logging.getLogger(__name__)
 
-UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) cf-global-quadnet-feed/1.0"
+UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) cf-global-quadnet-feed/2.0"
+
+
+async def fast_precheck(ip: str, port: int, timeout: float = 0.6) -> bool:
+    """極短超時快篩：確認 TCP 端口開放，避免無效測速浪費時間"""
+    try:
+        conn = asyncio.open_connection(ip, port)
+        reader, writer = await asyncio.wait_for(conn, timeout=timeout)
+        writer.close()
+        await writer.wait_closed()
+        return True
+    except Exception:
+        return False
 
 
 @dataclass
@@ -40,6 +53,9 @@ class VerifyResult:
     sources: set[str] = field(default_factory=set)
     loss_rate: float = 0.0
     download_speed: float = 50.0
+    speed_mbps: float = 50.0
+    loss_percent: float = 0.0
+    ws_handshake_101: bool = False
     stage: str = ""
     reason: str = ""
 
@@ -49,7 +65,10 @@ class VerifyResult:
             "ok": self.ok,
             "latency_ms": round(self.latency_ms, 2),
             "loss_rate": round(self.loss_rate, 2),
+            "loss_percent": round(self.loss_rate, 2),
             "download_speed": round(self.download_speed, 2),
+            "speed_mbps": round(self.speed_mbps, 2),
+            "ws_handshake_101": self.ws_handshake_101,
             "colo": self.colo,
             "country": self.country,
             "countries": sorted(self.countries),
@@ -88,15 +107,68 @@ def parse_trace(body: bytes) -> dict[str, str]:
     return out
 
 
+async def verify_single_ip(item: Dict[str, Any], origin_cfg: Dict[str, Any], semaphore: asyncio.Semaphore) -> Optional[Dict[str, Any]]:
+    """依規格書實作獨立快速驗證函式"""
+    ip = item["ip"]
+    port = int(origin_cfg.get("port", 2053))
+    sni = str(origin_cfg.get("sni", "node1.snowcat77.com")).strip()
+    ws_path = str(origin_cfg.get("ws_path", "/ws")).strip()
+    precheck_timeout = float(origin_cfg.get("precheck_timeout_sec", 0.6))
+
+    async with semaphore:
+        # 1. 端口快篩
+        if not await fast_precheck(ip, port, timeout=precheck_timeout):
+            return None
+
+        # 2. TLS + WebSocket 101 握手測試
+        ssl_ctx = build_ssl_context()
+
+        try:
+            start_t = asyncio.get_event_loop().time()
+            conn = asyncio.open_connection(ip, port, ssl=ssl_ctx, server_hostname=sni)
+            reader, writer = await asyncio.wait_for(conn, timeout=2.5)
+            latency = (asyncio.get_event_loop().time() - start_t) * 1000.0
+
+            # 3. 發送 WebSocket 升級請求
+            req = (
+                f"GET {ws_path} HTTP/1.1\r\n"
+                f"Host: {sni}\r\n"
+                f"Upgrade: websocket\r\n"
+                f"Connection: Upgrade\r\n"
+                f"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n"
+                f"Sec-WebSocket-Version: 13\r\n\r\n"
+            )
+            writer.write(req.encode())
+            await writer.drain()
+
+            res_line = await asyncio.wait_for(reader.readline(), timeout=2.0)
+            status_text = res_line.decode(errors="ignore")
+
+            writer.close()
+            await writer.wait_closed()
+
+            # 4. 驗證是否回傳 101 Switching Protocols
+            if "101" in status_text:
+                result = dict(item)
+                result["latency_ms"] = round(latency, 2)
+                result["ws_handshake_101"] = True
+                return result
+        except Exception:
+            pass
+
+    return None
+
+
 class OriginVerifier:
-    def __init__(self, origin_cfg: dict[str, Any], concurrency: int = 50):
+    def __init__(self, origin_cfg: dict[str, Any], concurrency: int = 40, precheck_timeout: float = 0.6):
         self.sni = str(origin_cfg.get("sni", "node1.snowcat77.com")).strip()
         self.host = str(origin_cfg.get("host", self.sni)).strip()
         self.port = int(origin_cfg.get("port", 2053))
         self.ws_path = str(origin_cfg.get("ws_path", "/ws")).strip()
         if not self.ws_path.startswith("/"):
             self.ws_path = "/" + self.ws_path
-        self.timeout = float(origin_cfg.get("timeout_sec", 3.0))
+        self.timeout = float(origin_cfg.get("timeout_sec", 2.5))
+        self.precheck_timeout = float(precheck_timeout)
         self.rounds = max(2, int(origin_cfg.get("handshake_rounds", 2)))
         self.ssl_ctx = build_ssl_context()
         self.sem = asyncio.Semaphore(concurrency)
@@ -116,7 +188,6 @@ class OriginVerifier:
         )
         t_tls = time.perf_counter()
 
-        # 握手耗時為完整的 TCP + TLS 總和
         total_ms = (t_tls - t0) * 1000.0
         return reader, writer, total_ms
 
@@ -138,7 +209,6 @@ class OriginVerifier:
         if len(parts) < 2 or parts[1] != "200":
             raise ValueError(f"/cdn-cgi/trace 回應非 200: {status_line.decode(errors='replace').strip()}")
 
-        # 讀取 Headers 直到空行
         while True:
             line = await asyncio.wait_for(reader.readline(), timeout=self.timeout)
             if not line or line in (b"\r\n", b"\n"):
@@ -183,6 +253,7 @@ class OriginVerifier:
 
         if "101" not in line_str or "Switching Protocols" not in line_str:
             raise ValueError(f"WebSocket 回源握手失敗: {line_str}")
+        res.ws_handshake_101 = True
 
     async def verify_candidate(self, cand: Candidate) -> VerifyResult:
         async with self.sem:
@@ -193,8 +264,17 @@ class OriginVerifier:
                 countries=set(cand.countries),
                 sources=set(cand.sources),
                 loss_rate=cand.loss_rate,
+                loss_percent=cand.loss_rate,
                 download_speed=cand.download_speed,
+                speed_mbps=cand.download_speed,
             )
+
+            # 前置快篩：0.6s 極短超時 TCP 握手
+            if not await fast_precheck(cand.ip, self.port, timeout=self.precheck_timeout):
+                res.stage = "fast_precheck"
+                res.reason = f"TCP 端口 {self.port} 快速快篩未開放 (0.6s 超時)"
+                return res
+
             latencies: list[float] = []
 
             try:
@@ -221,6 +301,7 @@ class OriginVerifier:
                 res.handshake_latencies = latencies
                 res.latency_ms = sum(latencies) / len(latencies)
                 res.ok = True
+                res.ws_handshake_101 = True
                 res.stage = "passed"
             except asyncio.TimeoutError:
                 res.reason = f"超時 (> {self.timeout}s)"
@@ -250,11 +331,14 @@ class OriginVerifier:
                 progress(done, total, passed)
 
         log.info(
-            "開始端到端回源驗證 %d 個候選 IP（SNI: %s, 端口: %d, WS: %s, 併發: %d）",
-            total, self.sni, self.port, self.ws_path, self.sem._value,
+            "開始端到端回源驗證 %d 個候選 IP（SNI: %s, 端口: %d, WS: %s, 併發: %d, 快篩: %.1fs）",
+            total, self.sni, self.port, self.ws_path, self.sem._value, self.precheck_timeout,
         )
         tasks = [_run(c) for c in candidates.values()]
         await asyncio.gather(*tasks)
 
-        log.info("回源驗證完成：%d 個 IP 測試，通過 101 握手: %d 個（通過率 %.1f%%）", total, passed, (passed / total * 100) if total else 0)
+        log.info(
+            "回源驗證完成：%d 個 IP 測試，通過 101 握手: %d 個（通過率 %.1f%%）",
+            total, passed, (passed / total * 100) if total else 0
+        )
         return results

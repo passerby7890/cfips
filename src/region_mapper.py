@@ -61,3 +61,16 @@ def get_country_name(country: str) -> str:
 def get_supported_countries() -> list[str]:
     """取得所有支援的目標國家/地區清單。"""
     return list(COUNTRY_TO_COLOS.keys())
+
+
+def get_country_code(colo: str | None, loc: str | None = None) -> str:
+    """取得 IP 國家簡寫（大寫二字碼，例如 TW, HK, JP, SG, KR, US, EU）。
+    優先由 colo 透過 region_mapper 取得；若無則使用 loc，預設回退為 US。
+    """
+    if colo:
+        c = colo_to_country(colo)
+        if c:
+            return c.upper()
+    if loc and len(str(loc).strip()) == 2:
+        return str(loc).strip().upper()
+    return "US"

@@ -9,3 +9,4 @@ venv/
 *.csv
 *.log
 .DS_Store
+MAINTAINER_GUIDE.md
