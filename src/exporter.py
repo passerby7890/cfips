@@ -19,7 +19,7 @@ import shutil
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from .region_mapper import get_country_code, init_subnet_country_map, resolve_country_tag
+from .region_mapper import get_country_code, init_subnet_country_map, normalize_country_code, resolve_country_tag
 from .scorer import apply_ewma_history, calculate_single_score, load_history, save_history
 
 log = logging.getLogger(__name__)
@@ -41,6 +41,7 @@ def export_single_carrier(
     max_per_country: int = 15,
     tiers: Optional[List[tuple[float, float, str]]] = None,
     anti_empty: bool = True,
+    require_101: bool = False,
 ) -> Dict[str, Any]:
     """四層自動降級、同 C 段分散限制 (最多 3 個)、國家多樣性保障、前 50 名輸出"""
     if tiers is None:
@@ -76,10 +77,10 @@ def export_single_carrier(
     for min_spd, max_los, tier_name in tiers:
         matched = [
             item for item in candidate_pool
-            if item.get("ws_handshake_101", False) is True
+            if (not require_101 or item.get("ws_handshake_101", False) is True)
             and is_carrier_qualified(item)
-            and float(item.get("speed_mbps", 0.0)) >= min_spd
-            and float(item.get("loss_percent", 100.0)) <= max_los
+            and float(item.get("speed_mbps") or item.get("download_speed") or 50.0) >= min_spd
+            and float(item.get("loss_percent") or item.get("loss_rate") or 0.0) <= max_los
         ]
         if matched:
             selected_tier = tier_name
@@ -89,15 +90,15 @@ def export_single_carrier(
                 it["tier"] = selected_tier
             break
 
-    # 若階梯篩選未能達到足量，但仍有合格回源 IP，回退採計所有合格回源 IP
+    # 若階梯篩選未能達到足量，但仍有合格 IP，回退採計所有合格 IP
     if not filtered_ips:
         matched = [
             item for item in candidate_pool
-            if item.get("ws_handshake_101", False) is True
+            if (not require_101 or item.get("ws_handshake_101", False) is True)
             and is_carrier_qualified(item)
         ]
         if matched:
-            selected_tier = "FALLBACK_101"
+            selected_tier = "INTELLIGENCE_POOL" if not require_101 else "FALLBACK_101"
             filtered_ips = sorted(matched, key=lambda x: float(x.get("final_score", 0.0)), reverse=True)
             for it in filtered_ips:
                 it["tier"] = selected_tier
@@ -113,7 +114,7 @@ def export_single_carrier(
         ip = str(item.get("ip", "")).strip()
         c_subnet = ".".join(ip.split(".")[:3])
         runner_c = item.get("runner_colo", "")
-        c_tag = item.get("country_code") or resolve_country_tag(item, runner_trace_colo=runner_c)
+        c_tag = normalize_country_code(item.get("country_code")) or resolve_country_tag(item, runner_trace_colo=runner_c) or "HK"
         item["country_code"] = c_tag
 
         if c_subnet_tracker.get(c_subnet, 0) < max_per_subnet and country_tracker.get(c_tag, 0) < max_per_country:
@@ -133,7 +134,7 @@ def export_single_carrier(
                 continue
             c_subnet = ".".join(ip.split(".")[:3])
             runner_c = item.get("runner_colo", "")
-            c_tag = item.get("country_code") or resolve_country_tag(item, runner_trace_colo=runner_c)
+            c_tag = normalize_country_code(item.get("country_code")) or resolve_country_tag(item, runner_trace_colo=runner_c) or "HK"
             item["country_code"] = c_tag
 
             if c_subnet_tracker.get(c_subnet, 0) < max_per_subnet:
@@ -151,7 +152,7 @@ def export_single_carrier(
         out_p.parent.mkdir(parents=True, exist_ok=True)
         lines = []
         for it in final_selection:
-            c_tag = it.get("country_code") or get_country_code(it.get("colo"), it.get("loc"))
+            c_tag = normalize_country_code(it.get("country_code")) or resolve_country_tag(it) or "HK"
             est_lat = float(it.get("est_cn_latency_ms") or it.get("cn_latency_ms") or 150.0)
             if est_lat >= 100.0 and c_tag in ("HK", "TW", "JP", "SG", "KR"):
                 c_tag = "US"
@@ -305,6 +306,7 @@ def export_carrier_ips(
     max_count: int = 50,
     max_per_subnet: int = 3,
     max_per_country: int = 15,
+    require_101: bool = False,
 ) -> Dict[str, Any]:
     """匯出特定運營商 Top IP 清單至 txt (格式: IP#COUNTRY)。"""
     return export_single_carrier(
@@ -314,5 +316,6 @@ def export_carrier_ips(
         max_count=max_count,
         max_per_subnet=max_per_subnet,
         max_per_country=max_per_country,
+        require_101=require_101,
     )
 

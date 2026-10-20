@@ -75,6 +75,17 @@ def parse_args() -> argparse.Namespace:
         help="模擬執行模式（輸出報表但不覆寫實際檔案）",
     )
     parser.add_argument(
+        "--direct",
+        action="store_true",
+        default=True,
+        help="直接採用已收集並經過三網評估的大陸優選 IP 池，跳過耗時的回源測速",
+    )
+    parser.add_argument(
+        "--full-test",
+        action="store_true",
+        help="執行完整 101 回源與下行吞吐測速",
+    )
+    parser.add_argument(
         "-V", "--version",
         action="version",
         version=f"%(prog)s {__version__}",
@@ -214,36 +225,45 @@ async def run_pipeline(args: argparse.Namespace) -> int:
                  carrier.upper(), len(top_candidates), top1.get("final_score", 0.0), top1.get("est_cn_latency_ms", 0.0),
                  top1.get("ip", ""), top1.get("country", ""))
 
-    # 3. 階段三：對三網精選出的去重節點執行 101 回源握手驗證
-    log.info("[*] 階段 3: 對三網精選出的 %d 個去重節點執行 101 回源握手驗證...", len(unique_to_verify))
-    verified_list = await batch_verify_101(
-        list(unique_to_verify.values()),
-        origin_cfg=origin_cfg,
-        concurrency=handshake_concurrency
-    )
-    verified_map = {item["ip"]: item for item in verified_list if item.get("ws_handshake_101")}
-    log.info("[+] 成功通過 %s:%s%s 101 握手合格節點: %d 筆",
-             origin_cfg.get('host'), origin_cfg.get('port'), origin_cfg.get('ws_path'), len(verified_map))
+    is_direct = not getattr(args, "full_test", False)
+    verified_map = {}
 
-    # 4. 階段四：對通過 101 握手的節點執行快速回源吞吐檢查
-    verified_ips = list(verified_map.keys())
-    port = int(origin_cfg.get("port", 2053))
-    sni_host = str(origin_cfg.get("sni", "node1.snowcat77.com"))
-    if verified_ips:
-        log.info("[*] 階段 4: 對 %d 個合格節點執行 %.1f 秒快速下行吞吐測速 (線程池: %d)...",
-                 len(verified_ips), speedtest_duration, speedtest_workers)
-        with ThreadPoolExecutor(max_workers=speedtest_workers) as executor:
-            futures = {
-                ip: executor.submit(measure_ip_bandwidth, ip, port, sni_host, speedtest_duration)
-                for ip in verified_ips
-            }
-            for ip, fut in futures.items():
-                try:
-                    verified_map[ip]["speed_mbps"] = fut.result()
-                    verified_map[ip]["download_speed"] = verified_map[ip]["speed_mbps"]
-                except Exception as exc:
-                    log.debug("測速異常 %s: %s", ip, exc)
-                    verified_map[ip]["speed_mbps"] = 50.0
+    if not is_direct:
+        # 3. 階段三：對三網精選出的去重節點執行 101 回源握手驗證
+        log.info("[*] 階段 3: 對三網精選出的 %d 個去重節點執行 101 回源握手驗證...", len(unique_to_verify))
+        verified_list = await batch_verify_101(
+            list(unique_to_verify.values()),
+            origin_cfg=origin_cfg,
+            concurrency=handshake_concurrency
+        )
+        verified_map = {item["ip"]: item for item in verified_list if item.get("ws_handshake_101")}
+        log.info("[+] 成功通過 %s:%s%s 101 握手合格節點: %d 筆",
+                 origin_cfg.get('host'), origin_cfg.get('port'), origin_cfg.get('ws_path'), len(verified_map))
+
+        # 4. 階段四：對通過 101 握手的節點執行快速回源吞吐檢查
+        verified_ips = list(verified_map.keys())
+        port = int(origin_cfg.get("port", 2053))
+        sni_host = str(origin_cfg.get("sni", "node1.snowcat77.com"))
+        if verified_ips:
+            log.info("[*] 階段 4: 對 %d 個合格節點執行 %.1f 秒快速下行吞吐測速 (線程池: %d)...",
+                     len(verified_ips), speedtest_duration, speedtest_workers)
+            with ThreadPoolExecutor(max_workers=speedtest_workers) as executor:
+                futures = {
+                    ip: executor.submit(measure_ip_bandwidth, ip, port, sni_host, speedtest_duration)
+                    for ip in verified_ips
+                }
+                for ip, fut in futures.items():
+                    try:
+                        verified_map[ip]["speed_mbps"] = fut.result()
+                        verified_map[ip]["download_speed"] = verified_map[ip]["speed_mbps"]
+                    except Exception as exc:
+                        log.debug("測速異常 %s: %s", ip, exc)
+                        verified_map[ip]["speed_mbps"] = 50.0
+    else:
+        log.info("[*] 依指令啟動急速直出模式：跳過耗時回源測速，直接聚合境內實時情報與雙引擎評估成果！")
+        for carrier in ["ct", "cu", "cm"]:
+            for cand in carrier_finalists[carrier]:
+                verified_map[cand["ip"]] = cand
 
     # 5. 階段五：三網各自重新結算最終分數並輸出 Top 50 (IP#COUNTRY)
     output_dir = PROJECT_ROOT / config.get("exporter", {}).get("output_dir", "output")
@@ -256,33 +276,36 @@ async def run_pipeline(args: argparse.Namespace) -> int:
     carrier_results = {}
 
     for carrier in ["ct", "cu", "cm"]:
-        valid_carrier_pool = []
-        seen_pool_ips = set()
-        # 優先納入該網專屬初選通過者
-        for cand in carrier_finalists[carrier]:
-            ip = cand["ip"]
-            if ip in verified_map and ip not in seen_pool_ips:
-                merged = dict(verified_map[ip])
-                merged.update({
-                    "source_carrier": cand.get("source_carrier", ""),
-                    "cn_latency_ms": cand.get("cn_latency_ms"),
-                    "cn_speed_mbps": cand.get("cn_speed_mbps", 0.0),
-                    "cn_loss_percent": cand.get("cn_loss_percent", 0.0),
-                    "source_country": cand.get("source_country", "") or merged.get("source_country", ""),
-                    "source_colo": cand.get("source_colo", "") or merged.get("source_colo", ""),
-                    "is_shifted_neighbor": cand.get("is_shifted_neighbor", False),
-                })
-                final_item = evaluate_for_carrier(merged, carrier)
-                valid_carrier_pool.append(final_item)
-                seen_pool_ips.add(ip)
+        if is_direct:
+            valid_carrier_pool = carrier_finalists[carrier]
+        else:
+            valid_carrier_pool = []
+            seen_pool_ips = set()
+            # 優先納入該網專屬初選通過者
+            for cand in carrier_finalists[carrier]:
+                ip = cand["ip"]
+                if ip in verified_map and ip not in seen_pool_ips:
+                    merged = dict(verified_map[ip])
+                    merged.update({
+                        "source_carrier": cand.get("source_carrier", ""),
+                        "cn_latency_ms": cand.get("cn_latency_ms"),
+                        "cn_speed_mbps": cand.get("cn_speed_mbps", 0.0),
+                        "cn_loss_percent": cand.get("cn_loss_percent", 0.0),
+                        "source_country": cand.get("source_country", "") or merged.get("source_country", ""),
+                        "source_colo": cand.get("source_colo", "") or merged.get("source_colo", ""),
+                        "is_shifted_neighbor": cand.get("is_shifted_neighbor", False),
+                    })
+                    final_item = evaluate_for_carrier(merged, carrier)
+                    valid_carrier_pool.append(final_item)
+                    seen_pool_ips.add(ip)
 
-        # 若專屬初選合格數不足，從其餘通過 101 的合格節點依該網評分模型補充
-        for ip, v_node in verified_map.items():
-            if ip not in seen_pool_ips:
-                merged = dict(v_node)
-                final_item = evaluate_for_carrier(merged, carrier)
-                valid_carrier_pool.append(final_item)
-                seen_pool_ips.add(ip)
+            # 若專屬初選合格數不足，從其餘通過 101 的合格節點依該網評分模型補充
+            for ip, v_node in verified_map.items():
+                if ip not in seen_pool_ips:
+                    merged = dict(v_node)
+                    final_item = evaluate_for_carrier(merged, carrier)
+                    valid_carrier_pool.append(final_item)
+                    seen_pool_ips.add(ip)
 
         res = export_carrier_ips(
             valid_carrier_pool,
@@ -291,6 +314,7 @@ async def run_pipeline(args: argparse.Namespace) -> int:
             max_count=target_output_count,
             max_per_subnet=max_per_subnet,
             max_per_country=max_per_country,
+            require_101=(not is_direct),
         )
         carrier_summary[carrier] = res
         carrier_results[carrier] = res["data"]

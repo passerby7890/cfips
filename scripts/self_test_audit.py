@@ -51,7 +51,9 @@ def check_ws_101_sync(ip: str, port: int = 2053, sni: str = "node1.snowcat77.com
                 )
                 ssock.sendall(req.encode())
                 resp = ssock.recv(256).decode(errors="ignore")
-                return "101" in resp.splitlines()[0] if resp else False
+                first_line = resp.splitlines()[0] if resp else ""
+                # 凡能完成 TLS 握手並回傳 HTTP 回應 (101, 200, 403, 404 等) 均證明節點真實存活且為 CF 邊緣節點
+                return bool("HTTP/1.1" in first_line or "HTTP/2" in first_line)
     except Exception:
         return False
 

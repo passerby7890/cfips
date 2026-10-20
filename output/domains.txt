@@ -59,3 +59,17 @@ www.visa.cn:443#金融域名 | VISA中國
 visa.com:443#金融域名 | VISA美國
 www.tpg.com:443#金融域名 | TPG
 www.wilshire.com:443#金融域名 | Wilshire
+
+# --- VPS789 24H 實時監控優選 CNAME 域名 ---
+cf.godns.cc:443#VPS789優選 | godns (電信55ms/移動71ms)
+666.cf.cname.vvhan.com:443#VPS789優選 | 韓小韓 (電信90ms/移動73ms)
+cfsaas.080112.xyz:443#VPS789優選 | cfsaas (電信60ms)
+cfyx.aliyun.20237737.xyz:443#VPS789優選 | 阿里雲 (電信56ms/移動66ms)
+ctsg.cfyx.aliyun.20237737.xyz:443#VPS789優選 | 新加坡 (電信89ms/移動74ms)
+yg8.ygkkk.dpdns.org:443#VPS789優選 | 甬哥優選 (電信89ms/移動69ms)
+cf.090227.xyz:443#VPS789優選 | 090227 (電信85ms/移動82ms)
+jobsdb.com:443#企業優選 | JobsDB (電信90ms)
+stores.staples.com:443#企業商城 | 史泰博商城 (電信86ms/移動41ms)
+cf.blogluo.eu.org:443#VPS789優選 | blogluo (電信55ms/移動40ms)
+ping.ctrl.li:443#VPS789優選 | ctrl (電信55ms/移動52ms)
+bestcf.top:443#VPS789優選 | 官方CNAME

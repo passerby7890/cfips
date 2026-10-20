@@ -725,8 +725,8 @@ def collect_local_seeds(cfg: dict[str, Any], root_dir: Path) -> list[dict[str, A
     return results
 
 
-def load_enterprise_domains(domains_file: Path | str) -> list[dict[str, Any]]:
-    """解析頂級企業優選域名 (如 store.ubi.com, openai.com) 動態注入高品質候選節點"""
+def load_enterprise_domains(domains_file: Path | str, default_carrier: str = "all") -> list[dict[str, Any]]:
+    """解析頂級企業優選域名與三網專屬域名動態注入高品質候選節點"""
     p = Path(domains_file)
     if not p.is_file():
         return []
@@ -747,8 +747,9 @@ def load_enterprise_domains(domains_file: Path | str) -> list[dict[str, Any]]:
         if IPV4_RE.fullmatch(host):
             results.append({
                 "ip": host,
-                "carrier": "all",
-                "source": "enterprise_entry",
+                "carrier": default_carrier,
+                "source_carrier": default_carrier if default_carrier in ("ct", "cu", "cm") else "",
+                "source": f"domain_entry_{p.stem}",
                 "source_country": "HK",
                 "country": "hk",
             })
@@ -773,7 +774,8 @@ def load_enterprise_domains(domains_file: Path | str) -> list[dict[str, Any]]:
                         if IPV4_RE.fullmatch(ip):
                             results.append({
                                 "ip": ip,
-                                "carrier": "all",
+                                "carrier": default_carrier,
+                                "source_carrier": default_carrier if default_carrier in ("ct", "cu", "cm") else "",
                                 "source": f"domain_{h}",
                                 "source_country": "HK",
                                 "country": "hk",
@@ -781,7 +783,7 @@ def load_enterprise_domains(domains_file: Path | str) -> list[dict[str, Any]]:
                 except Exception:
                     pass
 
-    log.info("策略 E (企業優選域名) 成功解析 %d 個動態 VIP IP", len(results))
+    log.info("域名源 [%s] 成功解析 %d 個動態 VIP IP", p.name, len(results))
     return results
 
 
@@ -875,6 +877,100 @@ def fetch_mainland_trinet_probes(timeout: float = 6.0) -> list[dict[str, Any]]:
     except Exception as exc:
         log.debug("fetch_mainland_trinet_probes hostmonit 略過: %s", exc)
 
+    # 3. VPS789 大陸三網 24H 實時監控榜單 (https://vps789.com/public/sum/cfIpTop20)
+    try:
+        resp = requests.get(
+            "https://vps789.com/public/sum/cfIpTop20",
+            headers={"User-Agent": USER_AGENT, "Accept": "application/json, text/plain, */*"},
+            timeout=10.0,
+        )
+        if resp.status_code == 200:
+            good_items = resp.json().get("data", {}).get("good", [])
+            if isinstance(good_items, list) and good_items:
+                def _resolve_vps789(it: dict[str, Any]):
+                    tgt = str(it.get("ip") or it.get("domain") or "").strip()
+                    if not tgt:
+                        return it, []
+                    try:
+                        infos = socket.getaddrinfo(tgt, 443, socket.AF_INET, socket.SOCK_STREAM)
+                        ips = sorted(list(set(x[4][0] for x in infos)))
+                        return it, ips
+                    except Exception:
+                        return it, []
+
+                with ThreadPoolExecutor(max_workers=15) as ex:
+                    futs = [ex.submit(_resolve_vps789, item) for item in good_items]
+                    for f in as_completed(futs):
+                        try:
+                            it, ips = f.result(timeout=2.0)
+                            dx_lat = float(it.get("dxLatency") or 999.0)
+                            dx_loss = float(it.get("dxPkgLostRate") or 0.0)
+                            yd_lat = float(it.get("ydLatency") or 999.0)
+                            yd_loss = float(it.get("ydPkgLostRate") or 0.0)
+                            lt_lat = float(it.get("ltLatency") or 999.0)
+                            lt_loss = float(it.get("ltPkgLostRate") or 0.0)
+
+                            for ip in ips:
+                                if not IPV4_RE.fullmatch(str(ip).strip()):
+                                    continue
+                                ip_str = str(ip).strip()
+
+                                # 電信 (CT)
+                                if dx_lat <= 95.0 and dx_loss <= 2.0:
+                                    results.append({
+                                        "ip": ip_str,
+                                        "source": "vps789_ct",
+                                        "source_carrier": "ct",
+                                        "carrier": "ct",
+                                        "source_country": "HK" if dx_lat < 80 else "JP",
+                                        "country": "hk" if dx_lat < 80 else "jp",
+                                        "cn_latency_ms": dx_lat,
+                                        "cn_ct_latency_ms": dx_lat,
+                                        "cn_speed_mbps": 65.0,
+                                        "cn_ct_speed_mbps": 65.0,
+                                        "cn_loss_percent": dx_loss,
+                                        "download_speed": 65.0,
+                                        "loss_rate": dx_loss,
+                                    })
+                                # 移動 (CM)
+                                if yd_lat <= 85.0 and yd_loss <= 2.0:
+                                    results.append({
+                                        "ip": ip_str,
+                                        "source": "vps789_cm",
+                                        "source_carrier": "cm",
+                                        "carrier": "cm",
+                                        "source_country": "HK" if yd_lat < 80 else "JP",
+                                        "country": "hk" if yd_lat < 80 else "jp",
+                                        "cn_latency_ms": yd_lat,
+                                        "cn_cm_latency_ms": yd_lat,
+                                        "cn_speed_mbps": 65.0,
+                                        "cn_cm_speed_mbps": 65.0,
+                                        "cn_loss_percent": yd_loss,
+                                        "download_speed": 65.0,
+                                        "loss_rate": yd_loss,
+                                    })
+                                # 聯通 (CU)
+                                if lt_lat <= 140.0 and lt_loss <= 2.0:
+                                    results.append({
+                                        "ip": ip_str,
+                                        "source": "vps789_cu",
+                                        "source_carrier": "cu",
+                                        "carrier": "cu",
+                                        "source_country": "JP" if lt_lat < 120 else "US",
+                                        "country": "jp" if lt_lat < 120 else "us",
+                                        "cn_latency_ms": lt_lat,
+                                        "cn_cu_latency_ms": lt_lat,
+                                        "cn_speed_mbps": 65.0,
+                                        "cn_cu_speed_mbps": 65.0,
+                                        "cn_loss_percent": lt_loss,
+                                        "download_speed": 65.0,
+                                        "loss_rate": lt_loss,
+                                    })
+                        except Exception:
+                            pass
+    except Exception as exc:
+        log.debug("fetch_mainland_trinet_probes vps789 略過: %s", exc)
+
     return results
 
 
@@ -932,9 +1028,15 @@ async def collect_all_candidates(
         live_probe_rows = []
 
     seed_rows = collect_local_seeds(c_cfg.get("local_seeds", {}), root_dir)
-    enterprise_rows = load_enterprise_domains(root_dir / "data" / "enterprise_domains.txt")
+    enterprise_rows = load_enterprise_domains(root_dir / "data" / "enterprise_domains.txt", "all")
+    ct_domain_rows = load_enterprise_domains(root_dir / "data" / "domains_ct.txt", "ct")
+    cm_domain_rows = load_enterprise_domains(root_dir / "data" / "domains_cm.txt", "cm")
+    cu_domain_rows = load_enterprise_domains(root_dir / "data" / "domains_cu.txt", "cu")
 
-    all_raw_rows = ecs_rows + mainland_rows + country_rows + seed_rows + live_probe_rows + enterprise_rows
+    all_raw_rows = (
+        ecs_rows + mainland_rows + country_rows + seed_rows + 
+        live_probe_rows + enterprise_rows + ct_domain_rows + cm_domain_rows + cu_domain_rows
+    )
     log.info("五策略原始候選總筆數：%d 筆", len(all_raw_rows))
 
     for row in all_raw_rows:
