@@ -330,12 +330,25 @@ def parse_hostmonit(payload: Any) -> list[dict[str, Any]]:
         if speed_mbps < MIN_DOWNLOAD_SPEED:
             continue
 
-        valid_colo = colo if COLO_CELL_RE.match(colo) else ""
+        valid_colo = colo if (COLO_CELL_RE.match(colo) and colo != "DEFAULT") else ""
         source_country = get_country_by_colo(valid_colo) if valid_colo else ""
+
+        line = str(item.get("line", "")).upper()
+        node = str(item.get("node", "")).upper()
+        carrier = HOSTMONIT_LINES.get(line)
+        if not carrier:
+            if "CM" in node or "MOBILE" in node:
+                carrier = "cm"
+            elif "CU" in node or "UNICOM" in node:
+                carrier = "cu"
+            elif "CT" in node or "TELECOM" in node:
+                carrier = "ct"
+            else:
+                carrier = "all"
 
         rows.append({
             "ip": item["ip"],
-            "carrier": HOSTMONIT_LINES.get(str(item.get("line", "")).upper()),
+            "carrier": carrier,
             "colo": valid_colo or None,
             "source_colo": valid_colo,
             "source_country": source_country,
@@ -344,6 +357,37 @@ def parse_hostmonit(payload: Any) -> list[dict[str, Any]]:
             "loss_rate": loss_rate,
             "download_speed": speed_mbps,
         })
+    return rows
+
+
+def parse_cdtools(body: str, source_name: str = "cdtools") -> list[dict[str, Any]]:
+    """解析 cf-ip.cdtools.click 境內即時測速榜 (北上深蓉真實探針)"""
+    rows: list[dict[str, Any]] = []
+    tr_matches = TR_RE.findall(body)
+    for tr in tr_matches:
+        cells = [_strip(td) for td in TD_RE.findall(tr)]
+        if len(cells) >= 5:
+            m = IPV4_RE.search(cells[0])
+            if not m:
+                continue
+            ip = m.group(1)
+            loss_rate = extract_loss_rate(cells[3]) or 0.0
+            lat_str = cells[4].replace("ms", "").strip()
+            try:
+                lat = float(lat_str)
+            except Exception:
+                lat = 60.0
+            spd_str = cells[5] if len(cells) > 5 else "50"
+            spd = extract_speed_mbps(spd_str) or 50.0
+            if loss_rate <= MAX_LOSS_RATE:
+                rows.append({
+                    "ip": ip,
+                    "carrier": "all",
+                    "source": source_name,
+                    "latency_ms": lat,
+                    "loss_rate": loss_rate,
+                    "download_speed": spd,
+                })
     return rows
 
 
@@ -372,7 +416,7 @@ def parse_text(body: str) -> list[dict[str, Any]]:
                 seen.add(ip)
                 rows.append({
                     "ip": ip,
-                    "carrier": None,
+                    "carrier": "all",
                     "colo": None,
                     "source_colo": "",
                     "source_country": tag_country,
@@ -468,6 +512,8 @@ async def _fetch_public_source(session: aiohttp.ClientSession, src: dict[str, An
             if stype == "json":
                 return parse_json_feed(json.loads(data))
             body = data.decode("utf-8", errors="replace")
+            if stype == "cdtools":
+                return parse_cdtools(body, name)
             if stype == "html_table":
                 return parse_html_table(body)
             return parse_text(body)
@@ -511,6 +557,7 @@ async def collect_country_sources(
         if isinstance(rows, list):
             for r in rows:
                 r["source"] = src_def.get("name", "country")
+                r["carrier"] = "all"  # 確保分國優選可供三網平等競爭
                 if c_code:
                     r["country"] = c_code.lower()
                     r["source_country"] = c_code.upper()
@@ -611,9 +658,24 @@ def collect_local_seeds(cfg: dict[str, Any], root_dir: Path) -> list[dict[str, A
             c_tag = country_tag or country.upper()
             results.append({
                 "ip": ip,
+                "carrier": "all",
                 "country": c_tag.lower(),
                 "source_country": c_tag,
                 "source": f"seeds_{country}",
+            })
+
+    global_files = cfg.get("global_files", {})
+    global_sample_count = int(cfg.get("sample_per_cidr_global", 3))
+    for name, rel_path in global_files.items():
+        full_path = root_dir / rel_path
+        loaded = load_seed_file(full_path, global_sample_count, rng)
+        for ip, country_tag in loaded:
+            results.append({
+                "ip": ip,
+                "carrier": "all",
+                "country": country_tag.lower() if country_tag else "cf",
+                "source_country": country_tag or "CF",
+                "source": f"seeds_{name}",
             })
 
     log.info("策略 D (本地種子) 成功展開 %d 筆記錄", len(results))

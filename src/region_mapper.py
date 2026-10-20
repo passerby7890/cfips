@@ -21,6 +21,63 @@ CF_OFFICIAL_CIDRS = [
 ]
 _CF_NETWORKS = [ipaddress.IPv4Network(cidr) for cidr in CF_OFFICIAL_CIDRS]
 
+# 全局母體網段 -> 國家對照快取 (由種子庫與已知亞太段預載)
+_SUBNET_COUNTRY_MAP: list[tuple[ipaddress.IPv4Network, str]] = []
+
+
+def init_subnet_country_map(data_dir: Any = None) -> list[tuple[ipaddress.IPv4Network, str]]:
+    """掃描種子庫與分國庫中的所有 CIDR，建構網段到國家的精確映射表"""
+    global _SUBNET_COUNTRY_MAP
+    from pathlib import Path
+    if data_dir is None:
+        data_dir = Path(__file__).resolve().parent.parent / "data"
+    else:
+        data_dir = Path(data_dir)
+
+    res = []
+    if data_dir.is_dir():
+        for p in data_dir.glob("**/*.txt"):
+            try:
+                for line in p.read_text(encoding="utf-8", errors="ignore").splitlines():
+                    line = line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+                    tag = ""
+                    if "#" in line:
+                        parts = line.split("#", 1)
+                        line, tag = parts[0].strip(), parts[1].strip().upper()
+                    if not tag and "countries" in str(p):
+                        tag = p.stem.upper()
+                    if "/" in line:
+                        try:
+                            net = ipaddress.ip_network(line, strict=False)
+                            if tag and tag not in ("", "UNKNOWN", "CF", "ANYCAST"):
+                                res.append((net, tag))
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+    res.sort(key=lambda x: x[0].prefixlen, reverse=True)
+    _SUBNET_COUNTRY_MAP = res
+    return res
+
+
+def lookup_subnet_country(ip_str: str) -> str:
+    """由 IP 查詢所屬的已知種子網段國家代碼"""
+    if not ip_str:
+        return ""
+    if not _SUBNET_COUNTRY_MAP:
+        init_subnet_country_map()
+    try:
+        ip_obj = ipaddress.IPv4Address(ip_str.strip())
+        for net, tag in _SUBNET_COUNTRY_MAP:
+            if ip_obj in net:
+                return tag
+    except Exception:
+        pass
+    return ""
+
+
 COLO_COUNTRY_MAP: Dict[str, str] = {
     # 亞太區
     "HKG": "HK", "MFM": "MO",
@@ -93,44 +150,88 @@ def get_supported_countries() -> list[str]:
     return ["hk", "tw", "jp", "sg", "kr", "us", "de"]
 
 
+def normalize_country_code(raw: str | None) -> str:
+    """將任意格式的地區標籤正規化為 ISO 雙字元大寫代碼 (例如 'jp 【日本】 JP' -> 'JP')"""
+    if not raw:
+        return ""
+    import re
+    s = str(raw).strip().upper()
+    if len(s) == 2 and s.isalpha() and s not in ("CF", "IP", "MB", "MS"):
+        return s
+    KNOWN = {
+        "HK": ["HONG", "HKG", "香港"],
+        "TW": ["TAIWAN", "TPE", "台灣", "台湾"],
+        "JP": ["JAPAN", "NRT", "KIX", "日本"],
+        "SG": ["SINGAPORE", "SIN", "新加坡"],
+        "KR": ["KOREA", "ICN", "韓國", "韩国"],
+        "US": ["USA", "UNITED STATES", "SJC", "LAX", "美國", "美国", "圣何塞"],
+        "DE": ["GERMANY", "FRA", "德國", "德国"],
+        "NL": ["NETHERLANDS", "AMS", "荷蘭", "荷兰"],
+        "GB": ["UK", "LONDON", "LHR", "英國", "英国"],
+        "EU": ["EUROPE", "歐洲", "欧洲"],
+    }
+    for code, keywords in KNOWN.items():
+        if s == code:
+            return code
+        for kw in keywords:
+            if kw in s:
+                return code
+    words = re.findall(r"\b[A-Z]{2}\b", s)
+    for w in words:
+        if w not in ("CF", "IP", "MB", "MS", "BD"):
+            return w
+    return ""
+
+
 def resolve_country_tag(item: Dict[str, Any], runner_trace_colo: str = "") -> str:
-    """
-    多層級決定最終輸出的 #COUNTRY 標籤，防止 GitHub 美國 Runner 洗掉亞太標籤：
+    """多層級決定最終輸出的 #COUNTRY 標籤，保證輸出標準雙字元大寫代碼：
+
     優先級 1: 情報源 / 種子庫在大陸境內實測的 source_colo (如 HKG, TPE, NRT, SIN)
     優先級 2: 情報源 / 種子庫明確標註的 source_country (如 #TW, #HK, #JP, #SG)
-    優先級 3: 原生 country / countries 標註
-    優先級 4: Runner 測得的 trace_colo (若在台灣則為 TW，日本則為 JP)
-    優先級 5: 最後兜底 (CF)
+    優先級 3: 靜態網段字典 (CIDR -> Country 映射，繼承母體種子區域)
+    優先級 4: 原生 country / countries 標註
+    優先級 5: Runner 實測 Colo (若在台灣、日本、香港、新加坡則採計，美西僅做兜底)
     """
     ip = str(item.get("ip", "")).strip()
     source_colo = str(item.get("source_colo") or "").strip().upper()
-    source_country = str(item.get("source_country") or "").strip().upper()
+    raw_source_country = item.get("source_country") or ""
 
     # 1. 優先採計境內探針實測 Colo
-    if source_colo:
+    if source_colo and source_colo != "DEFAULT":
         mapped = get_country_by_colo(source_colo)
         if mapped:
             return mapped
 
-    # 2. 優先採計情報源/種子庫原生國家標籤
-    if source_country and source_country not in ("", "UNKNOWN", "CF", "ANYCAST", "NONE", "NULL"):
-        return source_country
+    # 2. 優先採計情報源/種子庫原生國家標籤 (經正規化)
+    norm_tag = normalize_country_code(raw_source_country)
+    if norm_tag:
+        return norm_tag
 
-    # 3. 檢查 item["country"] 或 item["countries"] 原生標註
-    orig_country = str(item.get("country") or "").strip().upper()
-    if orig_country and orig_country not in ("", "UNKNOWN", "CF", "ANYCAST", "NONE", "NULL"):
+    # 3. 檢查已知母體網段字典 (如 104.16.85.0/24#HK, 172.67.67.0/24#TW, 103.21.244.0/24#HK)
+    subnet_tag = lookup_subnet_country(ip)
+    if subnet_tag:
+        norm_sub = normalize_country_code(subnet_tag)
+        if norm_sub:
+            return norm_sub
+
+    # 4. 檢查 item["country"] 或 item["countries"] 原生標註
+    orig_country = normalize_country_code(item.get("country"))
+    if orig_country:
         return orig_country
 
     for c in item.get("countries", []):
-        c_up = str(c or "").strip().upper()
-        if c_up and c_up not in ("", "UNKNOWN", "CF", "ANYCAST", "NONE", "NULL"):
-            return c_up
+        norm_c = normalize_country_code(c)
+        if norm_c:
+            return norm_c
 
-    # 4. Runner 實測 Colo 解析
-    runner_country = get_country_by_colo(runner_trace_colo)
-    if runner_country:
-        return runner_country
+    # 5. 若海外 Runner 測得亞太機房或歐洲機房，可採信 (如 TPE, HKG, NRT, SIN, FRA)
+    runner_c = get_country_by_colo(runner_trace_colo)
+    if runner_c in ("HK", "TW", "JP", "SG", "KR", "DE", "GB", "NL"):
+        return runner_c
 
-    # 5. 最後兜底
+    # 6. 最後兜底：若為美國機房則標 US，否則標 CF
+    if runner_c == "US":
+        return "US"
+
     return "CF"
 

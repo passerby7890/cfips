@@ -72,12 +72,32 @@ class ScoredItem:
         }
 
 
+REGIONAL_TYPICAL_RTT = {
+    "HK": 25.0,
+    "MO": 30.0,
+    "TW": 40.0,
+    "JP": 50.0,
+    "KR": 50.0,
+    "SG": 65.0,
+    "US": 160.0,
+    "DE": 180.0,
+    "GB": 190.0,
+    "EU": 180.0,
+}
+
+
 def calculate_single_score(ip_data: dict, carrier: str, preferred_colos: dict) -> float:
-    """四部分加權綜合評分 (滿分 100，越高越佳)"""
+    """四部分加權綜合評分 (滿分 100，越高越佳)
+
+    修正點：
+    - 解決海外 Runner 跨洋回源延遲逆向淘汰亞洲節點的問題
+    - 優先採計境內探針 (cdtools/hostmonit/wetest) 實測延遲
+    - 分國節點採計大陸直連基準延遲，獎勵低延遲亞太節點 (HK/TW/JP/SG)
+    """
     speed = float(ip_data.get("speed_mbps") or ip_data.get("download_speed") or 0.0)
     loss = float(ip_data.get("loss_percent") or ip_data.get("loss_rate") or 0.0)
-    latency = float(ip_data.get("latency_ms", 999.0))
     colo = str(ip_data.get("colo", "")).upper()
+    c_tag = str(ip_data.get("country_code") or ip_data.get("source_country") or "").upper()
     is_neighbor = bool(ip_data.get("is_shifted_neighbor", False))
 
     # 1. 吞吐頻寬分 (滿分 40，以 200 Mbps 為基準)
@@ -93,12 +113,31 @@ def calculate_single_score(ip_data: dict, carrier: str, preferred_colos: dict) -
     else:
         s_loss = 0.0
 
-    # 3. 延遲得分 (滿分 15，80ms ~ 320ms 映射)
-    s_latency = max(0.0, min(15.0, ((320.0 - latency) / (320.0 - 80.0)) * 15.0))
+    # 3. 延遲得分 (滿分 15，映射 20ms ~ 300ms)
+    # 若有境內探針實測數據 (如 cdtools 55ms、hostmonit 50ms)，優先採用
+    probe_lat = ip_data.get("source_hint", {}).get("latency_ms")
+    if not probe_lat and not is_neighbor:
+        probe_lat = ip_data.get("latency_ms")
 
-    # 4. 路由與冷門獎勵 (滿分 15)
+    if probe_lat and 10.0 <= float(probe_lat) <= 350.0:
+        effective_latency = float(probe_lat)
+    elif c_tag in REGIONAL_TYPICAL_RTT:
+        effective_latency = REGIONAL_TYPICAL_RTT[c_tag]
+    else:
+        raw_lat = float(ip_data.get("latency_ms", 150.0))
+        effective_latency = min(raw_lat, 180.0)
+
+    s_latency = max(0.0, min(15.0, ((300.0 - effective_latency) / (300.0 - 20.0)) * 15.0))
+
+    # 4. 路由與偏好地區獎勵 (滿分 15)
     pref_list = preferred_colos.get(carrier.lower(), [])
-    s_colo = 10.0 if colo in pref_list else 2.0
+    colo_matches = colo in pref_list
+    country_matches = (
+        (carrier == "ct" and c_tag in ("TW", "HK", "JP", "US")) or
+        (carrier == "cu" and c_tag in ("JP", "HK", "DE", "GB", "US")) or
+        (carrier == "cm" and c_tag in ("HK", "SG", "JP", "TW", "US"))
+    )
+    s_colo = 10.0 if (colo_matches or country_matches) else 2.0
     s_neighbor = 5.0 if is_neighbor else 0.0
     s_routing = s_colo + s_neighbor
 

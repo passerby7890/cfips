@@ -19,7 +19,7 @@ import shutil
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from .region_mapper import get_country_code, resolve_country_tag
+from .region_mapper import get_country_code, init_subnet_country_map, resolve_country_tag
 from .scorer import apply_ewma_history, calculate_single_score, load_history, save_history
 
 log = logging.getLogger(__name__)
@@ -38,10 +38,11 @@ def export_single_carrier(
     output_txt_path: str | Path,
     max_count: int = 50,
     max_per_subnet: int = 3,
+    max_per_country: int = 15,
     tiers: Optional[List[tuple[float, float, str]]] = None,
     anti_empty: bool = True,
 ) -> Dict[str, Any]:
-    """四層自動降級、同 C 段分散限制 (最多 3 個)、前 50 名輸出"""
+    """四層自動降級、同 C 段分散限制 (最多 3 個)、國家多樣性保障、前 50 名輸出"""
     if tiers is None:
         tiers = DEFAULT_TIERS
 
@@ -76,22 +77,48 @@ def export_single_carrier(
             for it in filtered_ips:
                 it["tier"] = selected_tier
 
-    # 2. 同 /24 網段限制 (同 C 段最多收錄 max_per_subnet 個)
+    # 2. 國家多樣性保障與同 /24 網段限制 (兩階段篩選)
     final_selection: List[Dict[str, Any]] = []
+    selected_ips: set[str] = set()
     c_subnet_tracker: Dict[str, int] = {}
+    country_tracker: Dict[str, int] = {}
+
+    # 第一階段：嚴格限制單一國家上限 (防單一地區霸榜) 與同 C 段上限
     for item in filtered_ips:
         ip = str(item.get("ip", "")).strip()
         c_subnet = ".".join(ip.split(".")[:3])
-        if c_subnet_tracker.get(c_subnet, 0) < max_per_subnet:
-            # 確保 country 標籤由 4 層優先級解析，不被海外 Runner 覆蓋
-            runner_c = item.get("runner_colo", "")
-            country_code = item.get("country_code") or resolve_country_tag(item, runner_trace_colo=runner_c)
-            item["country_code"] = country_code
+        runner_c = item.get("runner_colo", "")
+        c_tag = item.get("country_code") or resolve_country_tag(item, runner_trace_colo=runner_c)
+        item["country_code"] = c_tag
 
+        if c_subnet_tracker.get(c_subnet, 0) < max_per_subnet and country_tracker.get(c_tag, 0) < max_per_country:
             final_selection.append(item)
+            selected_ips.add(ip)
             c_subnet_tracker[c_subnet] = c_subnet_tracker.get(c_subnet, 0) + 1
+            country_tracker[c_tag] = country_tracker.get(c_tag, 0) + 1
+
         if len(final_selection) >= max_count:
             break
+
+    # 第二階段：若第一階段因國家限額未補滿 max_count，放寬國家限制繼續補齊，同時依然維持同 C 段限制
+    if len(final_selection) < max_count:
+        for item in filtered_ips:
+            ip = str(item.get("ip", "")).strip()
+            if ip in selected_ips:
+                continue
+            c_subnet = ".".join(ip.split(".")[:3])
+            runner_c = item.get("runner_colo", "")
+            c_tag = item.get("country_code") or resolve_country_tag(item, runner_trace_colo=runner_c)
+            item["country_code"] = c_tag
+
+            if c_subnet_tracker.get(c_subnet, 0) < max_per_subnet:
+                final_selection.append(item)
+                selected_ips.add(ip)
+                c_subnet_tracker[c_subnet] = c_subnet_tracker.get(c_subnet, 0) + 1
+                country_tracker[c_tag] = country_tracker.get(c_tag, 0) + 1
+
+            if len(final_selection) >= max_count:
+                break
 
     # 3. 檔案寫入與防空鎖定
     out_p = Path(output_txt_path)
@@ -140,10 +167,14 @@ def export_all(
     tuning = config.get("tuning", {})
     max_count = int(tuning.get("target_output_count", 50))
     max_per_subnet = int(tuning.get("max_ips_per_subnet", 3))
+    max_per_country = int(tuning.get("max_ips_per_country", 15))
     decay_ratio = float(tuning.get("history_decay_ratio", 0.7))
     anti_empty = bool(config.get("exporter", {}).get("anti_empty_protection", True))
     history_file = config.get("exporter", {}).get("history_file", "data/ip_history.json")
     preferred_colos = config.get("preferred_colos", {})
+
+    # 初始化網段靜態國家對照表
+    init_subnet_country_map(config.get("exporter", {}).get("data_dir", "data"))
 
     # 載入歷史評分持久化資料
     history_dict = load_history(history_file)
@@ -168,8 +199,11 @@ def export_all(
     carrier_results: Dict[str, List[Dict[str, Any]]] = {}
 
     for c_key in target_carriers:
-        # 1. 取得具備該運營商標籤的候選 IP
-        cand_for_carrier = [it for it in verified_items if c_key in it.get("carriers", [])]
+        # 1. 取得具備該運營商標籤的候選 IP (包含標註 all 的泛用亞太優選 IP)
+        cand_for_carrier = [
+            it for it in verified_items 
+            if c_key in it.get("carriers", []) or "all" in it.get("carriers", [])
+        ]
 
         # 2. 若該標籤下的數量不足 max_count，以符合該運營商 preferred_colos 的高分節點補充
         pref_colos = preferred_colos.get(c_key, [])
@@ -204,6 +238,7 @@ def export_all(
             output_txt_path=txt_path,
             max_count=max_count,
             max_per_subnet=max_per_subnet,
+            max_per_country=max_per_country,
             tiers=tiers,
             anti_empty=anti_empty,
         )

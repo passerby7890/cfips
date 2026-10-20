@@ -19,6 +19,7 @@ tuning:
   speedtest_duration_limit: 2.5           # 測速切片截斷時間 (秒)
   history_decay_ratio: 0.7                # 歷史分權重 70%，當次實測分 30%
   max_ips_per_subnet: 3                   # 同 /24 網段最多收錄 3 個
+  max_ips_per_country: 15                 # 國家多樣性保障：單一地區最多收錄 15 個，防單一國家霸榜
   target_output_count: 50                 # 每個分類目標輸出前 50 名
 
 # 晚高峰四層階梯降級門檻
@@ -28,30 +29,30 @@ thresholds:
   tier_3: { speed_mbps: 5.0, loss_percent: 12.0, name: "DEGRADED_L2" }
   tier_4: { speed_mbps: 0.0, loss_percent: 100.0, name: "EMERGENCY" }
 
-# 四網機房偏好清單 (colo)
+# 四網機房偏好清單 (colo) - 納入優質亞太節點 (HKG, TPE, NRT, SIN)
 preferred_colos:
-  ct: ["SJC", "LAX", "SEA"]
-  cu: ["SJC", "LAX", "NRT", "FRA"]
-  cm: ["HKG", "SIN", "NRT", "SJC"]
-  edu: ["SJC", "LAX", "HKG"]
+  ct: ["HKG", "TPE", "NRT", "SJC", "LAX", "SEA"]
+  cu: ["NRT", "KIX", "HKG", "FRA", "SJC", "LAX"]
+  cm: ["HKG", "SIN", "NRT", "TPE", "SJC"]
+  edu: ["HKG", "TPE", "NRT", "SJC", "LAX"]
 
 # 運營商別名與中文化配置 (相容顯示)
 carrier_preferences:
   ct:
     name: "中國電信"
-    preferred_colos: ["SJC", "LAX", "SEA"]
+    preferred_colos: ["HKG", "TPE", "NRT", "SJC", "LAX", "SEA"]
     bonus_ms: 30.0
   cu:
     name: "中國聯通"
-    preferred_colos: ["SJC", "LAX", "NRT", "FRA"]
+    preferred_colos: ["NRT", "KIX", "HKG", "FRA", "SJC", "LAX"]
     bonus_ms: 30.0
   cm:
     name: "中國移動"
-    preferred_colos: ["HKG", "SIN", "NRT", "SJC"]
+    preferred_colos: ["HKG", "SIN", "NRT", "TPE", "SJC"]
     bonus_ms: 30.0
   edu:
     name: "教育網"
-    preferred_colos: ["SJC", "LAX", "HKG"]
+    preferred_colos: ["HKG", "TPE", "NRT", "SJC", "LAX"]
     bonus_ms: 30.0
 
 # 階段一：情報收集策略
@@ -87,6 +88,24 @@ collector:
       - name: "ip_164746"
         type: "text"
         url: "https://ip.164746.xyz/ipTop10.html"
+      - name: "cdtools_shenzhen"
+        type: "cdtools"
+        url: "https://cf-ip.cdtools.click/shenzhen"
+      - name: "cdtools_shanghai"
+        type: "cdtools"
+        url: "https://cf-ip.cdtools.click/shanghai"
+      - name: "cdtools_beijing"
+        type: "cdtools"
+        url: "https://cf-ip.cdtools.click/beijing"
+      - name: "ymyuuu_bestcfv4"
+        type: "text"
+        url: "https://raw.githubusercontent.com/ymyuuu/IPDB/main/BestCF/bestcfv4.txt"
+      - name: "ymyuuu_top15"
+        type: "text"
+        url: "https://raw.githubusercontent.com/ymyuuu/IPDB/main/bestcf.txt"
+      - name: "gslege_all"
+        type: "text"
+        url: "https://raw.githubusercontent.com/gslege/CloudflareIP/main/All.txt"
 
   # 策略 C: 分國家地區公開優選/反代來源
   country_sources:
@@ -113,14 +132,20 @@ collector:
         type: "text"
         country: "us"
         url: "https://bestcf.tools12345.com/tiancheng/us.txt"
-      - name: "github_badafans"
-        type: "json"
-        url: "https://raw.githubusercontent.com/badafans/better-cloudflare-ip/master/shell/cf.json"
+      - name: "gslege_jp"
+        type: "text"
+        country: "jp"
+        url: "https://raw.githubusercontent.com/gslege/CloudflareIP/main/JP.txt"
+      - name: "gslege_sg"
+        type: "text"
+        country: "sg"
+        url: "https://raw.githubusercontent.com/gslege/CloudflareIP/main/SG.txt"
 
   # 策略 D: 本地精選種子庫補充
   local_seeds:
     enabled: true
-    sample_per_cidr: 5                    # 每個 CIDR 抽樣個數
+    sample_per_cidr: 10                   # 每個特選 CIDR 抽樣個數
+    sample_per_cidr_global: 3            # 全量 25 個官方 CIDR 大段抽樣個數
     files:
       ct: "data/seeds_ct.txt"
       cu: "data/seeds_cu.txt"
@@ -133,6 +158,8 @@ collector:
       kr: "data/countries/kr.txt"
       us: "data/countries/us.txt"
       eu: "data/countries/eu.txt"
+    global_files:
+      xiu2_ranges: "data/cf_ranges.txt"   # XIU2/CloudflareSpeedTest 全量 25 個官方 CIDR 覆蓋庫
 
 # 階段二：同 /24 網段冷門鄰居平移演算法
 neighbor_shifter:
