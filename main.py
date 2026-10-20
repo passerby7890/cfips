@@ -15,6 +15,7 @@ import asyncio
 import datetime
 import json
 import logging
+import shutil
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -293,6 +294,13 @@ async def run_pipeline(args: argparse.Namespace) -> int:
         )
         carrier_summary[carrier] = res
         carrier_results[carrier] = res["data"]
+
+    # 輸出企業級優選域名至 output/domains.txt
+    ent_src = PROJECT_ROOT / "data" / "enterprise_domains.txt"
+    ent_dst = output_dir / "domains.txt"
+    if ent_src.is_file():
+        shutil.copy2(ent_src, ent_dst)
+        log.info("企業級優選域名已同步輸出 -> %s", ent_dst)
 
     # 輸出結構化 JSON 總表
     now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))

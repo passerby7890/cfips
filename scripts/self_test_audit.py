@@ -19,6 +19,7 @@ CARRIER_BLACKLIST_PREFIXES = {
     "ct": (
         "104.16.", "104.17.", "104.18.", "104.19.", "104.20.", "104.21.", "104.22.",
         "104.23.", "104.24.", "104.25.", "104.26.", "104.27.", "104.28.",
+        "141.101.",
         "172.64.", "172.65.", "172.66.", "172.67.", "172.68.", "172.69.", "172.70.", "172.71.",
         "173.245."
     ),
@@ -69,6 +70,18 @@ def run_redteam_audit() -> bool:
     else:
         with open(json_path, "r", encoding="utf-8") as f:
             jdata = json.load(f)
+
+    # 1.1 檢查 output/domains.txt 是否生成且有效
+    dom_path = "output/domains.txt"
+    if not os.path.exists(dom_path) or os.path.getsize(dom_path) == 0:
+        errors.append(f"[致命] {dom_path} 不存在或為空！")
+    else:
+        with open(dom_path, "r", encoding="utf-8") as f:
+            d_lines = [l.strip() for l in f if l.strip() and not l.strip().startswith("#")]
+        if len(d_lines) < 20:
+            errors.append(f"[優選域名] 域名清單數量過少 ({len(d_lines)} < 20)！")
+        else:
+            print(f"✅ [DOMAINS] 企業級優選域名清單審計通過 (共 {len(d_lines)} 筆優選域名與入口)")
 
     carriers_dict = jdata.get("carriers") or jdata.get("by_carrier") or {}
 

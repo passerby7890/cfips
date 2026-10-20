@@ -19,6 +19,7 @@ import logging
 import random
 import re
 import socket
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -724,6 +725,66 @@ def collect_local_seeds(cfg: dict[str, Any], root_dir: Path) -> list[dict[str, A
     return results
 
 
+def load_enterprise_domains(domains_file: Path | str) -> list[dict[str, Any]]:
+    """解析頂級企業優選域名 (如 store.ubi.com, openai.com) 動態注入高品質候選節點"""
+    p = Path(domains_file)
+    if not p.is_file():
+        return []
+    results: list[dict[str, Any]] = []
+    lines = [
+        line.strip() for line in p.read_text(encoding="utf-8", errors="ignore").splitlines()
+        if line.strip() and not line.strip().startswith("#")
+    ]
+    hosts_to_resolve = []
+    for line in lines:
+        tag = ""
+        if "#" in line:
+            line, tag = line.split("#", 1)
+            line, tag = line.strip(), tag.strip()
+        host = line.split(":")[0].strip()
+        if not host:
+            continue
+        if IPV4_RE.fullmatch(host):
+            results.append({
+                "ip": host,
+                "carrier": "all",
+                "source": "enterprise_entry",
+                "source_country": "HK",
+                "country": "hk",
+            })
+        else:
+            hosts_to_resolve.append(host)
+
+    def _resolve_one(h: str) -> tuple[str, list[str]]:
+        try:
+            infos = socket.getaddrinfo(h, 443, socket.AF_INET)
+            ips = sorted(list(set(info[4][0] for info in infos)))
+            return h, ips
+        except Exception:
+            return h, []
+
+    if hosts_to_resolve:
+        with ThreadPoolExecutor(max_workers=30) as ex:
+            futures = [ex.submit(_resolve_one, h) for h in hosts_to_resolve]
+            for fut in as_completed(futures):
+                try:
+                    h, ips = fut.result(timeout=2.0)
+                    for ip in ips:
+                        if IPV4_RE.fullmatch(ip):
+                            results.append({
+                                "ip": ip,
+                                "carrier": "all",
+                                "source": f"domain_{h}",
+                                "source_country": "HK",
+                                "country": "hk",
+                            })
+                except Exception:
+                    pass
+
+    log.info("策略 E (企業優選域名) 成功解析 %d 個動態 VIP IP", len(results))
+    return results
+
+
 def fetch_mainland_trinet_probes(timeout: float = 6.0) -> list[dict[str, Any]]:
     """從大陸境內實體三網探針 API 拉取當下實測低延遲 IP"""
     results: list[dict[str, Any]] = []
@@ -871,9 +932,10 @@ async def collect_all_candidates(
         live_probe_rows = []
 
     seed_rows = collect_local_seeds(c_cfg.get("local_seeds", {}), root_dir)
+    enterprise_rows = load_enterprise_domains(root_dir / "data" / "enterprise_domains.txt")
 
-    all_raw_rows = ecs_rows + mainland_rows + country_rows + seed_rows + live_probe_rows
-    log.info("四策略原始候選總筆數：%d 筆", len(all_raw_rows))
+    all_raw_rows = ecs_rows + mainland_rows + country_rows + seed_rows + live_probe_rows + enterprise_rows
+    log.info("五策略原始候選總筆數：%d 筆", len(all_raw_rows))
 
     for row in all_raw_rows:
         ip = row.get("ip")

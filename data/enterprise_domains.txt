@@ -1,0 +1,61 @@
+# =====================================================================
+# Cloudflare 企業級優選域名與官方入口清單 (Enterprise & VIP Domains)
+# 支援語法：每行一個 域名:端口#備註 或 IP:端口#備註
+# =====================================================================
+
+# --- Cloudflare 官方入口 ---
+162.159.198.1:8443#EDT導航優選域名 | BestCF.pages.dev
+162.159.197.1:443#官方入口 | ZeroTrust
+162.159.198.1:443#官方入口 | MASQUE1
+162.159.199.1:443#官方入口 | MASQUE2
+162.159.193.1:443#官方入口 | WireGuard
+
+# --- 頂級企業域名 (走大客戶 VIP 專屬 BGP 路由) ---
+store.ubi.com:443#企業域名 | 育碧商城
+serviceshub.samsclub.com:443#企業域名 | 山姆會員
+www.allianz.com:443#企業域名 | 安聯集團
+www.decathlon.com:443#企業域名 | 迪卡儂
+www.asda.com:443#企業域名 | 阿斯達
+www.shopify.com:443#企業域名 | Shopify
+cookiebot.com:443#企業域名 | Cookiebot
+bluehost.com:443#企業域名 | BlueHost
+nexusmods.com:443#企業域名 | NexusMods
+glassdoor.com:443#企業域名 | Glassdoor
+www.jimdo.com:443#企業域名 | Jimdo
+openai.com:443#企業域名 | OpenAI
+www.sage.com:443#更多選擇 | Sage
+www.speedtest.net:443#更多選擇 | Ookla
+investor.apple.com:443#更多選擇 | Apple
+markmonitor.com:443#更多選擇 | MarkMonitor
+store.epicgames.com:443#更多選擇 | Epicgames
+mycareer.verizon.com:443#更多選擇 | Verizon
+onetrust.com:443#更多選擇 | OneTrust
+www.affirm.com:443#更多選擇 | Affirm
+www.zendesk.com:443#更多選擇 | Zendesk
+www.doordash.com:443#更多選擇 | DoorDash
+digitalocean.com:443#更多選擇 | DigitalOcean
+ringcentral.com:443#更多選擇 | RingCentral
+chrono24.com:443#更多選擇 | Chrono24
+www.wto.org:443#更多選擇 | WTO
+www.mskcc.org:443#更多選擇 | MSKCC
+cdn.jsdelivr.net:443#更多選擇 | jsDelivr
+www.broadcom.com:443#更多選擇 | 博通
+www.nestle.com:443#更多選擇 | 雀巢
+homecare.stryker.com:443#更多選擇 | 賽克
+www.emerson.com:443#更多選擇 | 艾默生
+visit.honeywell.com:443#更多選擇 | 霍尼韋爾
+polestar.com:443#更多選擇 | 極星汽車
+auctions.ihg.com.cn:443#更多選擇 | 洲際酒店
+woodsbagot.com:443#更多選擇 | 伍茲貝格
+www.transunion.hk:443#更多選擇 | 香江環聯
+www.hongkongairport.com:443#更多選擇 | 香江機場
+deepin.org:443#更多選擇 | 深度系統
+www.police.uk:443#更多選擇 | 英國警務
+www.leics.police.uk:443#更多選擇 | 萊斯特郡
+china.mfa.gov.ua:443#更多選擇 | 烏克蘭駐華
+
+# --- 金融頂級域名 ---
+www.visa.cn:443#金融域名 | VISA中國
+visa.com:443#金融域名 | VISA美國
+www.tpg.com:443#金融域名 | TPG
+www.wilshire.com:443#金融域名 | Wilshire
