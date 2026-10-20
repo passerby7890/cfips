@@ -1,38 +1,52 @@
 #!/usr/bin/env python3
-"""CF-Global-QuadNet-Feed 主程式入口 (v2.0 終極修訂版)。
+"""CF-Global-QuadNet-Feed 主程式入口 (v3.0 VPS789 重構版)。
 
-- 階段一：ECS DoH 偽裝解析 + 境內實測榜單 + 分國源 + 本地種子
-- 階段二：同 /24 網段冷門鄰居平移抽樣
-- 階段三：0.6s 極短超時 TCP 快篩 + 端到端 TLS + WebSocket 101 回源測活
-- 階段四：10MB 切片 2.5 秒限時吞吐測速快篩
-- 階段五：四層階梯降級、EWMA 歷史評分衰減、三網 Top 50 輸出 (output/ct.txt, cu.txt, cm.txt)
+遵循架構準則：
+1. 完全遵循 VPS789 的三網專屬優選域名 (電信 CT / 移動 CM / 聯通 CU)。
+2. 電信解析電信、移動解析移動、聯通解析聯通 (多通道 DoH + ECS 偽裝)。
+3. 對解析出之 IP 進行防火牆連通性快篩 (TCP + TLS 握手，檢查是否有被牆)。
+4. 未被牆且響應正常之節點，自動匹配大寫雙字元國別標籤 (#TW, #HK, #JP, #SG 等)。
+5. 匯出至 output/ct.txt, cm.txt, cu.txt, domains.txt 及 best_ips.json。
 """
 
 from __future__ import annotations
 
 import argparse
-import asyncio
+import concurrent.futures
 import datetime
+import ipaddress
 import json
 import logging
+import re
 import shutil
+import socket
+import ssl
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
+import requests
 import yaml
 
 from src import __version__
-from src.cn_evaluator import evaluate_for_carrier
-from src.collector import collect_all_candidates
-from src.exporter import export_carrier_ips
-from src.neighbor_shifter import shift_to_clean_neighbors
-from src.speed_tester import measure_ip_bandwidth
-from src.verifier import batch_verify_101
+from src.collector import fetch_cloudflare_ranges, in_networks
+from src.region_mapper import (
+    get_country_by_colo,
+    init_subnet_country_map,
+    lookup_subnet_country,
+    normalize_country_code,
+    resolve_country_tag,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parent
+
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 # 日誌格式設定
 logging.basicConfig(
@@ -42,11 +56,21 @@ logging.basicConfig(
 )
 log = logging.getLogger("main")
 
+IPV4_RE = re.compile(
+    r"(?<![\d.])((?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})(?![\d.])"
+)
+
+ECS_MAP = {
+    "ct": ["101.80.0.1/24", "116.228.0.1/24", "218.1.0.1/24"],
+    "cm": ["117.136.0.1/24", "221.130.33.1/24", "120.196.0.1/24"],
+    "cu": ["123.125.0.1/24", "210.22.80.1/24", "112.96.0.1/24"],
+}
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="cf-global-quadnet-feed",
-        description="Cloudflare 三網前 50 優選 IP 自動化雲端生成系統",
+        description="VPS789 Cloudflare 三網優選 IP 自動化雲端生成系統",
     )
     parser.add_argument(
         "-c", "--config",
@@ -54,36 +78,15 @@ def parse_args() -> argparse.Namespace:
         help="設定檔路徑（預設 config/config.yaml）",
     )
     parser.add_argument(
-        "--concurrency",
-        type=int,
-        default=None,
-        help="覆寫測活併發數（預設 40）",
-    )
-    parser.add_argument(
-        "--no-ecs",
-        action="store_true",
-        help="停用 ECS DoH 偽裝解析策略",
-    )
-    parser.add_argument(
-        "--no-neighbor",
-        action="store_true",
-        help="停用同 /24 網段冷門鄰居平移演算法",
-    )
-    parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="模擬執行模式（輸出報表但不覆寫實際檔案）",
+        help="模擬執行模式（輸出報表至 output_dryrun）",
     )
     parser.add_argument(
-        "--direct",
-        action="store_true",
-        default=True,
-        help="直接採用已收集並經過三網評估的大陸優選 IP 池，跳過耗時的回源測速",
-    )
-    parser.add_argument(
-        "--full-test",
-        action="store_true",
-        help="執行完整 101 回源與下行吞吐測速",
+        "--concurrency",
+        type=int,
+        default=30,
+        help="測活併發數（預設 30）",
     )
     parser.add_argument(
         "-V", "--version",
@@ -95,64 +98,175 @@ def parse_args() -> argparse.Namespace:
 
 def load_config(cfg_path: Path) -> dict[str, Any]:
     if not cfg_path.is_file():
-        sys.exit(f"[-] 設定檔不存在：{cfg_path}")
+        return {}
     try:
-        data = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
-        return data
-    except Exception as exc:
-        sys.exit(f"[-] 設定檔 YAML 解析失敗：{exc}")
+        return yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return {}
 
 
-def load_anchors(anchors_path: Path) -> list[dict[str, Any]]:
-    if not anchors_path.is_file():
-        log.warning("錨點檔案不存在：%s", anchors_path)
+def load_carrier_domains(file_path: Path) -> list[str]:
+    """讀取運營商專屬優選域名清單"""
+    if not file_path.is_file():
         return []
+    domains = []
+    for line in file_path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        # 移除端口與備註
+        dom = line.split("#")[0].split(":")[0].strip()
+        if dom and dom not in domains:
+            domains.append(dom)
+    return domains
+
+
+def fetch_live_vps789_domains() -> dict[str, list[str]]:
+    """自 VPS789 即時監控 API 取得合格域名"""
+    res: dict[str, list[str]] = {"ct": [], "cm": [], "cu": []}
     try:
-        data = json.loads(anchors_path.read_text(encoding="utf-8"))
-        if isinstance(data, dict) and "anchors" in data:
-            return data["anchors"]
-        elif isinstance(data, dict):
-            res = []
-            for k, v in data.items():
-                carrier = v.get("carrier", "")
-                if "电信" in carrier or "電信" in carrier or carrier == "ct":
-                    c_code = "ct"
-                elif "联通" in carrier or "聯通" in carrier or carrier == "cu":
-                    c_code = "cu"
-                elif "移动" in carrier or "移動" in carrier or carrier == "cm":
-                    c_code = "cm"
-                else:
-                    c_code = "edu"
-                res.append({
-                    "code": k,
-                    "region": v.get("city", ""),
-                    "carrier": c_code,
-                    "ip": v.get("ip", ""),
-                    "ipv4": v.get("ip", ""),
-                    "domain": v.get("domain", ""),
-                })
-            return res
-        elif isinstance(data, list):
-            return data
-        return []
+        r = requests.get("https://vps789.com/public/sum/cfIpTop20", timeout=4).json()
+        items = r.get("data", {}).get("good", [])
+        for item in items:
+            raw_ip = str(item.get("ip", "")).strip()
+            if not raw_ip or IPV4_RE.match(raw_ip):
+                continue
+            # CT 條件: 延遲 <= 80ms, 丟包 <= 2%
+            if item.get("dxLatency", 999) <= 80 and item.get("dxPkgLostRate", 100) <= 2:
+                res["ct"].append(raw_ip)
+            # CM 條件: 延遲 <= 80ms, 丟包 <= 3%
+            if item.get("ydLatency", 999) <= 80 and item.get("ydPkgLostRate", 100) <= 3:
+                res["cm"].append(raw_ip)
+            # CU 條件: 延遲 <= 150ms, 丟包 <= 3%
+            if item.get("ltLatency", 999) <= 150 and item.get("ltPkgLostRate", 100) <= 3:
+                res["cu"].append(raw_ip)
+        log.info("[VPS789] 即時 API 動態聚合合格域名: 電信 %d, 移動 %d, 聯通 %d",
+                 len(res["ct"]), len(res["cm"]), len(res["cu"]))
     except Exception as exc:
-        log.error("錨點檔案解析失敗：%s", exc)
-        return []
+        log.debug("[VPS789] 即時 API 存取跳過: %s", exc)
+    return res
 
 
-def print_table(title: str, headers: list[str], rows: list[list[str]]) -> None:
+def resolve_domain_for_carrier(domain: str, carrier: str) -> set[str]:
+    """針對特定運營商解析域名之 IPv4"""
+    ips: set[str] = set()
+
+    # 1. 本地解析
+    try:
+        for info in socket.getaddrinfo(domain, 443, socket.AF_INET):
+            ip = info[4][0]
+            if IPV4_RE.match(ip):
+                ips.add(ip)
+    except Exception:
+        pass
+
+    # 2. AliDNS
+    try:
+        r = requests.get(f"https://dns.alidns.com/resolve?name={domain}&type=A", timeout=2.5).json()
+        for a in r.get("Answer", []):
+            if a.get("type") == 1 and IPV4_RE.match(a.get("data", "")):
+                ips.add(a["data"])
+    except Exception:
+        pass
+
+    # 3. DNSPod
+    try:
+        r = requests.get(
+            f"https://doh.pub/dns-query?name={domain}&type=A",
+            headers={"accept": "application/dns-json"},
+            timeout=2.5
+        ).json()
+        for a in r.get("Answer", []):
+            if a.get("type") == 1 and IPV4_RE.match(a.get("data", "")):
+                ips.add(a["data"])
+    except Exception:
+        pass
+
+    # 4. Google DoH 搭配該網專屬 ECS 偽裝
+    for ecs in ECS_MAP.get(carrier, []):
+        try:
+            url = f"https://dns.google/resolve?name={domain}&type=A&edns_client_subnet={ecs}"
+            r = requests.get(url, timeout=3.0).json()
+            for a in r.get("Answer", []):
+                if a.get("type") == 1 and IPV4_RE.match(a.get("data", "")):
+                    ips.add(a["data"])
+        except Exception:
+            pass
+
+    return ips
+
+
+def check_unblocked_sync(ip: str, port: int = 443, timeout: float = 1.5) -> tuple[bool, float]:
+    """檢測 IP 是否被防火牆阻斷 (TCP 連線 + TLS 握手)"""
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(timeout)
+    t0 = time.time()
+    try:
+        s.connect((ip, port))
+        with ctx.wrap_socket(s, server_hostname="speed.cloudflare.com") as ss:
+            rtt = (time.time() - t0) * 1000.0
+            return True, rtt
+    except Exception:
+        return False, 999.0
+    finally:
+        try:
+            s.close()
+        except Exception:
+            pass
+
+
+def get_ip_country(ip: str, carrier: str) -> str:
+    """決定 IP 的二字元大寫國別代碼 (#TW, #HK, #JP 等)"""
+    # 1. 優先匹配已知的網段地圖
+    sub_tag = lookup_subnet_country(ip)
+    if sub_tag:
+        norm = normalize_country_code(sub_tag)
+        if norm:
+            return norm
+
+    # 2. 嘗試自 Cloudflare 邊緣 trace 獲取機房
+    try:
+        r = requests.get(f"http://{ip}/cdn-cgi/trace", headers={"Host": "speed.cloudflare.com"}, timeout=1.2)
+        lines = dict(l.split("=", 1) for l in r.text.strip().split("\n") if "=" in l)
+        colo = lines.get("colo", "").upper()
+        c = get_country_by_colo(colo)
+        if c:
+            return c
+    except Exception:
+        pass
+
+    # 3. 依據前綴與運營商智慧兜底
+    if ip.startswith("162.159.38."):
+        return "JP"
+    if ip.startswith("162.159.44."):
+        return "HK"
+    if ip.startswith("162.159.152.") or ip.startswith("162.159.153."):
+        return "TW"
+    if ip.startswith("172.64.229.") or ip.startswith("172.64.52."):
+        return "TW"
+
+    if carrier == "ct":
+        return "HK"
+    elif carrier == "cm":
+        return "TW"
+    else:
+        return "TW"
+
+
+def print_summary_table(title: str, headers: list[str], rows: list[list[str]]) -> None:
     print(f"\n=== {title} ===")
     if not rows:
         print("  (無資料)")
         return
-
     col_widths = [len(h) for h in headers]
     for row in rows:
         for idx, cell in enumerate(row):
             w = sum(2 if ord(c) > 127 else 1 for c in str(cell))
             if w > col_widths[idx]:
                 col_widths[idx] = w
-
     header_fmt = "  ".join(f"{{:<{w}}}" for w in col_widths)
     sep = "  ".join("-" * w for w in col_widths)
     print(header_fmt.format(*headers))
@@ -161,227 +275,155 @@ def print_table(title: str, headers: list[str], rows: list[list[str]]) -> None:
         print(header_fmt.format(*row))
 
 
-async def run_pipeline(args: argparse.Namespace) -> int:
-    started_at = time.time()
-    cfg_path = (PROJECT_ROOT / args.config).resolve()
-    config = load_config(cfg_path)
-
-    tuning = config.get("tuning", {})
-    handshake_concurrency = args.concurrency or int(tuning.get("handshake_concurrency", 50))
-    speedtest_duration = float(tuning.get("speedtest_duration_limit", 2.0))
-    speedtest_workers = int(tuning.get("speedtest_workers", 8))
-    target_output_count = int(tuning.get("target_output_count", 50))
-    max_per_subnet = int(tuning.get("max_ips_per_subnet", 3))
-    max_per_country = int(tuning.get("max_ips_per_country", 15))
-
-    if args.no_ecs:
-        config.setdefault("collector", {}).setdefault("ecs_doh", {})["enabled"] = False
-
-    anchors_rel = config.get("collector", {}).get("ecs_doh", {}).get("anchors_file", "data/cn_anchors.json")
-    anchors = load_anchors((PROJECT_ROOT / anchors_rel).resolve())
-
-    origin_cfg = config.get("origin", {})
+def main() -> int:
+    args = parse_args()
     log.info("=" * 65)
-    log.info("CF-Global-QuadNet-Feed v%s 啟動 (大陸三網視角雙引擎架構)", __version__)
-    log.info("目標源站：%s:%s (WS: %s, 預期 101)", origin_cfg.get('host'), origin_cfg.get('port'), origin_cfg.get('ws_path'))
-    log.info("調優參數：握手併發 %d，測速線程: %d，切片截斷: %.1fs，目標每網: %d 筆",
-             handshake_concurrency, speedtest_workers, speedtest_duration, target_output_count)
+    log.info("CF-Global-QuadNet-Feed v%s 啟動 (VPS789 三網直解直出架構)", __version__)
+    log.info("指令規則：電信解電信、移動解移動、聯通解聯通，未牆節點直出清單")
     log.info("=" * 65)
 
-    # 1. 階段一：聚合境內三網探針、亞太神仙段與 2000+ 候選池
-    log.info("[*] 階段 1: 聚合境內三網探針、亞太神仙段與 2000+ 候選池...")
-    raw_candidates = await collect_all_candidates(config, anchors, PROJECT_ROOT)
-    if args.no_neighbor:
-        expanded_pool = raw_candidates
-        log.info("[*] 冷門鄰居平移已停用，保持原始候選池: %d 筆", len(expanded_pool))
-    else:
-        expanded_pool = shift_to_clean_neighbors(raw_candidates, count_per_subnet=2)
-        log.info("[*] 展開後總候選池規模: %d 筆", len(expanded_pool))
+    # 預載國家網段映射庫
+    init_subnet_country_map(PROJECT_ROOT / "data")
 
-    # 2. 階段二：為電信(ct)、聯通(cu)、移動(cm) 各自按「境內視角」獨立初評，選出各網前 100 名候選
-    log.info("[*] 階段 2: 大陸三網獨立路由基因與境內探針雙引擎初評...")
-    carrier_finalists = {}
-    unique_to_verify = {}
-
-    for carrier in ["ct", "cu", "cm"]:
-        scored_list = [evaluate_for_carrier(item, carrier) for item in expanded_pool]
-        # 按境內評分排序，絕不使用美國 Runner 延遲排序！
-        scored_list.sort(key=lambda x: x.get("final_score", 0.0), reverse=True)
-
-        # 同 /24 網段在初篩時最多保留 4 個，取前 150 名進入回源驗證
-        top_candidates = []
-        subnet_cnt = {}
-        for item in scored_list:
-            subnet = ".".join(item["ip"].split(".")[:3])
-            if subnet_cnt.get(subnet, 0) < 4:
-                top_candidates.append(item)
-                subnet_cnt[subnet] = subnet_cnt.get(subnet, 0) + 1
-                unique_to_verify[item["ip"]] = item
-            if len(top_candidates) >= 150:
-                break
-        carrier_finalists[carrier] = top_candidates
-        top1 = top_candidates[0] if top_candidates else {}
-        log.info("[+] [%s] 境內初評前 %d 名精選完成（最高分: %.1f, 預估延遲: %.1fms, 頂級網段: %s#%s）",
-                 carrier.upper(), len(top_candidates), top1.get("final_score", 0.0), top1.get("est_cn_latency_ms", 0.0),
-                 top1.get("ip", ""), top1.get("country", ""))
-
-    is_direct = not getattr(args, "full_test", False)
-    verified_map = {}
-
-    if not is_direct:
-        # 3. 階段三：對三網精選出的去重節點執行 101 回源握手驗證
-        log.info("[*] 階段 3: 對三網精選出的 %d 個去重節點執行 101 回源握手驗證...", len(unique_to_verify))
-        verified_list = await batch_verify_101(
-            list(unique_to_verify.values()),
-            origin_cfg=origin_cfg,
-            concurrency=handshake_concurrency
-        )
-        verified_map = {item["ip"]: item for item in verified_list if item.get("ws_handshake_101")}
-        log.info("[+] 成功通過 %s:%s%s 101 握手合格節點: %d 筆",
-                 origin_cfg.get('host'), origin_cfg.get('port'), origin_cfg.get('ws_path'), len(verified_map))
-
-        # 4. 階段四：對通過 101 握手的節點執行快速回源吞吐檢查
-        verified_ips = list(verified_map.keys())
-        port = int(origin_cfg.get("port", 2053))
-        sni_host = str(origin_cfg.get("sni", "node1.snowcat77.com"))
-        if verified_ips:
-            log.info("[*] 階段 4: 對 %d 個合格節點執行 %.1f 秒快速下行吞吐測速 (線程池: %d)...",
-                     len(verified_ips), speedtest_duration, speedtest_workers)
-            with ThreadPoolExecutor(max_workers=speedtest_workers) as executor:
-                futures = {
-                    ip: executor.submit(measure_ip_bandwidth, ip, port, sni_host, speedtest_duration)
-                    for ip in verified_ips
-                }
-                for ip, fut in futures.items():
-                    try:
-                        verified_map[ip]["speed_mbps"] = fut.result()
-                        verified_map[ip]["download_speed"] = verified_map[ip]["speed_mbps"]
-                    except Exception as exc:
-                        log.debug("測速異常 %s: %s", ip, exc)
-                        verified_map[ip]["speed_mbps"] = 50.0
-    else:
-        log.info("[*] 依指令啟動急速直出模式：跳過耗時回源測速，直接聚合境內實時情報與雙引擎評估成果！")
-        for carrier in ["ct", "cu", "cm"]:
-            for cand in carrier_finalists[carrier]:
-                verified_map[cand["ip"]] = cand
-
-    # 5. 階段五：三網各自重新結算最終分數並輸出 Top 50 (IP#COUNTRY)
-    output_dir = PROJECT_ROOT / config.get("exporter", {}).get("output_dir", "output")
-    if args.dry_run:
-        output_dir = PROJECT_ROOT / "output_dryrun"
-        log.info("模擬模式：輸出將儲存至臨時目錄 %s", output_dir)
+    # 輸出目錄
+    output_dir = PROJECT_ROOT / ("output_dryrun" if args.dry_run else "output")
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    carrier_summary = {}
-    carrier_results = {}
+    # 讀取運營商域名清單
+    carrier_domains = {
+        "ct": load_carrier_domains(PROJECT_ROOT / "data" / "domains_ct.txt"),
+        "cm": load_carrier_domains(PROJECT_ROOT / "data" / "domains_cm.txt"),
+        "cu": load_carrier_domains(PROJECT_ROOT / "data" / "domains_cu.txt"),
+    }
 
-    for carrier in ["ct", "cu", "cm"]:
-        if is_direct:
-            valid_carrier_pool = carrier_finalists[carrier]
-        else:
-            valid_carrier_pool = []
-            seen_pool_ips = set()
-            # 優先納入該網專屬初選通過者
-            for cand in carrier_finalists[carrier]:
-                ip = cand["ip"]
-                if ip in verified_map and ip not in seen_pool_ips:
-                    merged = dict(verified_map[ip])
-                    merged.update({
-                        "source_carrier": cand.get("source_carrier", ""),
-                        "cn_latency_ms": cand.get("cn_latency_ms"),
-                        "cn_speed_mbps": cand.get("cn_speed_mbps", 0.0),
-                        "cn_loss_percent": cand.get("cn_loss_percent", 0.0),
-                        "source_country": cand.get("source_country", "") or merged.get("source_country", ""),
-                        "source_colo": cand.get("source_colo", "") or merged.get("source_colo", ""),
-                        "is_shifted_neighbor": cand.get("is_shifted_neighbor", False),
-                    })
-                    final_item = evaluate_for_carrier(merged, carrier)
-                    valid_carrier_pool.append(final_item)
-                    seen_pool_ips.add(ip)
+    # 動態補充 VPS789 實時監控合格域名
+    live_domains = fetch_live_vps789_domains()
+    for c in ["ct", "cm", "cu"]:
+        for d in live_domains.get(c, []):
+            if d not in carrier_domains[c]:
+                carrier_domains[c].append(d)
 
-            # 若專屬初選合格數不足，從其餘通過 101 的合格節點依該網評分模型補充
-            for ip, v_node in verified_map.items():
-                if ip not in seen_pool_ips:
-                    merged = dict(v_node)
-                    final_item = evaluate_for_carrier(merged, carrier)
-                    valid_carrier_pool.append(final_item)
-                    seen_pool_ips.add(ip)
+    carriers_meta = [
+        ("ct", "中國電信 (CT)", "domains_ct.txt"),
+        ("cm", "中國移動 (CM)", "domains_cm.txt"),
+        ("cu", "中國聯通 (CU)", "domains_cu.txt"),
+    ]
 
-        res = export_carrier_ips(
-            valid_carrier_pool,
-            carrier,
-            output_dir / f"{carrier}.txt",
-            max_count=target_output_count,
-            max_per_subnet=max_per_subnet,
-            max_per_country=max_per_country,
-            require_101=(not is_direct),
-        )
-        carrier_summary[carrier] = res
-        carrier_results[carrier] = res["data"]
+    all_carrier_results: dict[str, list[dict[str, Any]]] = {}
+    carrier_summary_rows = []
 
-    # 輸出企業級優選域名至 output/domains.txt
+    for c_code, c_name, dom_file in carriers_meta:
+        dom_list = carrier_domains.get(c_code, [])
+        log.info("[*] [%s] 載入 %d 個 VPS789 專屬優選域名，開始多通道解析...", c_code.upper(), len(dom_list))
+
+        # 1. 併發解析該網所有域名
+        resolved_ips: set[str] = set()
+        with concurrent.futures.ThreadPoolExecutor(max_workers=15) as ex:
+            futs = {ex.submit(resolve_domain_for_carrier, d, c_code): d for d in dom_list}
+            for f in concurrent.futures.as_completed(futs):
+                d = futs[f]
+                try:
+                    ips = f.result()
+                    resolved_ips.update(ips)
+                    log.debug("[%s] 域名 %s 解析出 %d 個 IP", c_code.upper(), d, len(ips))
+                except Exception as exc:
+                    log.warning("[%s] 域名 %s 解析異常: %s", c_code.upper(), d, exc)
+
+        log.info("[*] [%s] 共解析出 %d 個獨立 IP，開始防火牆測活快篩 (TCP+TLS 443)...", c_code.upper(), len(resolved_ips))
+
+        # 2. 檢測防火牆連通性 (未被牆才採用)
+        unblocked_nodes: list[dict[str, Any]] = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=args.concurrency) as ex:
+            futs = {ex.submit(check_unblocked_sync, ip): ip for ip in resolved_ips}
+            for f in concurrent.futures.as_completed(futs):
+                ip = futs[f]
+                try:
+                    ok, rtt = f.result()
+                    if ok:
+                        country = get_ip_country(ip, c_code)
+                        unblocked_nodes.append({
+                            "ip": ip,
+                            "latency_ms": round(rtt, 1),
+                            "country": country,
+                            "tag": f"{ip}#{country}",
+                            "status": "PASS_UNBLOCKED",
+                        })
+                except Exception:
+                    pass
+
+        # 3. 按延遲升序排序，並施加 /24 分散保護 (同網段最多 4 個，確保多樣性)
+        unblocked_nodes.sort(key=lambda x: x["latency_ms"])
+        final_nodes: list[dict[str, Any]] = []
+        subnet_cnt: dict[str, int] = {}
+        for node in unblocked_nodes:
+            sub = ".".join(node["ip"].split(".")[:3])
+            if subnet_cnt.get(sub, 0) < 4:
+                final_nodes.append(node)
+                subnet_cnt[sub] = subnet_cnt.get(sub, 0) + 1
+            if len(final_nodes) >= 50:
+                break
+
+        # 若不足 50 個，不設網段限制補足剩餘節點
+        if len(final_nodes) < 50:
+            seen_ips = {n["ip"] for n in final_nodes}
+            for node in unblocked_nodes:
+                if node["ip"] not in seen_ips:
+                    final_nodes.append(node)
+                    seen_ips.add(node["ip"])
+                if len(final_nodes) >= 50:
+                    break
+
+        all_carrier_results[c_code] = final_nodes
+        top1 = final_nodes[0] if final_nodes else {}
+        log.info("[+] [%s] 篩選完成：合格未被牆節點 %d 筆 (最佳節點: %s, 延遲: %sms)",
+                 c_code.upper(), len(final_nodes), top1.get("tag", "N/A"), top1.get("latency_ms", "N/A"))
+
+        # 寫出 output/<carrier>.txt
+        out_txt = output_dir / f"{c_code}.txt"
+        out_lines = [f"{n['tag']}\n" for n in final_nodes]
+        out_txt.write_text("".join(out_lines), encoding="utf-8")
+        log.info("[+] 清單已寫入 -> %s (%d 筆)", out_txt, len(final_nodes))
+
+        carrier_summary_rows.append([
+            c_name,
+            str(len(dom_list)),
+            str(len(resolved_ips)),
+            str(len(final_nodes)),
+            f"{top1.get('latency_ms', 0):.1f}ms",
+            f"{out_txt.name}",
+        ])
+
+    # 輸出企業級 / VPS789 域名總清單至 output/domains.txt
     ent_src = PROJECT_ROOT / "data" / "enterprise_domains.txt"
     ent_dst = output_dir / "domains.txt"
     if ent_src.is_file():
         shutil.copy2(ent_src, ent_dst)
-        log.info("企業級優選域名已同步輸出 -> %s", ent_dst)
+        log.info("[+] 優選域名總清單已同步 -> %s", ent_dst)
 
     # 輸出結構化 JSON 總表
     now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))
     summary_data = {
         "version": __version__,
+        "strategy": "VPS789_TRI_NET_DIRECT",
         "updated_at": now.isoformat(timespec="seconds"),
         "timestamp": int(now.timestamp()),
-        "total_verified_ok": len(verified_map),
-        "carriers_status": {k: v["status"] for k, v in carrier_summary.items()},
-        "by_carrier": carrier_results,
-        "carriers": carrier_results,
+        "by_carrier": all_carrier_results,
+        "carriers": all_carrier_results,
     }
     json_path = output_dir / "best_ips.json"
     json_path.write_text(json.dumps(summary_data, ensure_ascii=False, indent=2), encoding="utf-8")
-    log.info("結構化總表已輸出 -> %s", json_path)
+    log.info("[+] 結構化總表已輸出 -> %s", json_path)
 
-    # 6. 終端報表渲染 (三網前 50)
-    carrier_rows = []
-    carriers_meta = [
-        ("ct", "中國電信 (CT)", f"{output_dir.name}/ct.txt"),
-        ("cu", "中國聯通 (CU)", f"{output_dir.name}/cu.txt"),
-        ("cm", "中國移動 (CM)", f"{output_dir.name}/cm.txt"),
-    ]
-    for c_key, c_name, out_file in carriers_meta:
-        items = carrier_results.get(c_key, [])
-        status = carrier_summary.get(c_key, {}).get("status", "UNKNOWN")
-        if items:
-            best_ip = f"{items[0]['ip']}#{items[0].get('country_code', items[0].get('country', 'US'))}"
-            colos = ",".join(sorted(set(it.get("colo", "") for it in items if it.get("colo"))))
-            lats = [float(it.get("est_cn_latency_ms", it.get("latency_ms", 0))) for it in items]
-            lat_range = f"{min(lats):.1f}~{max(lats):.1f}ms" if lats else "-"
-            top_spd = items[0].get("speed_mbps") or items[0].get("download_speed", 0)
-            top_loss = items[0].get("loss_percent") or items[0].get("loss_rate", 0)
-            speed_info = f"{top_spd:.0f}Mbps / {top_loss:.1f}%"
-            carrier_rows.append([c_name, out_file, str(len(items)), best_ip, colos or "-", lat_range, speed_info, status])
-        else:
-            carrier_rows.append([c_name, out_file, "0", "-", "-", "-", "-", status])
+    # 渲染終端摘要報表
+    print_summary_table(
+        "VPS789 三網優選 IP 與域名生成結果",
+        ["運營商", "VPS789域名數", "解析IP總數", "未牆合格輸出", "最佳延遲", "輸出檔案"],
+        carrier_summary_rows,
+    )
 
-    print_table("三網優選 Top 50 產出成果 (v1.4.0 大陸三網視角雙引擎)", ["運營商", "匯出檔案", "挑選數", "最佳節點 (Top 1)", "機房分佈", "境內預估延遲", "實測頻寬/丟包", "階梯狀態"], carrier_rows)
-
-    elapsed = time.time() - started_at
-    log.info("v1.4.0 三網獨立境內視角篩選管線執行完畢，總耗時: %.1f 秒，合格回源節點總數: %d 個", elapsed, len(verified_map))
+    print("\n🎉 三網各自解析與防火牆連通性快篩全部順利完成！")
     return 0
 
 
-def main() -> None:
-    args = parse_args()
-    try:
-        code = asyncio.run(run_pipeline(args))
-        sys.exit(code)
-    except KeyboardInterrupt:
-        log.info("使用者中斷執行")
-        sys.exit(130)
-    except Exception as exc:
-        log.exception("執行過程發生未預期例外：%s", exc)
-        sys.exit(1)
-
-
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

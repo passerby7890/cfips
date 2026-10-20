@@ -198,11 +198,6 @@ def resolve_country_tag(item: Dict[str, Any], runner_trace_colo: str = "") -> st
     target_carrier = str(item.get("target_carrier") or "").lower()
     est_lat = float(item.get("est_cn_latency_ms") or item.get("cn_latency_ms") or 0.0)
 
-    # 針對繞美高延遲段與電信視角的假亞太標籤防禦
-    is_detour_prefix = ip.startswith(("104.16.", "104.17.", "104.18.", "104.19.", "172.64.", "172.66.", "172.67."))
-    if (target_carrier == "ct" and is_detour_prefix and (est_lat >= 90.0 or est_lat == 0.0)) or (est_lat >= 100.0):
-        return "US"
-
     # 1. 優先採計境內探針實測 Colo
     if source_colo and source_colo != "DEFAULT":
         mapped = get_country_by_colo(source_colo)
@@ -220,6 +215,11 @@ def resolve_country_tag(item: Dict[str, Any], runner_trace_colo: str = "") -> st
         norm_sub = normalize_country_code(subnet_tag)
         if norm_sub:
             return norm_sub
+
+    # 針對繞美高延遲段與電信視角的假亞太標籤防禦 (僅在無明確亞太網段映射時生效)
+    is_detour_prefix = ip.startswith(("104.16.", "104.17.", "104.18.", "104.19.", "172.64.", "172.66.", "172.67."))
+    if (target_carrier == "ct" and is_detour_prefix and (est_lat >= 130.0)) or (est_lat >= 160.0):
+        return "US"
 
     # 4. 檢查 item["country"] 或 item["countries"] 原生標註
     orig_country = normalize_country_code(item.get("country"))

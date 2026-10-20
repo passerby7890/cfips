@@ -1,16 +1,8 @@
 # =====================================================================
-# 中國移動 (CM) 專屬優選域名清單
-# 來源：VPS789 24H 實時監控榜單 (移動延遲 <= 80ms / 丟包率 <= 2%) 與 CMI 專線
+# 中國移動 (CM) VPS789 專屬優選 CNAME 域名清單
+# 來源：VPS789 實時監控榜單 (移動延遲 2-80ms / 丟包率 <= 3%)
 # =====================================================================
-cf.godns.cc:443#移動優選 | godns (71ms/1.9%丟包)
-cf.blogluo.eu.org:443#移動優選 | blogluo (40ms/0%丟包)
-stores.staples.com:443#企業商城 | 史泰博 (41ms/1%丟包)
-cfyx.aliyun.20237737.xyz:443#移動優選 | 阿里雲 (45ms/3%丟包)
-cdn.2158.cc:443#移動優選 | 2158 (47ms/4%丟包)
-111.cf.cname.vvhan.com:443#移動優選 | 韓小韓 (48ms/2%丟包)
-ctsg.cfyx.aliyun.20237737.xyz:443#移動優選 | 新加坡 (74ms/3.2%丟包)
-yg8.ygkkk.dpdns.org:443#移動優選 | 甬哥優選 (69ms/3.8%丟包)
-cf.090227.xyz:443#移動優選 | 090227 (82ms/4.1%丟包)
-hitcon.org:443#移動優選 | hitcon (189ms/1.7%丟包)
-vps.cheng2001.top:443#移動優選 | cheng (208ms/1.7%丟包)
-bestcf.top:443#官方CNAME | bestcf
+cf.godns.cc
+www.shopify.com
+dash.cloudflare.com
+1749991941.bilibiliapp.cn
