@@ -237,20 +237,8 @@ class MySQLManager:
         return True
 
 
-def clear_v2board_cache(panel_root: Path):
-    """清除 V2Board 快取使節點立即生效"""
-    try:
-        artisan = panel_root / "artisan"
-        if artisan.is_file():
-            subprocess.run(["php", str(artisan), "cache:clear"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            logger.info("已成功清除 Laravel 應用快取 (php artisan cache:clear)")
-    except Exception as e:
-        logger.warning("執行 cache:clear 失敗: %s", e)
 
-    try:
-        subprocess.run(["redis-cli", "del", "SERVER_VLESS"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    except Exception:
-        pass
+
 
 
 def perform_db_sync(
@@ -345,8 +333,6 @@ def perform_db_sync(
             print(f"    - 執行結果           : ❌ MySQL 更新出錯: {e}")
         print("----------------------------------------------------------------------")
 
-    if has_modified and not dry_run:
-        clear_v2board_cache(panel_root)
 
     print(f"🎉 執行完畢！成功處理 {success_count}/{len(nodes_to_update)} 個節點。")
     print("======================================================================")
