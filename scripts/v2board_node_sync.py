@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 """
-V2Board / Xboard 節點入口純 IP 極簡自動替換器 (v2.3.0)
+V2Board / Xboard 節點入口純 IP 極簡自動替換器 (v2.4.0)
 
-核心要素：
-  1. V2Board 地址或 IP + 管理員 Token
-  2. 三張優選表 (ct 電信 / cu 聯通 / cm 移動) URL 或本地路徑
-  3. 替換目標：節點 ID (node ID) + 協議 (預設 vless) + 綁定表 (ct/cu/cm)
-  4. 僅替換入口地址 (server 欄位)，100% 嚴格原樣保留 port, uuid, tls_settings, network_settings (Host/SNI)
+核心特色：
+  1. 輸入 node ID 後自動換！(支援命令列參數直接傳入，或互動式輸入)
+  2. 專注 VLESS 協議：只換入口地址 (server)，100% 嚴格原樣保留 port、UUID、TLS SNI、Host、Path
+  3. 支援兩種選取策略：
+     - 固定第一名 ("top"): 取該線路評分最高的最優 IP
+     - 隨機輪替 ("random_top3" / "random_top5"): 從前 3~5 名極品中隨機挑選，分散節點負載
+  4. 支援兩種定時模式：
+     - Linux Crontab 排程 (單次執行後退出)
+     - 內建守護進程模式 (--daemon --interval 秒數，本機自動常駐循環)
+  5. 支援斷網容災快取 (自動備援本機歷史表，GitHub 斷線也能繼續運作)
 """
 
 from __future__ import annotations
@@ -15,6 +20,7 @@ import argparse
 import json
 import logging
 import os
+import random
 import re
 import ssl
 import sys
@@ -47,28 +53,42 @@ DEFAULT_TABLES = {
 IP_REGEX = re.compile(r"^(\d{1,3}(?:\.\d{1,3}){3})")
 
 
-def fetch_ip_table(source: str) -> List[Tuple[str, str]]:
-    """自本地檔案或 HTTP URL 讀取 IP 清單，回傳 [(ip, country_tag), ...]"""
+def fetch_ip_table(source: str, cache_dir: Optional[Path] = None) -> List[Tuple[str, str]]:
+    """自本地檔案或 HTTP URL 讀取 IP 清單，具備本機快取容災能力"""
     content = ""
-    # 1. 嘗試本地檔案
+    # 1. 嘗試讀取本地檔案
     p = Path(source)
     if p.is_file():
         try:
             content = p.read_text(encoding="utf-8", errors="ignore")
+            logger.debug("從本地路徑載入: %s", source)
         except Exception as e:
             logger.warning("讀取本地表 %s 失敗: %s", source, e)
 
-    # 2. 嘗試網路下載
+    # 2. 嘗試網路下載 (HTTP/HTTPS)
+    cache_file = None
+    if cache_dir:
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        safe_name = re.sub(r"[^a-zA-Z0-9_.-]", "_", source.split("/")[-1])
+        cache_file = cache_dir / f"cached_{safe_name}"
+
     if not content and (source.startswith("http://") or source.startswith("https://")):
         try:
             ctx = ssl.create_default_context()
             ctx.check_hostname = False
             ctx.verify_mode = ssl.CERT_NONE
             req = urllib.request.Request(source, headers={"User-Agent": "curl/7.88.1"})
-            with urllib.request.urlopen(req, timeout=10, context=ctx) as resp:
+            with urllib.request.urlopen(req, timeout=8, context=ctx) as resp:
                 content = resp.read().decode("utf-8", errors="ignore")
+                # 下載成功後自動寫入快取
+                if cache_file and content:
+                    cache_file.write_text(content, encoding="utf-8")
         except Exception as e:
-            logger.error("下載遠端表 %s 失敗: %s", source, e)
+            logger.warning("下載遠端表失敗: %s (%s)", source, e)
+            # 斷網時自動自快取備援載入
+            if cache_file and cache_file.is_file():
+                logger.info("自動啟用本地快取備援: %s", cache_file)
+                content = cache_file.read_text(encoding="utf-8", errors="ignore")
 
     results = []
     for line in content.splitlines():
@@ -92,19 +112,17 @@ class V2BoardAPI:
     def __init__(self, base_url: str, token: str):
         self.base_url = base_url.rstrip("/")
         self.token = token.strip()
-        # 建立忽略 SSL 憑證報錯的 context (支援自簽憑證或直接用 IP 存取)
         self.ctx = ssl.create_default_context()
         self.ctx.check_hostname = False
         self.ctx.verify_mode = ssl.CERT_NONE
 
     def _headers(self) -> Dict[str, str]:
         h = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) V2BoardSync/2.3.0",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) V2BoardSync/2.4.0",
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
         if self.token:
-            # 同時帶入 Authorization 與 auth-data 以相容官方與 Xiao 魔改版
             h["Authorization"] = self.token
             h["auth-data"] = self.token
         return h
@@ -121,7 +139,6 @@ class V2BoardAPI:
                     return data
                 return []
         except urllib.error.HTTPError as e:
-            # 備用 endpoint
             alt_url = f"{self.base_url}/api/v1/admin/server/manage/getNodes"
             req2 = urllib.request.Request(alt_url, headers=self._headers(), method="GET")
             with urllib.request.urlopen(req2, timeout=15, context=self.ctx) as resp:
@@ -142,18 +159,35 @@ class V2BoardAPI:
             return res.get("data") is True or res.get("data") == 1 or "success" in str(res).lower()
 
 
-def select_best_ip(ip_list: List[Tuple[str, str]], preferred_country: str = "", rank: int = 1) -> Optional[Tuple[str, str]]:
-    """篩選最佳 IP"""
+def select_best_ip(
+    ip_list: List[Tuple[str, str]],
+    preferred_country: str = "",
+    rank: int = 1,
+    strategy: str = "top"
+) -> Optional[Tuple[str, str]]:
+    """篩選 IP:
+      - strategy='top': 固定選擇第 rank 名最優 IP (預設榜首)
+      - strategy='random' / 'random_top3' / 'random_top5': 從前 3~5 名中隨機挑選
+    """
     if not ip_list:
         return None
-    idx = max(0, rank - 1)
+
+    candidates = ip_list
     if preferred_country:
         filtered = [item for item in ip_list if item[1].upper() == preferred_country.upper()]
         if filtered:
-            idx = min(idx, len(filtered) - 1)
-            return filtered[idx]
-    idx = min(idx, len(ip_list) - 1)
-    return ip_list[idx]
+            candidates = filtered
+
+    strat = str(strategy).lower().strip()
+    if "random" in strat:
+        m = re.search(r"\d+", strat)
+        limit = int(m.group(0)) if m else 3
+        pool = candidates[:max(1, limit)]
+        return random.choice(pool)
+
+    idx = max(0, rank - 1)
+    idx = min(idx, len(candidates) - 1)
+    return candidates[idx]
 
 
 def perform_sync(
@@ -161,6 +195,7 @@ def perform_sync(
     v2board_token: str,
     tables: Dict[str, str],
     nodes_to_update: List[Dict[str, Any]],
+    cache_dir: Optional[Path] = None,
     dry_run: bool = False
 ) -> bool:
     print("======================================================================")
@@ -168,13 +203,12 @@ def perform_sync(
     print(f"[*] 面板目標: {v2board_url}")
     print("======================================================================")
 
-    # 1. 預先載入三張表
+    # 1. 載入三張表 (支援本地快取容災)
     table_cache: Dict[str, List[Tuple[str, str]]] = {}
     for t_name, t_url in tables.items():
-        print(f"[*] 載入 [{t_name.upper()}] 表: {t_url}")
-        ips = fetch_ip_table(t_url)
+        ips = fetch_ip_table(t_url, cache_dir=cache_dir)
         table_cache[t_name] = ips
-        print(f"    -> 成功載入 {len(ips)} 個極品 IP")
+        print(f"[*] 載入 [{t_name.upper()}] 表 ({t_url.split('/')[-1]}): 成功取得 {len(ips)} 個極品 IP")
 
     # 2. 獲取節點清單
     api = V2BoardAPI(base_url=v2board_url, token=v2board_token)
@@ -193,7 +227,7 @@ def perform_sync(
                 print(f"❌ 無法連接面板或 Token 無效: {e}")
                 return False
         else:
-            # Dry-run 模擬節點 (以使用者面板常見節點為例)
+            # Dry-run 模擬節點
             nodes_by_proto[proto] = {
                 7: {"id": 7, "name": "JP 电信专用-日本(3倍)", "server": "www.090902.xyz", "port": 2053},
                 6: {"id": 6, "name": "HK 移动专用-香港(3倍)", "server": "cf.godns.cc", "port": 2053}
@@ -208,6 +242,7 @@ def perform_sync(
         t_name = str(item.get("table", "ct")).lower()
         pref_country = str(item.get("country", "")).upper()
         rank = int(item.get("rank", 1))
+        strategy = str(item.get("strategy", "top"))
 
         node_dict = nodes_by_proto.get(proto, {}).get(node_id)
         if not node_dict:
@@ -218,21 +253,22 @@ def perform_sync(
         curr_server = str(node_dict.get("server", "")).strip()
         port = node_dict.get("port", 443)
 
-        # 取對應表的最佳 IP
+        # 取對應表的 IP
         ip_pool = table_cache.get(t_name, [])
-        best_choice = select_best_ip(ip_pool, preferred_country=pref_country, rank=rank)
+        best_choice = select_best_ip(ip_pool, preferred_country=pref_country, rank=rank, strategy=strategy)
         if not best_choice:
             print(f"❌ 表 [{t_name}] 中無可用 IP！(節點 ID: {node_id})")
             continue
 
         new_ip, tag = best_choice
+        strat_desc = "隨機輪替" if "random" in strategy else f"第 {rank} 名"
         print(f"[*] 節點 ID: {node_id} 【{name}】")
         print(f"    - 原入口地址 (server) : {curr_server}:{port}")
-        print(f"    - 綁定來源表         : {t_name.upper()} 表 (#{tag})")
-        print(f"    - 最佳純 IP          : {new_ip} (#{tag})")
+        print(f"    - 綁定表與策略       : {t_name.upper()} 表 (#{tag}) | 模式: {strat_desc}")
+        print(f"    - 選定純 IP          : {new_ip} (#{tag})")
 
         if curr_server == new_ip:
-            print(f"    - 執行結果           : ⚡ 目前已是最新 IP ({new_ip})，無需更換！")
+            print(f"    - 執行結果           : ⚡ 目前已是選定 IP ({new_ip})，無需變更！")
             success_count += 1
             print("----------------------------------------------------------------------")
             continue
@@ -259,41 +295,6 @@ def perform_sync(
     return True
 
 
-def interactive_wizard(config_path: Path) -> Dict[str, Any]:
-    """互動式引導設定"""
-    print("\n👋 檢測到尚未配置完整設定檔，啟動快速設定精靈：")
-    url = input("1. 請輸入 V2Board 面板地址或 IP (如 https://panel.com 或 http://1.2.3.4): ").strip()
-    token = input("2. 請輸入 管理員 Token: ").strip()
-    
-    print("\n3. 設定要替換的節點 (可稍後在 config.json 增加)：")
-    node_id_str = input("   請輸入 節點 ID (如 7): ").strip()
-    node_id = int(re.findall(r"\d+", node_id_str)[0]) if re.findall(r"\d+", node_id_str) else 7
-    proto = input("   請輸入 協議 [預設: vless]: ").strip() or "vless"
-    table = input("   請輸入 綁定哪張表 (ct/cu/cm) [預設: ct]: ").strip().lower() or "ct"
-    country = input("   請輸入 偏好落地國 (JP/HK/SG/US，留空則自動): ").strip().upper()
-
-    cfg = {
-        "v2board": {
-            "url": url,
-            "token": token
-        },
-        "tables": DEFAULT_TABLES,
-        "nodes": [
-            {
-                "id": node_id,
-                "protocol": proto,
-                "table": table,
-                "country": country,
-                "rank": 1
-            }
-        ]
-    }
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-    config_path.write_text(json.dumps(cfg, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"✅ 設定檔已自動儲存至: {config_path}")
-    return cfg
-
-
 def main():
     parser = argparse.ArgumentParser(description="V2Board (Xiao 版) 節點入口純 IP 替換工具")
     parser.add_argument("--config", "-c", default="config/v2board_sync.json", help="設定檔路徑")
@@ -303,6 +304,9 @@ def main():
     parser.add_argument("--protocol", "-p", default="vless", help="指定節點協議 (預設: vless)")
     parser.add_argument("--table", "-t", choices=["ct", "cu", "cm"], help="指定使用的表 (ct/cu/cm)")
     parser.add_argument("--country", help="指定偏好落地國 (JP/HK/SG/US)")
+    parser.add_argument("--strategy", choices=["top", "random", "random_top3", "random_top5"], default="top", help="IP 選取策略 (top: 固定最優, random_top3: 前三隨機)")
+    parser.add_argument("--daemon", action="store_true", help="啟用常駐守護模式 (背景持續循環執行)")
+    parser.add_argument("--interval", type=int, default=1800, help="常駐循環時間間隔，單位秒 (預設: 1800 秒 / 30 分鐘)")
     parser.add_argument("--dry-run", action="store_true", help="模擬執行 (不實際寫入面板)")
 
     args = parser.parse_args()
@@ -316,13 +320,13 @@ def main():
         except Exception as e:
             logger.error("讀取設定檔失敗: %s", e)
 
-    # 若命令列有傳入 node 參數，優先使用命令列參數
     if args.node is not None:
         nodes = [{
             "id": args.node,
             "protocol": args.protocol,
             "table": args.table or "ct",
             "country": args.country or "",
+            "strategy": args.strategy or "top",
             "rank": 1
         }]
     else:
@@ -332,30 +336,42 @@ def main():
     token = args.token or conf.get("v2board", {}).get("token") or conf.get("panel", {}).get("api_token", "")
     tables = conf.get("tables", DEFAULT_TABLES)
 
-    # 若未提供 URL 與 Token，且不是 dry-run，進入互動引導
-    if (not url or not token) and not args.dry_run:
-        if sys.stdin.isatty():
-            conf = interactive_wizard(cfg_file)
-            url = conf["v2board"]["url"]
-            token = conf["v2board"]["token"]
-            nodes = conf.get("nodes", [])
-            tables = conf.get("tables", DEFAULT_TABLES)
-        else:
-            logger.error("缺少 v2board url 或 token，請在 config.json 中配置！")
+    if not url or not token:
+        if not args.dry_run:
+            logger.error("缺少 v2board url 或 token，請在 config/v2board_sync.json 中配置！")
             sys.exit(1)
 
     if not nodes:
         logger.error("未指定任何要替換的節點 ID！")
         sys.exit(1)
 
-    success = perform_sync(
-        v2board_url=url or "http://127.0.0.1",
-        v2board_token=token or "dummy_token",
-        tables=tables,
-        nodes_to_update=nodes,
-        dry_run=args.dry_run
-    )
-    sys.exit(0 if success else 1)
+    cache_dir = cfg_file.parent.parent / "data" / "cache"
+
+    # 若指定了常駐守護模式
+    if args.daemon:
+        print(f"🕒 啟動常駐守護模式，每隔 {args.interval} 秒 (約 {args.interval // 60} 分鐘) 自動執行一次同步...")
+        while True:
+            perform_sync(
+                v2board_url=url or "http://127.0.0.1",
+                v2board_token=token or "dummy_token",
+                tables=tables,
+                nodes_to_update=nodes,
+                cache_dir=cache_dir,
+                dry_run=args.dry_run
+            )
+            print(f"\n💤 進入休眠，將於 {args.interval} 秒後執行下一次替換 (按 Ctrl+C 結束)...")
+            time.sleep(args.interval)
+    else:
+        # 單次執行 (搭配 Linux Crontab)
+        success = perform_sync(
+            v2board_url=url or "http://127.0.0.1",
+            v2board_token=token or "dummy_token",
+            tables=tables,
+            nodes_to_update=nodes,
+            cache_dir=cache_dir,
+            dry_run=args.dry_run
+        )
+        sys.exit(0 if success else 1)
 
 
 if __name__ == "__main__":
