@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 """
-V2Board / Xboard 節點入口純 IP 極簡自動替換器 (v2.4.0)
+=============================================================================
+V2Board / Xboard (Xiao 版) 節點入口純 IP 獨立自動替換工具 (v2.5.0)
+=============================================================================
+目錄獨立封裝版：
+  本資料夾為獨立工具包，可整包複製到任何 V2Board 伺服器上直接執行，
+  無需依賴外部龐大專案與額外 pip 套件 (僅使用 Python 3 原生標準庫)。
 
 核心特色：
   1. 輸入 node ID 後自動換！(支援命令列參數直接傳入，或互動式輸入)
   2. 專注 VLESS 協議：只換入口地址 (server)，100% 嚴格原樣保留 port、UUID、TLS SNI、Host、Path
   3. 支援兩種選取策略：
-     - 固定第一名 ("top"): 取該線路評分最高的最優 IP
+     - 固定榜首 ("top"): 取該線路評分最高的最優 IP
      - 隨機輪替 ("random_top3" / "random_top5"): 從前 3~5 名極品中隨機挑選，分散節點負載
   4. 支援兩種定時模式：
      - Linux Crontab 排程 (單次執行後退出)
@@ -37,6 +42,11 @@ if hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
+CURRENT_DIR = Path(__file__).resolve().parent
+DEFAULT_CONFIG = CURRENT_DIR / "config.json"
+DEFAULT_CACHE_DIR = CURRENT_DIR / "cache"
+DEFAULT_BACKUP_DIR = CURRENT_DIR / "backups"
+
 logging.basicConfig(
     level=logging.INFO,
     format="[%(asctime)s] [%(levelname)s] %(message)s",
@@ -56,14 +66,20 @@ IP_REGEX = re.compile(r"^(\d{1,3}(?:\.\d{1,3}){3})")
 def fetch_ip_table(source: str, cache_dir: Optional[Path] = None) -> List[Tuple[str, str]]:
     """自本地檔案或 HTTP URL 讀取 IP 清單，具備本機快取容災能力"""
     content = ""
-    # 1. 嘗試讀取本地檔案
+    # 1. 嘗試讀取本地檔案 (相對路徑優先解析為同目錄或專案目錄)
     p = Path(source)
+    if not p.is_absolute():
+        if (CURRENT_DIR / source).is_file():
+            p = CURRENT_DIR / source
+        elif (CURRENT_DIR.parent / source).is_file():
+            p = CURRENT_DIR.parent / source
+
     if p.is_file():
         try:
             content = p.read_text(encoding="utf-8", errors="ignore")
-            logger.debug("從本地路徑載入: %s", source)
+            logger.debug("從本地檔案載入: %s", p)
         except Exception as e:
-            logger.warning("讀取本地表 %s 失敗: %s", source, e)
+            logger.warning("讀取本地表 %s 失敗: %s", p, e)
 
     # 2. 嘗試網路下載 (HTTP/HTTPS)
     cache_file = None
@@ -80,7 +96,6 @@ def fetch_ip_table(source: str, cache_dir: Optional[Path] = None) -> List[Tuple[
             req = urllib.request.Request(source, headers={"User-Agent": "curl/7.88.1"})
             with urllib.request.urlopen(req, timeout=8, context=ctx) as resp:
                 content = resp.read().decode("utf-8", errors="ignore")
-                # 下載成功後自動寫入快取
                 if cache_file and content:
                     cache_file.write_text(content, encoding="utf-8")
         except Exception as e:
@@ -118,7 +133,7 @@ class V2BoardAPI:
 
     def _headers(self) -> Dict[str, str]:
         h = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) V2BoardSync/2.4.0",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) V2BoardSync/2.5.0",
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
@@ -190,16 +205,26 @@ def select_best_ip(
     return candidates[idx]
 
 
+def backup_node_config(node: Dict[str, Any], backup_dir: Path) -> Path:
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    ts = int(time.time())
+    node_id = node.get("id", "unknown")
+    backup_path = backup_dir / f"node_{node_id}_{ts}.json"
+    backup_path.write_text(json.dumps(node, indent=2, ensure_ascii=False), encoding="utf-8")
+    return backup_path
+
+
 def perform_sync(
     v2board_url: str,
     v2board_token: str,
     tables: Dict[str, str],
     nodes_to_update: List[Dict[str, Any]],
     cache_dir: Optional[Path] = None,
+    backup_dir: Optional[Path] = None,
     dry_run: bool = False
 ) -> bool:
     print("======================================================================")
-    print("🚀 V2Board / Xboard 節點入口純 IP 替換引擎")
+    print("🚀 V2Board (Xiao 版) 節點入口純 IP 獨立自動替換引擎")
     print(f"[*] 面板目標: {v2board_url}")
     print("======================================================================")
 
@@ -208,7 +233,8 @@ def perform_sync(
     for t_name, t_url in tables.items():
         ips = fetch_ip_table(t_url, cache_dir=cache_dir)
         table_cache[t_name] = ips
-        print(f"[*] 載入 [{t_name.upper()}] 表 ({t_url.split('/')[-1]}): 成功取得 {len(ips)} 個極品 IP")
+        src_label = t_url.split("/")[-1]
+        print(f"[*] 載入 [{t_name.upper()}] 表 ({src_label}): 成功取得 {len(ips)} 個極品 IP")
 
     # 2. 獲取節點清單
     api = V2BoardAPI(base_url=v2board_url, token=v2board_token)
@@ -279,6 +305,10 @@ def perform_sync(
             print("----------------------------------------------------------------------")
             continue
 
+        # 自動備份
+        if backup_dir:
+            b_file = backup_node_config(node_dict, backup_dir)
+
         try:
             ok = api.update_node_server(proto, node_dict, new_ip)
             if ok:
@@ -296,8 +326,8 @@ def perform_sync(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="V2Board (Xiao 版) 節點入口純 IP 替換工具")
-    parser.add_argument("--config", "-c", default="config/v2board_sync.json", help="設定檔路徑")
+    parser = argparse.ArgumentParser(description="V2Board (Xiao 版) 節點入口純 IP 獨立自動替換工具")
+    parser.add_argument("--config", "-c", default=str(DEFAULT_CONFIG), help="設定檔路徑 (預設: 同目錄 config.json)")
     parser.add_argument("--url", help="覆蓋 V2Board 地址或 IP")
     parser.add_argument("--token", help="覆蓋 V2Board 管理員 Token")
     parser.add_argument("--node", "-n", type=int, help="指定替換的單一節點 ID (例如: 7)")
@@ -338,16 +368,16 @@ def main():
 
     if not url or not token:
         if not args.dry_run:
-            logger.error("缺少 v2board url 或 token，請在 config/v2board_sync.json 中配置！")
+            logger.error("缺少 v2board url 或 token，請在 config.json 中配置！")
             sys.exit(1)
 
     if not nodes:
         logger.error("未指定任何要替換的節點 ID！")
         sys.exit(1)
 
-    cache_dir = cfg_file.parent.parent / "data" / "cache"
+    cache_dir = DEFAULT_CACHE_DIR
+    backup_dir = DEFAULT_BACKUP_DIR
 
-    # 若指定了常駐守護模式
     if args.daemon:
         print(f"🕒 啟動常駐守護模式，每隔 {args.interval} 秒 (約 {args.interval // 60} 分鐘) 自動執行一次同步...")
         while True:
@@ -357,18 +387,19 @@ def main():
                 tables=tables,
                 nodes_to_update=nodes,
                 cache_dir=cache_dir,
+                backup_dir=backup_dir,
                 dry_run=args.dry_run
             )
             print(f"\n💤 進入休眠，將於 {args.interval} 秒後執行下一次替換 (按 Ctrl+C 結束)...")
             time.sleep(args.interval)
     else:
-        # 單次執行 (搭配 Linux Crontab)
         success = perform_sync(
             v2board_url=url or "http://127.0.0.1",
             v2board_token=token or "dummy_token",
             tables=tables,
             nodes_to_update=nodes,
             cache_dir=cache_dir,
+            backup_dir=backup_dir,
             dry_run=args.dry_run
         )
         sys.exit(0 if success else 1)
