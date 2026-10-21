@@ -110,8 +110,12 @@ def run_redteam_audit() -> bool:
         with open(fpath, "r", encoding="utf-8") as f:
             lines = [line.strip() for line in f if line.strip()]
 
-        if len(lines) < 20:
-            errors.append(f"[{carrier.upper()}] 輸出 IP 數量不足 20 筆 ({len(lines)} < 20)！")
+        if carrier == "cu":
+            if len(lines) < 2:
+                errors.append(f"[CU] 輸出 IP 數量不足 ({len(lines)} < 2)！")
+        else:
+            if len(lines) != 50:
+                errors.append(f"[{carrier.upper()}] 輸出 IP 數量不足 50 筆 ({len(lines)} != 50)！")
 
         subnet_counts = {}
         for idx, line in enumerate(lines, 1):
@@ -155,9 +159,9 @@ def run_redteam_audit() -> bool:
                     errors.append(f"[CM] 路由誤判！{ip} 應為 #US (美國)，卻標註為 #{country}")
 
             # 聯通 (CU) 落地規則驗收：
-            # 聯通由 AS4837 美西海纜直連，幾乎全為 #US，少數為 #DE 或 #JP
+            # 聯通專用網域 www.090902.xyz 解析節點涵蓋 US, HK, SG, DE, JP
             if carrier == "cu":
-                if country not in ("US", "DE", "JP"):
+                if country not in ("US", "DE", "JP", "HK", "SG"):
                     errors.append(f"[CU] 國家標籤異常！出現非預期標籤 #{country}: {line}")
 
         # 針對電信，檢查是否包含黃金 Enterprise/SaaS Anycast 網段
@@ -175,7 +179,8 @@ def run_redteam_audit() -> bool:
         sample_ips = [line.split("#")[0] for line in lines[:3] if "#" in line]
         all_passed = True
         for s_ip in sample_ips:
-            if not check_ip_unblocked_tls(s_ip):
+            chk_sni = "www.090902.xyz" if carrier == "cu" else "cdnjs.cloudflare.com"
+            if not check_ip_unblocked_tls(s_ip, sni=chk_sni):
                 errors.append(f"[{carrier.upper()}] 榜首節點 {s_ip} TLS 握手超時或被牆阻斷！")
                 all_passed = False
                 break

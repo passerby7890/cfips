@@ -25,71 +25,73 @@ from src.region_mapper import (
 async def verify_single_ip(
     item: Dict[str, Any],
     semaphore: asyncio.Semaphore,
-    sni: str = "cdnjs.cloudflare.com",
+    sni: str = "",
     primary_port: int = 443,
     fallback_port: int = 2053,
 ) -> Optional[Dict[str, Any]]:
     """測活單一 IP：檢查是否被 GFW 牆阻斷 (TCP/TLS)，若活著則獲取機房代碼與國家標籤"""
     ip = item["ip"]
+    target_sni = sni or item.get("domain") or "cdnjs.cloudflare.com"
     ssl_ctx = ssl.create_default_context()
     ssl_ctx.check_hostname = False
     ssl_ctx.verify_mode = ssl.CERT_NONE
 
     async with semaphore:
-        for port in [primary_port, fallback_port]:
-            try:
-                # 1. 檢測 TCP 連線與 TLS 握手 (若被 GFW 牆攔截會觸發 Connection Reset 或 Timeout)
-                conn = asyncio.open_connection(ip, port, ssl=ssl_ctx, server_hostname=sni)
-                r, w = await asyncio.wait_for(conn, timeout=2.5)
-
-                # 2. 發送 /cdn-cgi/trace 請求
-                req = (
-                    f"GET /cdn-cgi/trace HTTP/1.1\r\n"
-                    f"Host: {sni}\r\n"
-                    f"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n"
-                    f"Connection: close\r\n\r\n"
-                )
-                w.write(req.encode())
-                await w.drain()
-
-                raw_resp = await asyncio.wait_for(r.read(1500), timeout=2.0)
+        for cur_sni in ([target_sni] if target_sni == "cdnjs.cloudflare.com" else [target_sni, "cdnjs.cloudflare.com"]):
+            for port in [primary_port, fallback_port]:
                 try:
-                    w.close()
-                    await w.wait_closed()
+                    # 1. 檢測 TCP 連線與 TLS 握手 (若被 GFW 牆攔截會觸發 Connection Reset 或 Timeout)
+                    conn = asyncio.open_connection(ip, port, ssl=ssl_ctx, server_hostname=cur_sni)
+                    r, w = await asyncio.wait_for(conn, timeout=2.5)
+
+                    # 2. 發送 /cdn-cgi/trace 請求
+                    req = (
+                        f"GET /cdn-cgi/trace HTTP/1.1\r\n"
+                        f"Host: {cur_sni}\r\n"
+                        f"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n"
+                        f"Connection: close\r\n\r\n"
+                    )
+                    w.write(req.encode())
+                    await w.drain()
+
+                    raw_resp = await asyncio.wait_for(r.read(1500), timeout=2.0)
+                    try:
+                        w.close()
+                        await w.wait_closed()
+                    except Exception:
+                        pass
+
+                    text_resp = raw_resp.decode(errors="ignore")
+                    # 只要收到 Cloudflare 邊緣回應 (HTTP 200, 403, 或帶 CF-RAY/Server: cloudflare)，代表該 IP 活躍且未被牆阻斷
+                    if not text_resp or ("cloudflare" not in text_resp.lower() and "http/" not in text_resp.lower()):
+                        continue
+
+                    # 3. 提取機房代碼 (colo)
+                    colo = ""
+                    for line in text_resp.splitlines():
+                        if line.startswith("colo="):
+                            colo = line.split("=", 1)[1].strip().upper()
+                            break
+                        elif line.lower().startswith("cf-ray:"):
+                            parts = line.strip().split("-")
+                            if len(parts) >= 2:
+                                colo = parts[-1].strip().upper()
+
+                    # 4. 國家標籤解析 (依運營商路由特性精確解析，嚴禁輸出 #CF)
+                    c_carrier = str(item.get("carrier") or item.get("target_carrier") or "").lower()
+                    country = resolve_country_tag(item, runner_trace_colo=colo, carrier=c_carrier)
+                    if not country or country in ("CF", "UNKNOWN", "NONE"):
+                        country = "SG" if ip.startswith("172.64.") and c_carrier == "ct" else "HK"
+
+                    verified = dict(item)
+                    verified["is_alive"] = True
+                    verified["colo"] = colo or "CF"
+                    verified["country"] = country
+                    return verified
+
                 except Exception:
-                    pass
-
-                text_resp = raw_resp.decode(errors="ignore")
-                # 只要收到 Cloudflare 邊緣回應 (HTTP 200, 403, 或帶 CF-RAY/Server: cloudflare)，代表該 IP 活躍且未被牆阻斷
-                if not text_resp or ("cloudflare" not in text_resp.lower() and "http/" not in text_resp.lower()):
+                    # 該埠超時或重置，嘗試備用埠 (2053)
                     continue
-
-                # 3. 提取機房代碼 (colo)
-                colo = ""
-                for line in text_resp.splitlines():
-                    if line.startswith("colo="):
-                        colo = line.split("=", 1)[1].strip().upper()
-                        break
-                    elif line.lower().startswith("cf-ray:"):
-                        parts = line.strip().split("-")
-                        if len(parts) >= 2:
-                            colo = parts[-1].strip().upper()
-
-                # 4. 國家標籤解析 (依運營商路由特性精確解析，嚴禁輸出 #CF)
-                c_carrier = str(item.get("carrier") or item.get("target_carrier") or "").lower()
-                country = resolve_country_tag(item, runner_trace_colo=colo, carrier=c_carrier)
-                if not country or country in ("CF", "UNKNOWN", "NONE"):
-                    country = "SG" if ip.startswith("172.64.") and c_carrier == "ct" else "HK"
-
-                verified = dict(item)
-                verified["is_alive"] = True
-                verified["colo"] = colo or "CF"
-                verified["country"] = country
-                return verified
-
-            except Exception:
-                # 該埠超時或重置，嘗試備用埠 (2053)
-                continue
 
     return None
 

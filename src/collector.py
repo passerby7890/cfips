@@ -83,6 +83,11 @@ def collect_carrier_candidates(
             key=lambda x: (x["cn_latency_ms"], -x["hit_ratio"], -x["score"])
         )
 
+        # 若該網為聯通 (CU)，依用戶指示嚴格僅獲取 www.090902.xyz A 紀錄解析，不進行鄰居擴充與外部矩陣補充
+        if c_code == "cu":
+            carrier_results[c_code] = direct_list
+            continue
+
         # 若該網所有 CNAME 榨出的唯一 IP 總數不足 75 個，從排名前茅的黃金 /24 補齊少量鄰居
         neighbor_list = []
         seen_all = set(direct_map.keys())
@@ -115,7 +120,7 @@ def collect_carrier_candidates(
 
         # 從 carrier_landing_matrix.json 的專屬網段精選補充多樣化子網 (確保 50 筆名額充足且高分散)
         matrix_seeds = []
-        if c_code in ("ct", "cu", "cm"):
+        if c_code in ("ct", "cm"):
             c_rules = carrier_landing_cfg.get(c_code, {}).get("landing_rules", {})
             for ctry, cidrs in c_rules.items():
                 for cidr in cidrs:

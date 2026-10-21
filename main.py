@@ -98,8 +98,8 @@ async def run_pipeline():
             )
         )
 
-        # 若該網候選不足 50 個，從其餘未被牆之健康 IP 補充
-        if len(verified_carrier_ips) < 50:
+        # 若該網候選不足 50 個，從其餘未被牆之健康 IP 補充 (聯通除外，聯通嚴格僅收錄 www.090902.xyz A 紀錄解析)
+        if c_code != "cu" and len(verified_carrier_ips) < 50:
             for ip, v_data in alive_map.items():
                 if ip not in seen_ips:
                     c_tag = resolve_country_tag(v_data, carrier=c_code)
@@ -151,7 +151,11 @@ async def run_pipeline():
                 if len(filtered_top50) >= 50:
                     break
 
-        final_top50 = filtered_top50
+        # 聯通 (CU) 依指令嚴格輸出 www.090902.xyz 解析之原生 A 紀錄
+        if c_code == "cu":
+            final_top50 = verified_carrier_ips
+        else:
+            final_top50 = filtered_top50
         out_path = out_dir / f"{c_code}.txt"
 
         if final_top50:
