@@ -94,8 +94,18 @@ python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py --node 7 --table
 python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py --node 6 --table cm --country HK --strategy random_all
 ```
 
-### 4. 設定 Linux 定時排程 (Crontab 每 5 分鐘自動輪替)
-建議將腳本加入 crontab（搭配 flock 防重複執行與日誌記錄）：
+### 4. 寶塔面板（aaPanel）計劃任務設定（推薦）
+在寶塔面板後台進入 **「計劃任務」**，新增一個任務：
+- **任務類型**：`Shell 腳本`
+- **任務名稱**：`V2Board 節點入口優選 IP 輪替`
+- **執行週期**：`N分鐘` ➡️ 輸入 `5`（即每 5 分鐘執行一次）
+- **腳本內容**：
+  ```bash
+  /usr/bin/flock -n /tmp/v2board_db_sync.lock /usr/bin/python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py >> /www/wwwroot/0n21.com/v2board_syncer/sync.log 2>&1
+  ```
+  *(註：也可以簡化填入 `python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py`，寶塔面板會自帶執行日誌檢視。)*
+
+### 5. 原生 Linux Crontab 設定
 ```bash
 # 編輯定時任務
 crontab -e
@@ -104,10 +114,10 @@ crontab -e
 */5 * * * * /usr/bin/flock -n /tmp/v2board_db_sync.lock /usr/bin/python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py >> /www/wwwroot/0n21.com/v2board_syncer/sync.log 2>&1
 ```
 
-
-### 5. 常駐守護模式 (背景持續循環，免設 Crontab)
+### 6. 常駐守護模式 (背景持續循環，免設 Crontab)
 ```bash
 # 每 300 秒 (5 分鐘) 自動循環替換一次
 python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py --daemon --interval 300
 ```
+
 
