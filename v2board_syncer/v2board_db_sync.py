@@ -20,6 +20,7 @@ import logging
 import os
 import random
 import re
+import socket
 import ssl
 import subprocess
 import sys
@@ -140,14 +141,50 @@ def fetch_ip_table(source: str, cache_dir: Optional[Path] = None) -> List[Tuple[
     return results
 
 
+def check_cf_ip_handshake(ip: str, port: int = 2053, sni: str = "") -> bool:
+    """快速預檢候選 IP 是否會觸發 Cloudflare Error 1034 (Edge IP Restricted)
+    若該 IP 屬於 Cloudflare Pages/Workers/Spectrum 專用網段，Cloudflare 邊緣防火牆會回傳 403 (Error 1034) 阻斷標準網域代理。
+    預檢可確保寫入資料庫的純 IP 100% 能夠順利完成 WebSocket 握手。
+    """
+    if not sni:
+        return True
+    try:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        s = socket.create_connection((ip, int(port)), timeout=2.5)
+        ss = ctx.wrap_socket(s, server_hostname=sni)
+        req = (
+            f"GET /ws?ed=2048 HTTP/1.1\r\n"
+            f"Host: {sni}\r\n"
+            f"Upgrade: websocket\r\n"
+            f"Connection: Upgrade\r\n"
+            f"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n"
+            f"Sec-WebSocket-Version: 13\r\n\r\n"
+        )
+        ss.sendall(req.encode())
+        resp = ss.recv(256).decode("utf-8", errors="replace")
+        try:
+            ss.close()
+        except Exception:
+            pass
+        if "1034" in resp or ("403" in resp and "cloudflare" in resp.lower()):
+            return False
+        return "101" in resp or "200" in resp or "400" in resp
+    except Exception:
+        return False
+
+
 def select_best_ip(
     ip_list: List[Tuple[str, str]],
     preferred_country: str = "",
     rank: int = 1,
     strategy: str = "random_all",
-    current_ip: str = ""
+    current_ip: str = "",
+    sni: str = "",
+    port: int = 2053
 ) -> Optional[Tuple[str, str]]:
-    """依落地國與策略挑選極品 IP:
+    """依落地國與策略挑選極品 IP (內建防 1034 邊緣阻斷預檢):
       - strategy='random_all' (或 'all'): 從符合該國別的全部候選池中隨機抽取 (優先避開目前 IP，保證每次必換新 IP)
       - strategy='random_top3' / 'random_top5': 從前 3~5 名中隨機挑選
       - strategy='top': 固定第一名榜首
@@ -155,31 +192,49 @@ def select_best_ip(
     if not ip_list:
         return None
 
-    candidates = ip_list
-    if preferred_country:
-        filtered = [item for item in ip_list if item[1].upper() == preferred_country.upper()]
-        if filtered:
-            candidates = filtered
-
     strat = str(strategy).lower().strip()
-    if strat in ("random_all", "random", "all"):
-        pool = [c for c in candidates if c[0] != current_ip]
+    
+    # 建立候選池
+    primary_candidates = [item for item in ip_list if item[1].upper() == preferred_country.upper()] if preferred_country else ip_list
+    fallback_candidates = [item for item in ip_list if item not in primary_candidates]
+
+    def pick_and_verify(pool: List[Tuple[str, str]]) -> Optional[Tuple[str, str]]:
         if not pool:
-            pool = candidates
-        return random.choice(pool)
+            return None
+        # 打亂順序或按順序
+        test_pool = list(pool)
+        if strat in ("random_all", "random", "all"):
+            random.shuffle(test_pool)
+            # 優先避開當前正在使用的 IP
+            test_pool.sort(key=lambda x: 1 if x[0] == current_ip else 0)
+        elif "random" in strat:
+            m = re.search(r"\d+", strat)
+            limit = int(m.group(0)) if m else 3
+            sub = test_pool[:max(1, limit)]
+            random.shuffle(sub)
+            test_pool = sub + test_pool[limit:]
 
-    if "random" in strat:
-        m = re.search(r"\d+", strat)
-        limit = int(m.group(0)) if m else 3
-        pool = candidates[:max(1, limit)]
-        non_curr = [c for c in pool if c[0] != current_ip]
-        if non_curr:
-            pool = non_curr
-        return random.choice(pool)
+        for cand in test_pool:
+            cand_ip, cand_tag = cand
+            if sni and not check_cf_ip_handshake(cand_ip, port=port, sni=sni):
+                continue
+            return cand
+        return None
 
-    idx = max(0, rank - 1)
-    idx = min(idx, len(candidates) - 1)
-    return candidates[idx]
+    # 1. 優先在目標國別池中挑選可通 IP
+    chosen = pick_and_verify(primary_candidates)
+    if chosen:
+        return chosen
+
+    # 2. 若該國別所有候選 IP 均觸發 Error 1034 (例如 ct.txt 中的 162.159.* / 108.162.* 專用段)，自動降級挑選同表內其他通過驗證之健康 IP
+    if fallback_candidates:
+        print(f"    ⚠️ [防 1034 阻斷保護] 國別 [{preferred_country}] 候選池均受 Cloudflare Error 1034 限制，自動啟用健康 IP 備援池！")
+        chosen = pick_and_verify(fallback_candidates)
+        if chosen:
+            return chosen
+
+    # 3. 極限保底
+    return ip_list[0] if ip_list else None
 
 
 class MySQLManager:
@@ -211,7 +266,7 @@ class MySQLManager:
         if not node_ids:
             return {}
         ids_str = ",".join(str(i) for i in node_ids)
-        sql = f"SELECT id, name, host, port FROM v2_server_vless WHERE id IN ({ids_str});"
+        sql = f"SELECT id, name, host, port, tls_settings, network_settings FROM v2_server_vless WHERE id IN ({ids_str});"
         raw = self.run_query(sql)
         nodes = {}
         for line in raw.splitlines():
@@ -221,11 +276,26 @@ class MySQLManager:
             parts = line.split("\t")
             if len(parts) >= 4:
                 nid = int(parts[0])
+                tls_raw = parts[4] if len(parts) > 4 else "{}"
+                net_raw = parts[5] if len(parts) > 5 else "{}"
+                sni = ""
+                try:
+                    t_obj = json.loads(tls_raw) if tls_raw and tls_raw != "NULL" else {}
+                    sni = t_obj.get("server_name", "")
+                except Exception:
+                    pass
+                if not sni:
+                    try:
+                        n_obj = json.loads(net_raw) if net_raw and net_raw != "NULL" else {}
+                        sni = n_obj.get("headers", {}).get("Host", "")
+                    except Exception:
+                        pass
                 nodes[nid] = {
                     "id": nid,
                     "name": parts[1],
                     "host": parts[2],
-                    "port": parts[3]
+                    "port": parts[3],
+                    "sni": sni
                 }
         return nodes
 
@@ -292,7 +362,16 @@ def perform_db_sync(
         port = node["port"]
 
         ip_pool = table_cache.get(t_name, [])
-        best_choice = select_best_ip(ip_pool, preferred_country=pref_country, rank=rank, strategy=strategy, current_ip=curr_host)
+        sni = node.get("sni", "")
+        best_choice = select_best_ip(
+            ip_pool,
+            preferred_country=pref_country,
+            rank=rank,
+            strategy=strategy,
+            current_ip=curr_host,
+            sni=sni,
+            port=int(port)
+        )
         if not best_choice:
             print(f"❌ 表 [{t_name}] 中無可用 IP！(節點 ID: {node_id})")
             continue

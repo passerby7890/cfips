@@ -62,7 +62,11 @@ async def verify_single_ip(
                         pass
 
                     text_resp = raw_resp.decode(errors="ignore")
-                    # 只要收到 Cloudflare 邊緣回應 (HTTP 200, 403, 或帶 CF-RAY/Server: cloudflare)，代表該 IP 活躍且未被牆阻斷
+                    # 篩除 Cloudflare Error 1034 (Edge IP Restricted) 受限邊緣 IP，確保可供自定義域名代理
+                    if "1034" in text_resp or "error code: 1034" in text_resp:
+                        continue
+
+                    # 只要收到 Cloudflare 正常邊緣回應 (帶 CF-RAY/Server: cloudflare 且非 1034)，代表該 IP 活躍且未被牆阻斷
                     if not text_resp or ("cloudflare" not in text_resp.lower() and "http/" not in text_resp.lower()):
                         continue
 
