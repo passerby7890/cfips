@@ -144,9 +144,14 @@ def select_best_ip(
     ip_list: List[Tuple[str, str]],
     preferred_country: str = "",
     rank: int = 1,
-    strategy: str = "top"
+    strategy: str = "random_all",
+    current_ip: str = ""
 ) -> Optional[Tuple[str, str]]:
-    """依落地國與策略挑選極品 IP"""
+    """依落地國與策略挑選極品 IP:
+      - strategy='random_all' (或 'all'): 從符合該國別的全部候選池中隨機抽取 (優先避開目前 IP，保證每次必換新 IP)
+      - strategy='random_top3' / 'random_top5': 從前 3~5 名中隨機挑選
+      - strategy='top': 固定第一名榜首
+    """
     if not ip_list:
         return None
 
@@ -157,10 +162,19 @@ def select_best_ip(
             candidates = filtered
 
     strat = str(strategy).lower().strip()
+    if strat in ("random_all", "random", "all"):
+        pool = [c for c in candidates if c[0] != current_ip]
+        if not pool:
+            pool = candidates
+        return random.choice(pool)
+
     if "random" in strat:
         m = re.search(r"\d+", strat)
         limit = int(m.group(0)) if m else 3
         pool = candidates[:max(1, limit)]
+        non_curr = [c for c in pool if c[0] != current_ip]
+        if non_curr:
+            pool = non_curr
         return random.choice(pool)
 
     idx = max(0, rank - 1)
@@ -290,13 +304,13 @@ def perform_db_sync(
         port = node["port"]
 
         ip_pool = table_cache.get(t_name, [])
-        best_choice = select_best_ip(ip_pool, preferred_country=pref_country, rank=rank, strategy=strategy)
+        best_choice = select_best_ip(ip_pool, preferred_country=pref_country, rank=rank, strategy=strategy, current_ip=curr_host)
         if not best_choice:
             print(f"❌ 表 [{t_name}] 中無可用 IP！(節點 ID: {node_id})")
             continue
 
         new_ip, tag = best_choice
-        strat_desc = "隨機輪替" if "random" in strategy else f"第 {rank} 名"
+        strat_desc = "全表隨機抽取 (random_all)" if "random_all" in strategy or strategy == "all" else ("前列隨機" if "random" in strategy else f"第 {rank} 名")
         print(f"[*] 節點 ID: {node_id} 【{name}】")
         print(f"    - 原入口地址 (host)  : {curr_host}:{port}")
         print(f"    - 綁定表與策略       : {t_name.upper()} 表 (#{tag}) | 模式: {strat_desc}")

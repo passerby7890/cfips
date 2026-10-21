@@ -204,11 +204,13 @@ def select_best_ip(
     ip_list: List[Tuple[str, str]],
     preferred_country: str = "",
     rank: int = 1,
-    strategy: str = "top"
+    strategy: str = "random_all",
+    current_ip: str = ""
 ) -> Optional[Tuple[str, str]]:
     """篩選 IP:
-      - strategy='top': 固定選擇第 rank 名最優 IP (預設榜首)
-      - strategy='random' / 'random_top3' / 'random_top5': 從前 3~5 名中隨機挑選
+      - strategy='random_all': 從符合該國別的全部候選池中隨機抽取 (優先避開目前 IP)
+      - strategy='random_top3' / 'random_top5': 從前 3~5 名中隨機挑選
+      - strategy='top': 固定第一名榜首
     """
     if not ip_list:
         return None
@@ -220,10 +222,19 @@ def select_best_ip(
             candidates = filtered
 
     strat = str(strategy).lower().strip()
+    if strat in ("random_all", "random", "all"):
+        pool = [c for c in candidates if c[0] != current_ip]
+        if not pool:
+            pool = candidates
+        return random.choice(pool)
+
     if "random" in strat:
         m = re.search(r"\d+", strat)
         limit = int(m.group(0)) if m else 3
         pool = candidates[:max(1, limit)]
+        non_curr = [c for c in pool if c[0] != current_ip]
+        if non_curr:
+            pool = non_curr
         return random.choice(pool)
 
     idx = max(0, rank - 1)

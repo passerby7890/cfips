@@ -18,7 +18,7 @@
       "protocol": "vless",
       "table": "ct",
       "country": "JP",
-      "strategy": "top",
+      "strategy": "random_all",
       "comment": "JP 电信专用-日本(3倍)"
     },
     {
@@ -26,7 +26,7 @@
       "protocol": "vless",
       "table": "cm",
       "country": "HK",
-      "strategy": "top",
+      "strategy": "random_all",
       "comment": "HK 移动专用-香港(3倍)"
     }
   ]

@@ -51,14 +51,14 @@
       "id": 7,
       "table": "ct",
       "country": "JP",
-      "strategy": "top",
+      "strategy": "random_all",
       "comment": "JP 电信专用-日本(3倍)"
     },
     {
       "id": 6,
       "table": "cm",
       "country": "HK",
-      "strategy": "top",
+      "strategy": "random_all",
       "comment": "HK 移动专用-香港(3倍)"
     }
   ]
@@ -66,9 +66,10 @@
 ```
 
 > **選取策略 (`strategy`)**：
-> - `"top"`：固定選第 1 名最優 IP（預設）
-> - `"random_top3"`：從前 3 名極品中隨機挑選 1 個（分散負載）
+> - `"random_all"`：**（推薦）從符合該國別的全部候選池中隨機抽取**，並自動避開目前正在使用的 IP，每次執行保證換入全新優選 IP，極大化防牆阻斷能力！
+> - `"random_top3"`：從前 3 名極品中隨機挑選 1 個（小範圍負載分散）
 > - `"random_top5"`：從前 5 名極品中隨機挑選 1 個
+> - `"top"`：固定選第 1 名最優 IP
 
 ---
 
@@ -86,22 +87,27 @@ python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py
 
 ### 3. 命令列直接換指定節點
 ```bash
-# 只換節點 7 為電信日本最優 IP
-python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py --node 7 --table ct --country JP
+# 只換節點 7 為電信日本 IP (全表隨機輪替)
+python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py --node 7 --table ct --country JP --strategy random_all
 
-# 只換節點 6 為移動香港最優 IP (從前三隨機選)
-python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py --node 6 --table cm --country HK --strategy random_top3
+# 只換節點 6 為移動香港 IP (全表隨機輪替)
+python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py --node 6 --table cm --country HK --strategy random_all
 ```
 
-### 4. 常駐守護模式 (背景持續循環，免設 Crontab)
+### 4. 設定 Linux 定時排程 (Crontab 每 5 分鐘自動輪替)
+建議將腳本加入 crontab（搭配 flock 防重複執行與日誌記錄）：
 ```bash
-# 每 1800 秒 (30 分鐘) 自動循環替換一次
-python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py --daemon --interval 1800
+# 編輯定時任務
+crontab -e
+
+# 加入以下內容 (每 5 分鐘自動更換節點入口 IP)
+*/5 * * * * /usr/bin/flock -n /tmp/v2board_db_sync.lock /usr/bin/python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py >> /www/wwwroot/0n21.com/v2board_syncer/sync.log 2>&1
 ```
 
-### 5. Linux Crontab 定時排程
-在伺服器輸入 `crontab -e`，加入：
+
+### 5. 常駐守護模式 (背景持續循環，免設 Crontab)
 ```bash
-# 每 30 分鐘自動執行一次，日誌寫入 sync.log
-*/30 * * * * /usr/bin/python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py >> /www/wwwroot/0n21.com/v2board_syncer/sync.log 2>&1
+# 每 300 秒 (5 分鐘) 自動循環替換一次
+python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py --daemon --interval 300
 ```
+
