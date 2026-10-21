@@ -1,11 +1,11 @@
 {
-  "_comment": "V2Board (Xiao 版) 節點入口純 IP 替換獨立設定檔",
-  "v2board": {
-    "url": "http://127.0.0.1",
-    "_auth_method": "【認證方式二選一】推薦直接填管理員郵箱與密碼 (腳本自動登入，永遠不會過期)；或者填 token",
-    "admin_email": "admin@example.com",
-    "admin_password": "your_secure_password",
-    "token": ""
+  "_comment": "V2Board (Xiao 版) 節點入口純 IP 替換設定檔",
+  "database": {
+    "host": "127.0.0.1",
+    "port": 3306,
+    "database": "0n21_com",
+    "username": "0n21_com",
+    "password": "MStrTX7EpG3wtlXM"
   },
   "tables": {
     "ct": "https://raw.githubusercontent.com/passerby7890/cfips/main/output/ct.txt",
