@@ -20,7 +20,11 @@ from pathlib import Path
 
 from src import __version__
 from src.collector import collect_carrier_candidates
-from src.region_mapper import init_subnet_country_map, resolve_country_tag
+from src.region_mapper import (
+    init_carrier_landing_matrix,
+    init_subnet_country_map,
+    resolve_country_tag,
+)
 from src.verifier import batch_verify_unblocked
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -38,7 +42,8 @@ async def run_pipeline():
     print(f"🚀 [v{__version__}] 啟動三網省級 DNS 解析與防牆測活系統...")
     print("==========================================================")
 
-    # 初始化網段國家對照庫
+    # 初始化三網物理落地矩陣與網段國家對照庫
+    init_carrier_landing_matrix(PROJECT_ROOT / "data" / "carrier_landing_matrix.json")
     init_subnet_country_map(PROJECT_ROOT / "data")
 
     # 1. 依照三網省級 DNS ECS 解析黃金 CNAME 網域

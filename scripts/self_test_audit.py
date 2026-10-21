@@ -79,8 +79,8 @@ def run_redteam_audit() -> bool:
     except Exception as e:
         errors.append(f"[致命] 單網域深度解析單元驗收執行失敗: {e}")
 
-    # 2. 驗證 data/cname_pool.json 與 data/cn_ecs_matrix.json
-    for f_rel in ["data/cname_pool.json", "data/cn_ecs_matrix.json"]:
+    # 2. 驗證設定資產完整性
+    for f_rel in ["data/cname_pool.json", "data/cn_ecs_matrix.json", "data/carrier_landing_matrix.json"]:
         p = PROJECT_ROOT / f_rel
         if not p.is_file() or p.stat().st_size == 0:
             errors.append(f"[致命] {f_rel} 不存在或為空檔案！")

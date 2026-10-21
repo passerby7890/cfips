@@ -1,5 +1,14 @@
 # 更新紀錄 (Changelog)
 
+## [v3.2.0] - 2026-10-21
+### refactor!: 實作「三網獨立物理落地矩陣 (Carrier Landing Ground-Truth Matrix)」
+- 1. **架構根本重構 (Anycast 物理落地真理)**：徹底打破傳統「一個 IP 綁死一個全球靜態國家」的錯誤假定。Cloudflare Anycast IP 的地理落地 100% 由客戶端運營商 (ISP) 的 BGP 出境海纜與互聯點決定。
+- 2. **建立全新資產 (`data/carrier_landing_matrix.json`)**：
+  - **電信 (CT / AS4134)**：實測海纜直連新加坡 (`172.64.144.0/20`、`108.162.192.0/22` 等) 標註 `#SG`；台灣 HiNet 直連標註 `#TW`；香港直連標註 `#HK`；日本東京直連標註 `#JP`。
+  - **聯通 (CU / AS4837)**：充分發揮聯通中日大頻寬直連優勢，`162.159.38.*`、`108.162.198.*` 等標註 `#JP`；歐洲直連標註 `#DE`。
+  - **移動 (CM / AS9808)**：依據 CMI (China Mobile International) 國際骨幹將主流 Anycast 流量全數匯聚於香港 Megai/HKIX 互聯點之物理事實，將 CMI 低延遲節點精準標註為 `#HK`。
+- 3. **引擎升級 (`src/region_mapper.py`)**：新增 `init_carrier_landing_matrix()` 與 `lookup_carrier_landing_country()`，優先依據該 IP 所屬運營商物理落地矩陣決定標籤，三網清單 100% 各自精準對應真實出境落地國。
+
 ## [v3.1.1] - 2026-10-21
 ### fix: 運營商專屬 Anycast 物理路由精準校準、消滅 #CF 兜底標籤與落實 /24 網段分散 (抗 QoS)
 - 1. **電信 Anycast 物理路由修正**：依據 ITDog 實測，中國電信 (AS4134 163 骨幹) 針對 `172.64.144.*`、`172.64.150.*`、`172.64.153.*`、`172.64.154.*` 經由新加坡 Cloudflare 骨幹 (`172.69.117.*`) 直連（延遲 60~100ms），徹底將其自 `data/countries/hk.txt` 移轉至 `data/countries/sg.txt`，並在 `src/region_mapper.py` 導入 carrier 運營商專屬 BGP 路由指紋，糾正其為 `#SG`。

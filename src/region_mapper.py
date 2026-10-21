@@ -78,6 +78,60 @@ def lookup_subnet_country(ip_str: str) -> str:
     return ""
 
 
+# 三網獨立 Anycast 物理落地矩陣快取 (CT / CU / CM 各自獨立)
+_CARRIER_LANDING_MAP: dict[str, list[tuple[ipaddress.IPv4Network, str]]] = {"ct": [], "cu": [], "cm": []}
+
+
+def init_carrier_landing_matrix(matrix_path: Any = None) -> dict[str, list[tuple[ipaddress.IPv4Network, str]]]:
+    """載入 data/carrier_landing_matrix.json，建構三網獨立物理落地網段表"""
+    global _CARRIER_LANDING_MAP
+    import json
+    from pathlib import Path
+    if matrix_path is None:
+        matrix_path = Path(__file__).resolve().parent.parent / "data" / "carrier_landing_matrix.json"
+    else:
+        matrix_path = Path(matrix_path)
+
+    if matrix_path.is_file():
+        try:
+            with open(matrix_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            carriers = data.get("carriers", {})
+            for c_code in ["ct", "cu", "cm"]:
+                c_rules = carriers.get(c_code, {}).get("landing_rules", {})
+                res = []
+                for country_code, cidrs in c_rules.items():
+                    for cidr in cidrs:
+                        try:
+                            net = ipaddress.ip_network(cidr.strip(), strict=False)
+                            res.append((net, country_code.upper()))
+                        except Exception:
+                            pass
+                res.sort(key=lambda x: x[0].prefixlen, reverse=True)
+                _CARRIER_LANDING_MAP[c_code] = res
+        except Exception:
+            pass
+    return _CARRIER_LANDING_MAP
+
+
+def lookup_carrier_landing_country(ip_str: str, carrier: str) -> str:
+    """由運營商 (ct/cu/cm) 與 IP 查詢真實海纜與 BGP 互聯物理落地國家代碼"""
+    if not ip_str or not carrier:
+        return ""
+    c_code = carrier.lower().strip()
+    if not _CARRIER_LANDING_MAP.get(c_code):
+        init_carrier_landing_matrix()
+    rules = _CARRIER_LANDING_MAP.get(c_code, [])
+    try:
+        ip_obj = ipaddress.IPv4Address(ip_str.strip())
+        for net, country in rules:
+            if ip_obj in net:
+                return country
+    except Exception:
+        pass
+    return ""
+
+
 COLO_COUNTRY_MAP: Dict[str, str] = {
     # 亞太區
     "HKG": "HK", "MFM": "MO",
@@ -200,20 +254,11 @@ def resolve_country_tag(item: Dict[str, Any], runner_trace_colo: str = "", carri
     target_carrier = (carrier or str(item.get("carrier") or item.get("target_carrier") or "")).lower()
     est_lat = float(item.get("est_cn_latency_ms") or item.get("cn_latency_ms") or 0.0)
 
-    # 1. 運營商專屬 BGP Anycast 物理路由指紋
-    if target_carrier == "ct":
-        # 中國電信 163 (AS4134) 新加坡 (SIN) 直連網段 (ITDog 實測 172.69.117.* 新加坡邊緣)
-        if ip.startswith(("172.64.144.", "172.64.150.", "172.64.153.", "172.64.154.", "108.162.192.", "108.162.194.", "108.162.240.", "162.159.140.")):
-            return "SG"
-        # 中國電信 台灣 (TPE) 直連網段
-        if ip.startswith(("172.64.52.", "172.64.53.", "172.64.82.", "172.64.91.", "172.64.229.")):
-            return "TW"
-        # 中國電信 日本 (NRT) 直連網段
-        if ip.startswith(("162.159.38.", "162.159.39.")):
-            return "JP"
-        # 中國電信 香港 (HKG) 直連網段
-        if ip.startswith(("162.159.44.", "162.159.45.", "103.21.244.", "103.22.200.", "103.31.4.")):
-            return "HK"
+    # 1. 運營商專屬 BGP Anycast 物理路由矩陣查詢 (三網真實海纜與互聯點落地)
+    if target_carrier in ("ct", "cu", "cm"):
+        matrix_country = lookup_carrier_landing_country(ip, target_carrier)
+        if matrix_country:
+            return matrix_country
 
     # 2. 網域命名特徵指紋
     if "ctsg" in domain or "singapore" in domain:
