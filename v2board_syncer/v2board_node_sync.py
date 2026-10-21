@@ -142,6 +142,32 @@ class V2BoardAPI:
             h["auth-data"] = self.token
         return h
 
+    def login(self, email: str, password: str) -> bool:
+        """使用管理員信箱與密碼自動登入，取得 Authorization Token (免手動找 Token)"""
+        url = f"{self.base_url}/api/v1/passport/auth/login"
+        payload = {"email": email, "password": password}
+        encoded = json.dumps(payload).encode("utf-8")
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) V2BoardSync/2.5.0",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        req = urllib.request.Request(url, data=encoded, headers=headers, method="POST")
+        try:
+            with urllib.request.urlopen(req, timeout=15, context=self.ctx) as resp:
+                res = json.loads(resp.read().decode("utf-8"))
+                data = res.get("data", {})
+                token = data.get("token") or data.get("auth_data")
+                if token:
+                    self.token = str(token)
+                    logger.info("管理員帳號登入成功，已自動取得 Token！")
+                    return True
+                logger.warning("登入回應中未包含明確 token: %s", res)
+                return False
+        except Exception as e:
+            logger.error("登入面板失敗: %s", e)
+            return False
+
     def get_nodes(self, protocol: str = "vless") -> List[Dict[str, Any]]:
         """取得指定協議的全部節點清單"""
         url = f"{self.base_url}/api/v1/admin/server/{protocol}/fetch"
@@ -216,9 +242,11 @@ def backup_node_config(node: Dict[str, Any], backup_dir: Path) -> Path:
 
 def perform_sync(
     v2board_url: str,
-    v2board_token: str,
-    tables: Dict[str, str],
-    nodes_to_update: List[Dict[str, Any]],
+    v2board_token: str = "",
+    admin_email: str = "",
+    admin_password: str = "",
+    tables: Dict[str, str] = None,
+    nodes_to_update: List[Dict[str, Any]] = None,
     cache_dir: Optional[Path] = None,
     backup_dir: Optional[Path] = None,
     dry_run: bool = False
@@ -230,7 +258,7 @@ def perform_sync(
 
     # 1. 載入三張表 (支援本地快取容災)
     table_cache: Dict[str, List[Tuple[str, str]]] = {}
-    for t_name, t_url in tables.items():
+    for t_name, t_url in (tables or {}).items():
         ips = fetch_ip_table(t_url, cache_dir=cache_dir)
         table_cache[t_name] = ips
         src_label = t_url.split("/")[-1]
@@ -238,9 +266,22 @@ def perform_sync(
 
     # 2. 獲取節點清單
     api = V2BoardAPI(base_url=v2board_url, token=v2board_token)
+
+    # 自動登入
+    if not dry_run and not api.token:
+        if admin_email and admin_password:
+            print(f"[*] 檢測到配置了管理員帳號 ({admin_email})，正在自動登入面板...")
+            ok = api.login(admin_email, admin_password)
+            if not ok:
+                print("❌ 自動登入失敗，請檢查管理員帳號與密碼！")
+                return False
+        else:
+            print("❌ 未提供 Token 且未提供管理員信箱密碼，無法連接面板！")
+            return False
+
     nodes_by_proto: Dict[str, Dict[int, Dict[str, Any]]] = {}
 
-    protocols = list({item.get("protocol", "vless").lower() for item in nodes_to_update})
+    protocols = list({item.get("protocol", "vless").lower() for item in (nodes_to_update or [])})
     for proto in protocols:
         if not dry_run:
             try:
@@ -362,13 +403,16 @@ def main():
     else:
         nodes = conf.get("nodes", [])
 
-    url = args.url or conf.get("v2board", {}).get("url") or conf.get("panel", {}).get("url", "")
-    token = args.token or conf.get("v2board", {}).get("token") or conf.get("panel", {}).get("api_token", "")
+    v2_conf = conf.get("v2board", {}) or conf.get("panel", {})
+    url = args.url or v2_conf.get("url", "")
+    token = args.token or v2_conf.get("token", "") or v2_conf.get("api_token", "")
+    admin_email = v2_conf.get("admin_email", "")
+    admin_password = v2_conf.get("admin_password", "")
     tables = conf.get("tables", DEFAULT_TABLES)
 
-    if not url or not token:
+    if not url or (not token and not (admin_email and admin_password)):
         if not args.dry_run:
-            logger.error("缺少 v2board url 或 token，請在 config.json 中配置！")
+            logger.error("缺少 V2Board 連線或認證資訊！請在 config.json 中填入 token，或填入 admin_email 與 admin_password！")
             sys.exit(1)
 
     if not nodes:
@@ -383,7 +427,9 @@ def main():
         while True:
             perform_sync(
                 v2board_url=url or "http://127.0.0.1",
-                v2board_token=token or "dummy_token",
+                v2board_token=token,
+                admin_email=admin_email,
+                admin_password=admin_password,
                 tables=tables,
                 nodes_to_update=nodes,
                 cache_dir=cache_dir,
@@ -395,7 +441,9 @@ def main():
     else:
         success = perform_sync(
             v2board_url=url or "http://127.0.0.1",
-            v2board_token=token or "dummy_token",
+            v2board_token=token,
+            admin_email=admin_email,
+            admin_password=admin_password,
             tables=tables,
             nodes_to_update=nodes,
             cache_dir=cache_dir,
