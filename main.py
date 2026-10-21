@@ -77,17 +77,13 @@ async def run_pipeline():
 
         for cand in carrier_pools[c_code]:
             ip = cand["ip"]
-            # 電信 (CT) 絕不允許 104.21.* 與 172.67.* 繞美毒段進入
-            if c_code == "ct" and ip.startswith(("104.21.", "172.67.")):
-                continue
-
             if ip in alive_map and ip not in seen_ips:
                 v_data = alive_map[ip]
                 merged = dict(cand)
                 merged["colo"] = v_data.get("colo", "")
                 c_tag = resolve_country_tag(merged, runner_trace_colo=merged["colo"], carrier=c_code)
-                # 電信 (CT) 與 聯通 (CU) 嚴格排除任何非目標直連國家 (嚴禁 US 進入 verified_carrier_ips)
-                if c_code in ("ct", "cu") and c_tag not in ("JP", "HK", "TW", "SG", "DE"):
+                # 電信 (CT) 嚴格保證僅落地新加坡 (SG) 與日本 (JP)
+                if c_code == "ct" and c_tag not in ("JP", "SG"):
                     continue
                 seen_ips.add(ip)
                 merged["country"] = c_tag
@@ -102,12 +98,12 @@ async def run_pipeline():
             )
         )
 
-        # 若該網候選不足 50 個，從其餘未被牆之健康 IP 補充 (電信與聯通絕不補充繞美 US 節點)
+        # 若該網候選不足 50 個，從其餘未被牆之健康 IP 補充
         if len(verified_carrier_ips) < 50:
             for ip, v_data in alive_map.items():
                 if ip not in seen_ips:
                     c_tag = resolve_country_tag(v_data, carrier=c_code)
-                    if c_code in ("ct", "cu") and c_tag not in ("JP", "HK", "TW", "SG", "DE"):
+                    if c_code == "ct" and c_tag not in ("JP", "SG"):
                         continue
                     seen_ips.add(ip)
                     merged = dict(v_data)
@@ -119,11 +115,11 @@ async def run_pipeline():
                 if len(verified_carrier_ips) >= 50:
                     break
 
-        # 實施「特色 5：同 C 段分散 (抗 QoS)」防護：同一個 /24 網段最多只收錄 3 個 IP (電信/聯通絕不收錄繞美 US)
+        # 實施「特色 5：同 C 段分散 (抗 QoS)」防護：同一個 /24 網段最多只收錄 3 個 IP
         subnet_counts = {}
         filtered_top50 = []
         for item in verified_carrier_ips:
-            if c_code in ("ct", "cu") and item.get("country") not in ("JP", "HK", "TW", "SG", "DE"):
+            if c_code == "ct" and item.get("country") not in ("JP", "SG"):
                 continue
             subnet = ".".join(item["ip"].split(".")[:3]) + ".0/24"
             if subnet_counts.get(subnet, 0) < 3:
@@ -136,7 +132,7 @@ async def run_pipeline():
         if len(filtered_top50) < 50:
             for item in verified_carrier_ips:
                 if item not in filtered_top50:
-                    if c_code in ("ct", "cu") and item.get("country") not in ("JP", "HK", "TW", "SG", "DE"):
+                    if c_code == "ct" and item.get("country") not in ("JP", "SG"):
                         continue
                     subnet = ".".join(item["ip"].split(".")[:3]) + ".0/24"
                     if subnet_counts.get(subnet, 0) < 5:
@@ -149,7 +145,7 @@ async def run_pipeline():
         if len(filtered_top50) < 50:
             for item in verified_carrier_ips:
                 if item not in filtered_top50:
-                    if c_code in ("ct", "cu") and item.get("country") not in ("JP", "HK", "TW", "SG", "DE"):
+                    if c_code == "ct" and item.get("country") not in ("JP", "SG"):
                         continue
                     filtered_top50.append(item)
                 if len(filtered_top50) >= 50:

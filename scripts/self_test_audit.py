@@ -134,29 +134,31 @@ def run_redteam_audit() -> bool:
             if subnet_counts[subnet] > 5:
                 errors.append(f"[{carrier.upper()}] 特色 5 違規！同 /24 網段 {subnet} 收錄超過上限: {subnet_counts[subnet]} 筆")
 
-            # 電信 (CT) 絕對禁止 104.21.* 與 172.67.* 繞美毒段
-            if carrier == "ct" and ip.startswith(("104.21.", "172.67.")):
-                errors.append(f"[CT] 致命違規！第 {idx} 行包含繞美毒段 IP: {ip}")
+            # 電信 (CT) 落地規則驗收：
+            # 新加坡 (SG): 172.*, 173.*, 104.*
+            # 日本 (JP): 162.*, 108.*
+            if carrier == "ct":
+                if ip.startswith(("172.", "173.", "104.")) and country != "SG":
+                    errors.append(f"[CT] 路由誤判！{ip} 應為 #SG (新加坡)，卻標註為 #{country}")
+                elif ip.startswith(("162.", "108.")) and country != "JP":
+                    errors.append(f"[CT] 路由誤判！{ip} 應為 #JP (日本)，卻標註為 #{country}")
+                elif country not in ("SG", "JP"):
+                    errors.append(f"[CT] 國家標籤異常！電信僅允許 #SG 與 #JP，出現 #{country}: {line}")
 
-            # 電信 (CT) 與 聯通 (CU) 絕對禁止收錄任何繞美節點 (#US)
-            if carrier in ("ct", "cu") and country == "US":
-                errors.append(f"[{carrier.upper()}] 致命違規！優選清單收錄繞美高延遲節點: {line}")
+            # 移動 (CM) 落地規則驗收：
+            # 香港 (HK): 104.*, 172.*
+            # 美國 (US): 141.*
+            if carrier == "cm":
+                if ip.startswith(("104.", "172.")) and country != "HK":
+                    errors.append(f"[CM] 路由誤判！{ip} 應為 #HK (香港)，卻標註為 #{country}")
+                elif ip.startswith("141.") and country != "US":
+                    errors.append(f"[CM] 路由誤判！{ip} 應為 #US (美國)，卻標註為 #{country}")
 
-            # 電信 (CT) 172.64.144.* 物理路由經由新加坡 SIN 直連，必須標註為 #SG
-            if carrier == "ct" and ip.startswith("172.64.144.") and country != "SG":
-                errors.append(f"[CT] 路由誤判！172.64.144.* 應為 #SG (新加坡)，卻標註為 #{country}")
-
-            # 電信 (CT) 108.162.198.* 物理路由經由日本東京 (Tokyo JPIX) 直連，必須標註為 #JP
-            if carrier == "ct" and ip.startswith("108.162.198.") and country != "JP":
-                errors.append(f"[CT] 路由誤判！108.162.198.* 應為 #JP (日本東京)，卻標註為 #{country}")
-
-            # 聯通 (CU) 108.162.198.* 物理路由經由日本東京直連，必須標註為 #JP
-            if carrier == "cu" and ip.startswith("108.162.198.") and country != "JP":
-                errors.append(f"[CU] 路由誤判！108.162.198.* 應為 #JP (日本東京)，卻標註為 #{country}")
-
-            # 移動 (CM) 104.16.* / 104.17.* 移動 CMI 骨幹聚合至香港 Mega-i，必須標註為 #HK
-            if carrier == "cm" and ip.startswith(("104.16.", "104.17.")) and country != "HK":
-                errors.append(f"[CM] 路由誤判！104.16/17.* 移動 CMI 應為 #HK (香港)，卻標註為 #{country}")
+            # 聯通 (CU) 落地規則驗收：
+            # 聯通由 AS4837 美西海纜直連，幾乎全為 #US，少數為 #DE 或 #JP
+            if carrier == "cu":
+                if country not in ("US", "DE", "JP"):
+                    errors.append(f"[CU] 國家標籤異常！出現非預期標籤 #{country}: {line}")
 
         # 針對電信，檢查是否包含黃金 Enterprise/SaaS Anycast 網段
         if carrier == "ct":

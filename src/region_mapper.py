@@ -238,54 +238,53 @@ def normalize_country_code(raw: str | None) -> str:
 
 
 def resolve_country_tag(item: Dict[str, Any], runner_trace_colo: str = "", carrier: str = "") -> str:
-    """多層級決定最終輸出的 #COUNTRY 標籤，保證 100% 符應運營商物理出境海纜與互聯點：
+    """決定最終輸出的 #COUNTRY 標籤，100% 落實實測之三大運營商真實出境路由規則：
 
-    核心原則：
-    1. 運營商 (Carrier) 專屬 BGP Anycast 物理路由矩陣為最高依據 (如電信 108.162.198.* 走東京 JP，172.64.144.* 走新加坡 SG)
-    2. 嚴禁採信 Runner (GitHub Actions / 本地 PC) 測得的 colo，因為海外或本地機器連線 Anycast 與大陸三網完全不同
-    3. 中國移動 (CM): CMI 骨幹將 104.16~20.* 與 104.26.* 全數拉回香港 Mega-i，標註 #HK
-    4. 中國電信 (CT) 與 中國聯通 (CU): 凡未在亞太直連海纜白名單內之普通 Cloudflare 網段 (如 104.16.*, 104.17.*, 104.18.*, 104.20.*)，100% 繞美，標註 #US
+    1. 中國電信 (CT):
+       - 新加坡 (SG): 172.*, 173.*, 104.*
+       - 日本 (JP): 162.*, 108.*
+    2. 中國移動 (CM):
+       - 香港 (HK): 104.*, 172.*
+       - 美國 (US): 141.* (如 141.101.121.216)
+    3. 中國聯通 (CU):
+       - 德國 (DE): 188.114.*
+       - 日本 (JP): 162.159.38.*, 108.162.198.*
+       - 美國 (US): 幾乎所有 Anycast (104.*, 172.*, 141.* 等) 皆由 AS4837 跨太平洋走美西直連
     """
     ip = str(item.get("ip", "")).strip()
-    domain = str(item.get("domain") or "").lower()
-    target_carrier = (carrier or str(item.get("carrier") or item.get("target_carrier") or "")).lower()
+    target_carrier = (carrier or str(item.get("carrier") or item.get("target_carrier") or "")).lower().strip()
 
-    # 1. 運營商專屬 BGP Anycast 物理路由矩陣查詢 (最高優先級)
+    # 1. 運營商專屬 BGP Anycast 物理路由矩陣查詢
     if target_carrier in ("ct", "cu", "cm"):
         matrix_country = lookup_carrier_landing_country(ip, target_carrier)
         if matrix_country:
             return matrix_country
 
-    # 2. 針對中國移動 (CM): CMI 國際骨幹將流量全數匯聚於香港 Mega-i
-    if target_carrier == "cm":
-        if ip.startswith(("104.16.", "104.17.", "104.18.", "104.19.", "104.20.", "104.26.")):
-            return "HK"
-
-    # 3. 針對中國電信 (CT) 與 中國聯通 (CU):
-    # 普通免費/Pro 段 (104.16~25.*, 172.67.*, 104.21.*) 在電信 163 與聯通 169 上全部跨太平洋走西海岸 (SJC/LAX) 繞美
-    if target_carrier in ("ct", "cu"):
-        if ip.startswith(("104.16.", "104.17.", "104.18.", "104.19.", "104.20.", "104.21.", "104.25.", "172.67.")):
-            return "US"
-
-    # 4. 網域命名特徵指紋 (如 ctsg.cfyx -> SG)
-    if "ctsg" in domain or "singapore" in domain:
+    # 2. 中國電信 (CT) 規則直通
+    if target_carrier == "ct":
+        if ip.startswith(("172.", "173.", "104.")):
+            return "SG"
+        if ip.startswith(("162.", "108.")):
+            return "JP"
         return "SG"
 
-    # 5. 檢查已知母體網段字典 (由 data/countries/ 載入)
-    subnet_tag = lookup_subnet_country(ip)
-    if subnet_tag:
-        norm_sub = normalize_country_code(subnet_tag)
-        if norm_sub and norm_sub not in ("CF", "UNKNOWN"):
-            # 若為電信或聯通，非 Enterprise 網段仍不得誤標亞太
-            if target_carrier in ("ct", "cu") and norm_sub in ("TW", "HK") and ip.startswith(("104.16.", "104.17.", "104.18.", "104.19.", "104.20.", "104.21.")):
-                return "US"
-            return norm_sub
-
-    # 6. 兜底判定：絕不輸出 #CF
+    # 3. 中國移動 (CM) 規則直通
     if target_carrier == "cm":
+        if ip.startswith("141."):
+            return "US"
+        if ip.startswith(("104.", "172.")):
+            return "HK"
         return "HK"
-    elif target_carrier in ("ct", "cu"):
+
+    # 4. 中國聯通 (CU) 規則直通
+    if target_carrier == "cu":
+        if ip.startswith("188.114."):
+            return "DE"
+        if ip.startswith(("162.159.38.", "108.162.198.")):
+            return "JP"
+        # 聯通絕大多數直連美國西海岸
         return "US"
 
-    return "HK"
+    return "US"
+
 

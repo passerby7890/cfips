@@ -53,10 +53,10 @@ def collect_carrier_candidates(
 
             for item in extracted:
                 ip = item["ip"]
-                # 電信 (CT) 與 聯通 (CU) 嚴格排除任何非亞太/歐洲直連之繞美毒段 (如 104.16~25.*, 172.67.* 等)
-                if c_code in ("ct", "cu"):
+                # 電信 (CT) 嚴格遵循落地規則：僅收錄落地為新加坡 (SG) 與日本 (JP) 之節點
+                if c_code == "ct":
                     landing = lookup_carrier_landing_country(ip, c_code)
-                    if landing not in ("JP", "HK", "TW", "SG", "DE"):
+                    if landing not in ("JP", "SG"):
                         continue
 
                 if ip not in direct_map:
@@ -94,9 +94,9 @@ def collect_carrier_candidates(
                 for h_idx in random.sample(range(2, 253), 2):
                     n_ip = str(net[h_idx])
                     if n_ip not in seen_all:
-                        if c_code in ("ct", "cu"):
+                        if c_code == "ct":
                             n_landing = lookup_carrier_landing_country(n_ip, c_code)
-                            if n_landing not in ("JP", "HK", "TW", "SG", "DE"):
+                            if n_landing not in ("JP", "SG"):
                                 continue
                         seen_all.add(n_ip)
                         neighbor_list.append({
@@ -113,13 +113,11 @@ def collect_carrier_candidates(
             except Exception:
                 continue
 
-        # 針對電信與聯通，從 carrier_landing_matrix.json 的直連亞太/歐洲網段精選補充多樣化子網 (確保 50 筆名額充足且高分散)
+        # 從 carrier_landing_matrix.json 的專屬網段精選補充多樣化子網 (確保 50 筆名額充足且高分散)
         matrix_seeds = []
-        if c_code in ("ct", "cu"):
+        if c_code in ("ct", "cu", "cm"):
             c_rules = carrier_landing_cfg.get(c_code, {}).get("landing_rules", {})
             for ctry, cidrs in c_rules.items():
-                if ctry not in ("JP", "HK", "TW", "SG", "DE"):
-                    continue
                 for cidr in cidrs:
                     if len(direct_list) + len(neighbor_list) + len(matrix_seeds) >= 120:
                         break
@@ -135,7 +133,7 @@ def collect_carrier_candidates(
                                     "domain": f"matrix.{ctry.lower()}.cloudflare",
                                     "carrier": c_code,
                                     "target_carrier": c_code,
-                                    "cn_latency_ms": 45.0 if ctry in ("HK", "TW", "JP") else 65.0,
+                                    "cn_latency_ms": 45.0 if ctry in ("HK", "JP", "SG") else 145.0,
                                     "speed_mbs": 13.0,
                                     "score": 92.0,
                                     "hit_ratio": 1.0,
