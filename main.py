@@ -20,7 +20,7 @@ from pathlib import Path
 
 from src import __version__
 from src.collector import collect_carrier_candidates
-from src.region_mapper import init_subnet_country_map
+from src.region_mapper import init_subnet_country_map, resolve_country_tag
 from src.verifier import batch_verify_unblocked
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -80,8 +80,8 @@ async def run_pipeline():
                 seen_ips.add(ip)
                 v_data = alive_map[ip]
                 merged = dict(cand)
-                merged["country"] = v_data.get("country", "HK")
                 merged["colo"] = v_data.get("colo", "")
+                merged["country"] = resolve_country_tag(merged, runner_trace_colo=merged["colo"], carrier=c_code)
                 verified_carrier_ips.append(merged)
 
         # 排序規則：1. CNAME 原生解析優先；2. 各省命中次數越多越好；3. 延遲越低越好
@@ -103,12 +103,35 @@ async def run_pipeline():
                     merged = dict(v_data)
                     merged["cn_latency_ms"] = float(v_data.get("cn_latency_ms", 99.0))
                     merged["score"] = float(v_data.get("score", 85.0))
+                    merged["colo"] = v_data.get("colo", "")
+                    merged["country"] = resolve_country_tag(merged, runner_trace_colo=merged["colo"], carrier=c_code)
                     verified_carrier_ips.append(merged)
                 if len(verified_carrier_ips) >= 50:
                     break
 
-        # 截取前 50 名輸出至 output/{ct,cu,cm}.txt
-        final_top50 = verified_carrier_ips[:50]
+        # 實施「特色 5：同 C 段分散 (抗 QoS)」防護：同一個 /24 網段最多只收錄 3 個 IP
+        subnet_counts = {}
+        filtered_top50 = []
+        for item in verified_carrier_ips:
+            subnet = ".".join(item["ip"].split(".")[:3]) + ".0/24"
+            if subnet_counts.get(subnet, 0) < 3:
+                subnet_counts[subnet] = subnet_counts.get(subnet, 0) + 1
+                filtered_top50.append(item)
+            if len(filtered_top50) >= 50:
+                break
+
+        # 若經嚴格 /24 限制後候選不足 50 個，從候補中放寬至最多 5 個補齊，確保線路充足
+        if len(filtered_top50) < 50:
+            for item in verified_carrier_ips:
+                if item not in filtered_top50:
+                    subnet = ".".join(item["ip"].split(".")[:3]) + ".0/24"
+                    if subnet_counts.get(subnet, 0) < 5:
+                        subnet_counts[subnet] = subnet_counts.get(subnet, 0) + 1
+                        filtered_top50.append(item)
+                if len(filtered_top50) >= 50:
+                    break
+
+        final_top50 = filtered_top50
         out_path = out_dir / f"{c_code}.txt"
 
         if final_top50:
@@ -118,7 +141,7 @@ async def run_pipeline():
             direct_cnt = sum(1 for x in final_top50 if x.get("is_direct_cname"))
             print(
                 f"✅ [{c_code.upper()}] 成功寫入 {len(final_top50)} 筆優選 IP 至 {out_path.name} "
-                f"(含 CNAME 原生 IP {direct_cnt} 筆，最高命中省份次數: {final_top50[0].get('hit_count', 1)})"
+                f"(含 CNAME 原生 IP {direct_cnt} 筆，已實施 /24 網段分散與 carrier 專屬國家判定)"
             )
         else:
             print(f"⚠️ [{c_code.upper()}] 當次無測活通過節點，保留既有 {out_path.name} 快照！")

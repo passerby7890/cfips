@@ -18,6 +18,7 @@ from src.region_mapper import (
     is_cf_official_anycast,
     lookup_subnet_country,
     normalize_country_code,
+    resolve_country_tag,
 )
 
 
@@ -74,30 +75,16 @@ async def verify_single_ip(
                         if len(parts) >= 2:
                             colo = parts[-1].strip().upper()
 
-                # 4. 國家標籤解析
-                country = ""
-                sub_tag = lookup_subnet_country(ip)
-                if sub_tag:
-                    country = normalize_country_code(sub_tag)
-
-                if not country and colo:
-                    country = get_country_by_colo(colo)
-
-                # 若 overseas runner 測 Anycast 出現 US，但該 IP 在國內是低延遲 Anycast (如 162.159.*, 108.162.*)
-                if country in ("US", ""):
-                    if ip.startswith(("162.159.38.", "162.159.39.", "162.159.44.", "162.159.45.")):
-                        country = "HK"
-                    elif ip.startswith("108.162.198."):
-                        country = "SG" if "ctsg" in item.get("domain", "") else "HK"
-                    elif ip.startswith(("172.64.52.", "172.64.53.")):
-                        country = "TW"
-                    else:
-                        country = country or "CF"
+                # 4. 國家標籤解析 (依運營商路由特性精確解析，嚴禁輸出 #CF)
+                c_carrier = str(item.get("carrier") or item.get("target_carrier") or "").lower()
+                country = resolve_country_tag(item, runner_trace_colo=colo, carrier=c_carrier)
+                if not country or country in ("CF", "UNKNOWN", "NONE"):
+                    country = "SG" if ip.startswith("172.64.") and c_carrier == "ct" else "HK"
 
                 verified = dict(item)
                 verified["is_alive"] = True
                 verified["colo"] = colo or "CF"
-                verified["country"] = country or "CF"
+                verified["country"] = country
                 return verified
 
             except Exception:

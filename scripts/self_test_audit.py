@@ -113,6 +113,7 @@ def run_redteam_audit() -> bool:
         if len(lines) < 20:
             errors.append(f"[{carrier.upper()}] 輸出 IP 數量不足 20 筆 ({len(lines)} < 20)！")
 
+        subnet_counts = {}
         for idx, line in enumerate(lines, 1):
             m = LINE_PATTERN.match(line)
             if not m:
@@ -123,9 +124,23 @@ def run_redteam_audit() -> bool:
             if len(country) != 2:
                 errors.append(f"[{carrier.upper()}] 第 {idx} 行國家標籤長度異常: {country}")
 
+            # 嚴格禁止 #CF 兜底標籤
+            if country == "CF":
+                errors.append(f"[{carrier.upper()}] 致命錯誤！第 {idx} 行出現 #CF 未識別兜底標籤: {line}")
+
+            # 統計同 /24 網段數量，防範單一網段過載 (特色 5)
+            subnet = ".".join(ip.split(".")[:3]) + ".0/24"
+            subnet_counts[subnet] = subnet_counts.get(subnet, 0) + 1
+            if subnet_counts[subnet] > 5:
+                errors.append(f"[{carrier.upper()}] 特色 5 違規！同 /24 網段 {subnet} 收錄超過上限: {subnet_counts[subnet]} 筆")
+
             # 電信 (CT) 絕對禁止 104.21.* 與 172.67.* 繞美毒段
             if carrier == "ct" and ip.startswith(("104.21.", "172.67.")):
                 errors.append(f"[CT] 致命違規！第 {idx} 行包含繞美毒段 IP: {ip}")
+
+            # 電信 (CT) 172.64.144.* 物理路由經由新加坡 SIN 直連，必須標註為 #SG
+            if carrier == "ct" and ip.startswith("172.64.144.") and country != "SG":
+                errors.append(f"[CT] 路由誤判！172.64.144.* 應為 #SG (新加坡)，卻標註為 #{country}")
 
         # 針對電信，檢查是否包含黃金 Enterprise/SaaS Anycast 網段
         if carrier == "ct":

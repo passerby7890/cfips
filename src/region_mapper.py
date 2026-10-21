@@ -183,62 +183,91 @@ def normalize_country_code(raw: str | None) -> str:
     return ""
 
 
-def resolve_country_tag(item: Dict[str, Any], runner_trace_colo: str = "") -> str:
-    """多層級決定最終輸出的 #COUNTRY 標籤，保證輸出標準雙字元大寫代碼：
+def resolve_country_tag(item: Dict[str, Any], runner_trace_colo: str = "", carrier: str = "") -> str:
+    """多層級決定最終輸出的 #COUNTRY 標籤，保證輸出標準雙字元大寫代碼 (絕不輸出 #CF)：
 
-    優先級 1: 情報源 / 種子庫在大陸境內實測的 source_colo (如 HKG, TPE, NRT, SIN)
-    優先級 2: 情報源 / 種子庫明確標註的 source_country (如 #TW, #HK, #JP, #SG)
-    優先級 3: 靜態網段字典 (CIDR -> Country 映射，繼承母體種子區域)
-    優先級 4: 原生 country / countries 標註
-    優先級 5: Runner 實測 Colo (若在台灣、日本、香港、新加坡則採計，美西僅做兜底)
+    優先級 1: 運營商 (Carrier) 專屬 BGP Anycast 物理落地判定 (例如電信 172.64.144.* 走新加坡 SIN，172.64.52.* 走台灣 TPE)
+    優先級 2: 網域特徵指紋 (如 ctsg.cfyx -> SG, www.visa.com.hk -> HK)
+    優先級 3: 靜態網段字典 (CIDR -> Country 映射，由 data/countries/ 與種子庫載入)
+    優先級 4: 境內探針實測 source_colo (如 HKG, TPE, NRT, SIN)
+    優先級 5: 原生 source_country 或 country 標籤
+    優先級 6: Runner 實測 Colo (若在亞太/歐洲則採信；若在美國且延遲低於 90ms 判定為 Anycast 亞太直連段)
     """
     ip = str(item.get("ip", "")).strip()
     source_colo = str(item.get("source_colo") or "").strip().upper()
     raw_source_country = item.get("source_country") or ""
-    target_carrier = str(item.get("target_carrier") or "").lower()
+    domain = str(item.get("domain") or "").lower()
+    target_carrier = (carrier or str(item.get("carrier") or item.get("target_carrier") or "")).lower()
     est_lat = float(item.get("est_cn_latency_ms") or item.get("cn_latency_ms") or 0.0)
 
-    # 1. 優先採計境內探針實測 Colo
-    if source_colo and source_colo != "DEFAULT":
-        mapped = get_country_by_colo(source_colo)
-        if mapped:
-            return mapped
+    # 1. 運營商專屬 BGP Anycast 物理路由指紋
+    if target_carrier == "ct":
+        # 中國電信 163 (AS4134) 新加坡 (SIN) 直連網段 (ITDog 實測 172.69.117.* 新加坡邊緣)
+        if ip.startswith(("172.64.144.", "172.64.150.", "172.64.153.", "172.64.154.", "108.162.192.", "108.162.194.", "108.162.240.", "162.159.140.")):
+            return "SG"
+        # 中國電信 台灣 (TPE) 直連網段
+        if ip.startswith(("172.64.52.", "172.64.53.", "172.64.82.", "172.64.91.", "172.64.229.")):
+            return "TW"
+        # 中國電信 日本 (NRT) 直連網段
+        if ip.startswith(("162.159.38.", "162.159.39.")):
+            return "JP"
+        # 中國電信 香港 (HKG) 直連網段
+        if ip.startswith(("162.159.44.", "162.159.45.", "103.21.244.", "103.22.200.", "103.31.4.")):
+            return "HK"
 
-    # 2. 優先採計情報源/種子庫原生國家標籤 (經正規化)
-    norm_tag = normalize_country_code(raw_source_country)
-    if norm_tag:
-        return norm_tag
+    # 2. 網域命名特徵指紋
+    if "ctsg" in domain or "singapore" in domain:
+        return "SG"
+    if "tw" in domain or "taiwan" in domain:
+        return "TW"
+    if "jp" in domain or "japan" in domain:
+        return "JP"
+    if "hk" in domain or "hongkong" in domain:
+        return "HK"
 
-    # 3. 檢查已知母體網段字典 (如 104.16.85.0/24#HK, 172.67.67.0/24#TW, 103.21.244.0/24#HK)
+    # 3. 檢查已知母體網段字典 (由 data/countries/ 與種子庫載入)
     subnet_tag = lookup_subnet_country(ip)
     if subnet_tag:
         norm_sub = normalize_country_code(subnet_tag)
-        if norm_sub:
+        if norm_sub and norm_sub not in ("CF", "UNKNOWN"):
             return norm_sub
 
-    # 針對繞美高延遲段與電信視角的假亞太標籤防禦 (僅在無明確亞太網段映射時生效)
-    is_detour_prefix = ip.startswith(("104.16.", "104.17.", "104.18.", "104.19.", "172.64.", "172.66.", "172.67."))
-    if (target_carrier == "ct" and is_detour_prefix and (est_lat >= 130.0)) or (est_lat >= 160.0):
-        return "US"
+    # 4. 境內探針實測 Colo
+    if source_colo and source_colo != "DEFAULT":
+        mapped = get_country_by_colo(source_colo)
+        if mapped and mapped not in ("CF", "UNKNOWN"):
+            return mapped
 
-    # 4. 檢查 item["country"] 或 item["countries"] 原生標註
+    # 5. 情報源/種子庫原生國家標籤
+    norm_tag = normalize_country_code(raw_source_country)
+    if norm_tag and norm_tag not in ("CF", "UNKNOWN"):
+        return norm_tag
+
     orig_country = normalize_country_code(item.get("country"))
-    if orig_country:
+    if orig_country and orig_country not in ("CF", "UNKNOWN"):
         return orig_country
 
     for c in item.get("countries", []):
         norm_c = normalize_country_code(c)
-        if norm_c:
+        if norm_c and norm_c not in ("CF", "UNKNOWN"):
             return norm_c
 
-    # 5. 若海外 Runner 測得亞太機房或歐洲機房，可採信 (如 TPE, HKG, NRT, SIN, FRA)
+    # 6. Runner 測得的 Colo 解析
     runner_c = get_country_by_colo(runner_trace_colo)
     if runner_c in ("HK", "TW", "JP", "SG", "KR", "DE", "GB", "NL"):
         return runner_c
 
-    # 6. 最後兜底：若為美國機房則標 US，否則標 CF
-    if runner_c == "US":
+    # 7. 若國內延遲超過 135ms，判定為繞美節點
+    if est_lat >= 135.0:
         return "US"
 
-    return "CF"
+    # 8. 國內低延遲兜底：若國內延遲極低 (< 85ms)，依照運營商特性推斷亞太國家，絕不輸出 #CF
+    if target_carrier == "ct":
+        return "SG" if ip.startswith("172.64.") else "HK"
+    elif target_carrier == "cu":
+        return "JP"
+    elif target_carrier == "cm":
+        return "HK"
+
+    return "HK"
 

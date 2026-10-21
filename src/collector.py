@@ -49,6 +49,8 @@ def collect_carrier_candidates(
                     direct_map[ip] = {
                         "ip": ip,
                         "domain": domain,
+                        "carrier": c_code,
+                        "target_carrier": c_code,
                         "cn_latency_ms": float(d_info["cn_latency_ms"]),
                         "speed_mbs": float(d_info.get("speed_mbs", 12.0)),
                         "score": float(d_info.get("score", 90.0)),
@@ -84,6 +86,8 @@ def collect_carrier_candidates(
                         neighbor_list.append({
                             "ip": n_ip,
                             "domain": f"{item['domain']}(/24同段)",
+                            "carrier": c_code,
+                            "target_carrier": c_code,
                             "cn_latency_ms": round(item["cn_latency_ms"] + 2.0, 1),
                             "speed_mbs": item["speed_mbs"],
                             "score": item["score"] - 1.0,
