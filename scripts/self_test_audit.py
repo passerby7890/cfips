@@ -142,6 +142,18 @@ def run_redteam_audit() -> bool:
             if carrier == "ct" and ip.startswith("172.64.144.") and country != "SG":
                 errors.append(f"[CT] 路由誤判！172.64.144.* 應為 #SG (新加坡)，卻標註為 #{country}")
 
+            # 電信 (CT) 108.162.198.* 物理路由經由日本東京 (Tokyo JPIX) 直連，必須標註為 #JP
+            if carrier == "ct" and ip.startswith("108.162.198.") and country != "JP":
+                errors.append(f"[CT] 路由誤判！108.162.198.* 應為 #JP (日本東京)，卻標註為 #{country}")
+
+            # 聯通 (CU) 108.162.198.* 物理路由經由日本東京直連，必須標註為 #JP
+            if carrier == "cu" and ip.startswith("108.162.198.") and country != "JP":
+                errors.append(f"[CU] 路由誤判！108.162.198.* 應為 #JP (日本東京)，卻標註為 #{country}")
+
+            # 移動 (CM) 104.16.* / 104.17.* 移動 CMI 骨幹聚合至香港 Mega-i，必須標註為 #HK
+            if carrier == "cm" and ip.startswith(("104.16.", "104.17.")) and country != "HK":
+                errors.append(f"[CM] 路由誤判！104.16/17.* 移動 CMI 應為 #HK (香港)，卻標註為 #{country}")
+
         # 針對電信，檢查是否包含黃金 Enterprise/SaaS Anycast 網段
         if carrier == "ct":
             has_gold = any(
