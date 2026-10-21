@@ -1,0 +1,30 @@
+{
+  "_comment": "V2Board (Xiao 版) 節點入口純 IP 替換設定檔",
+  "v2board": {
+    "url": "http://127.0.0.1",
+    "token": "請在此填入您的管理員_Token"
+  },
+  "tables": {
+    "ct": "./output/ct.txt",
+    "cu": "./output/cu.txt",
+    "cm": "./output/cm.txt"
+  },
+  "nodes": [
+    {
+      "id": 7,
+      "protocol": "vless",
+      "table": "ct",
+      "country": "JP",
+      "rank": 1,
+      "comment": "JP 电信专用-日本(3倍)"
+    },
+    {
+      "id": 6,
+      "protocol": "vless",
+      "table": "cm",
+      "country": "HK",
+      "rank": 1,
+      "comment": "HK 移动专用-香港(3倍)"
+    }
+  ]
+}

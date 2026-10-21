@@ -1,0 +1,37 @@
+{
+  "_comment": "V2Board (Xiao 版) 節點入口 IP 自動定時同步設定檔範本",
+  "panel": {
+    "url": "http://127.0.0.1",
+    "admin_email": "admin@example.com",
+    "admin_password": "your_secure_admin_password",
+    "api_token": ""
+  },
+  "ip_source": {
+    "mode": "auto",
+    "local_output_dir": "./output",
+    "github_raw_base": "https://raw.githubusercontent.com/passerby7890/cfips/main/output"
+  },
+  "nodes_mapping": [
+    {
+      "node_id": 1,
+      "protocol": "vless",
+      "carrier": "ct",
+      "rank_index": 0,
+      "comment": "電信第 1 名極品 IP (新加坡/日本)"
+    },
+    {
+      "node_id": 2,
+      "protocol": "vless",
+      "carrier": "cu",
+      "rank_index": 0,
+      "comment": "聯通專用節點 (來自 www.090902.xyz 解析之極品 IP)"
+    },
+    {
+      "node_id": 3,
+      "protocol": "vless",
+      "carrier": "cm",
+      "rank_index": 0,
+      "comment": "移動第 1 名極品 IP (香港/美國)"
+    }
+  ]
+}
