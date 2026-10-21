@@ -141,100 +141,152 @@ def fetch_ip_table(source: str, cache_dir: Optional[Path] = None) -> List[Tuple[
     return results
 
 
-def check_cf_ip_handshake(ip: str, port: int = 2053, sni: str = "") -> bool:
-    """快速預檢候選 IP 是否會觸發 Cloudflare Error 1034 (Edge IP Restricted)
-    若該 IP 屬於 Cloudflare Pages/Workers/Spectrum 專用網段，Cloudflare 邊緣防火牆會回傳 403 (Error 1034) 阻斷標準網域代理。
-    預檢可確保寫入資料庫的純 IP 100% 能夠順利完成 WebSocket 握手。
+def verify_node_origin_handshake(
+    ip: str,
+    port: int = 2053,
+    sni: str = "",
+    host_header: str = "",
+    ws_path: str = "/ws?ed=2048",
+    timeout: float = 2.5
+) -> Tuple[bool, str, float]:
+    """針對節點特定配置進行端到端回源驗證
+    回傳: (is_valid, reason, rtt_ms)
     """
-    if not sni:
-        return True
+    t_start = time.time()
     try:
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
-        s = socket.create_connection((ip, int(port)), timeout=2.5)
-        ss = ctx.wrap_socket(s, server_hostname=sni)
+        
+        s = socket.create_connection((ip, int(port)), timeout=timeout)
+        if sni:
+            ss = ctx.wrap_socket(s, server_hostname=sni)
+        else:
+            ss = s
+            
+        target_host = host_header or sni or ip
+        target_path = ws_path or "/ws?ed=2048"
+        target_path = target_path.replace(r"\/", "/").replace("\\", "/")
+        if not target_path.startswith("/"):
+            target_path = "/" + target_path
         req = (
-            f"GET /ws?ed=2048 HTTP/1.1\r\n"
-            f"Host: {sni}\r\n"
+            f"GET {target_path} HTTP/1.1\r\n"
+            f"Host: {target_host}\r\n"
             f"Upgrade: websocket\r\n"
             f"Connection: Upgrade\r\n"
             f"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n"
             f"Sec-WebSocket-Version: 13\r\n\r\n"
         )
         ss.sendall(req.encode())
-        resp = ss.recv(256).decode("utf-8", errors="replace")
+        resp = ss.recv(512).decode("utf-8", errors="replace")
+        rtt_ms = round((time.time() - t_start) * 1000, 1)
+        
         try:
             ss.close()
         except Exception:
             pass
+
         if "1034" in resp or ("403" in resp and "cloudflare" in resp.lower()):
-            return False
-        return "101" in resp or "200" in resp or "400" in resp
-    except Exception:
-        return False
+            return False, "Cloudflare Error 1034 (Edge IP Restricted 邊緣阻斷)", rtt_ms
+        if any(err in resp for err in ("502 Bad Gateway", "521 Web Server", "522 Connection", "523 Origin")):
+            return False, "Cloudflare 回源失敗 (502/521/522/523)", rtt_ms
+        if "101" in resp:
+            return True, "101 Switching Protocols (WS 回源握手成功)", rtt_ms
+        if "400" in resp and "sec-websocket-version" in resp.lower():
+            return True, "Origin WebSocket Active (回源成功)", rtt_ms
+        if "200 OK" in resp:
+            return True, "HTTP 200 OK", rtt_ms
+
+        first_line = resp.splitlines()[0] if resp.splitlines() else "No Response"
+        return False, f"未符合回源協議: {first_line[:40]}", rtt_ms
+    except socket.timeout:
+        return False, f"連線超時 (>{timeout}s)", round((time.time() - t_start) * 1000, 1)
+    except Exception as e:
+        return False, f"網路握手失敗: {e}", round((time.time() - t_start) * 1000, 1)
 
 
-def select_best_ip(
+def select_best_verified_ip(
     ip_list: List[Tuple[str, str]],
     preferred_country: str = "",
     rank: int = 1,
     strategy: str = "random_all",
     current_ip: str = "",
     sni: str = "",
-    port: int = 2053
-) -> Optional[Tuple[str, str]]:
-    """依落地國與策略挑選極品 IP (內建防 1034 邊緣阻斷預檢):
-      - strategy='random_all' (或 'all'): 從符合該國別的全部候選池中隨機抽取 (優先避開目前 IP，保證每次必換新 IP)
-      - strategy='random_top3' / 'random_top5': 從前 3~5 名中隨機挑選
-      - strategy='top': 固定第一名榜首
+    host_header: str = "",
+    ws_path: str = "/ws?ed=2048",
+    port: int = 2053,
+    max_test_count: int = 15
+) -> Optional[Tuple[str, str, str, float]]:
+    """全方位真實回源測活篩選：
+      1. 依節點特定 SNI、Host 標頭、Path 與 Port 逐一對候選 IP 進行真實回源測活。
+      2. 優先在目標落地國池中篩選。
+      3. 若目標落地國 IP 均受限或失效，自動啟用同表中其他通過驗證之健康 IP 備援池。
+      4. 只有「100% 測活成功並通過回源」的 IP 才會被選定。
+      5. 若全軍覆沒，返回 None，嚴格禁止寫入無效 IP！
+      回傳: (ip, country_tag, reason, rtt_ms) 或 None
     """
     if not ip_list:
         return None
 
     strat = str(strategy).lower().strip()
-    
-    # 建立候選池
-    primary_candidates = [item for item in ip_list if item[1].upper() == preferred_country.upper()] if preferred_country else ip_list
+    primary_candidates = [item for item in ip_list if item[1].upper() == preferred_country.upper()] if preferred_country else list(ip_list)
     fallback_candidates = [item for item in ip_list if item not in primary_candidates]
 
-    def pick_and_verify(pool: List[Tuple[str, str]]) -> Optional[Tuple[str, str]]:
+    def verify_pool(pool: List[Tuple[str, str]], pool_desc: str) -> Optional[Tuple[str, str, str, float]]:
         if not pool:
             return None
-        # 打亂順序或按順序
         test_pool = list(pool)
         if strat in ("random_all", "random", "all"):
             random.shuffle(test_pool)
-            # 優先避開當前正在使用的 IP
-            test_pool.sort(key=lambda x: 1 if x[0] == current_ip else 0)
+            if len(test_pool) > 1 and current_ip:
+                test_pool.sort(key=lambda x: 1 if x[0] == current_ip else 0)
         elif "random" in strat:
             m = re.search(r"\d+", strat)
             limit = int(m.group(0)) if m else 3
             sub = test_pool[:max(1, limit)]
             random.shuffle(sub)
             test_pool = sub + test_pool[limit:]
+        elif strat == "top" and rank > 1 and rank <= len(test_pool):
+            target_item = test_pool[rank - 1]
+            test_pool.remove(target_item)
+            test_pool.insert(0, target_item)
 
-        for cand in test_pool:
-            cand_ip, cand_tag = cand
-            if sni and not check_cf_ip_handshake(cand_ip, port=port, sni=sni):
-                continue
-            return cand
+        tested = 0
+        for cand_ip, cand_tag in test_pool:
+            if tested >= max_test_count:
+                print(f"    ⚠️ [{pool_desc}] 達到單池最大測活限制 ({max_test_count} 個)，中止本池測試。")
+                break
+            tested += 1
+            ok, reason, rtt = verify_node_origin_handshake(
+                cand_ip,
+                port=port,
+                sni=sni,
+                host_header=host_header,
+                ws_path=ws_path
+            )
+            if ok:
+                print(f"    [✔ 測活通過] {cand_ip:16s} (#{cand_tag:2s}) ➡️ {reason} (耗時 {rtt}ms)")
+                return cand_ip, cand_tag, reason, rtt
+            else:
+                print(f"    [✖ 測活淘汰] {cand_ip:16s} (#{cand_tag:2s}) ➡️ {reason}")
         return None
 
-    # 1. 優先在目標國別池中挑選可通 IP
-    chosen = pick_and_verify(primary_candidates)
+    # 1. 優先測活目標落地國池
+    target_label = preferred_country or "ALL"
+    print(f"    [*] 正在對目標落地國 [{target_label}] 候選池進行逐一回源測活 (SNI: {sni}, Port: {port})...")
+    chosen = verify_pool(primary_candidates, target_label)
     if chosen:
         return chosen
 
-    # 2. 若該國別所有候選 IP 均觸發 Error 1034 (例如 ct.txt 中的 162.159.* / 108.162.* 專用段)，自動降級挑選同表內其他通過驗證之健康 IP
+    # 2. 目標國別池無合格 IP (如 ct.txt 中的 162.159.* / 108.162.* 專用段)，啟用同表跨區健康備援池
     if fallback_candidates:
-        print(f"    ⚠️ [防 1034 阻斷保護] 國別 [{preferred_country}] 候選池均受 Cloudflare Error 1034 限制，自動啟用健康 IP 備援池！")
-        chosen = pick_and_verify(fallback_candidates)
+        print(f"    ⚠️ [防 1034 阻斷保護] 目標國別 [{preferred_country}] 候選 IP 均未通過回源測活，啟用同表健康備援池進行深度測活...")
+        chosen = verify_pool(fallback_candidates, "備援池")
         if chosen:
             return chosen
 
-    # 3. 極限保底
-    return ip_list[0] if ip_list else None
+    # 3. 嚴禁盲選！若全數失敗返回 None
+    return None
 
 
 class MySQLManager:
@@ -284,18 +336,30 @@ class MySQLManager:
                     sni = t_obj.get("server_name", "")
                 except Exception:
                     pass
+                host_header = ""
+                ws_path = "/ws?ed=2048"
+                try:
+                    n_obj = json.loads(net_raw) if net_raw and net_raw != "NULL" else {}
+                    host_header = n_obj.get("headers", {}).get("Host", "")
+                    if n_obj.get("path"):
+                        p_val = str(n_obj.get("path")).replace(r"\/", "/").replace("\\", "/")
+                        if not p_val.startswith("/"):
+                            p_val = "/" + p_val
+                        ws_path = p_val
+                except Exception:
+                    pass
                 if not sni:
-                    try:
-                        n_obj = json.loads(net_raw) if net_raw and net_raw != "NULL" else {}
-                        sni = n_obj.get("headers", {}).get("Host", "")
-                    except Exception:
-                        pass
+                    sni = host_header
+                if not host_header:
+                    host_header = sni
                 nodes[nid] = {
                     "id": nid,
                     "name": parts[1],
                     "host": parts[2],
                     "port": parts[3],
-                    "sni": sni
+                    "sni": sni,
+                    "host_header": host_header,
+                    "ws_path": ws_path
                 }
         return nodes
 
@@ -305,10 +369,6 @@ class MySQLManager:
         sql = f"UPDATE v2_server_vless SET host = '{safe_host}', updated_at = {now_ts} WHERE id = {node_id};"
         self.run_query(sql)
         return True
-
-
-
-
 
 
 def perform_db_sync(
@@ -321,7 +381,7 @@ def perform_db_sync(
     dry_run: bool = False
 ) -> bool:
     print("======================================================================")
-    print("⚡ V2Board (Xiao 版) MySQL 直接極速入口純 IP 替換引擎")
+    print("⚡ V2Board (Xiao 版) MySQL 直接極速入口純 IP 替換引擎 (具備回源測活認證)")
     print(f"[*] 連線資料庫: {db_mgr.database} ({db_mgr.host}:{db_mgr.port})")
     print("======================================================================")
 
@@ -331,7 +391,7 @@ def perform_db_sync(
         ips = fetch_ip_table(t_url, cache_dir=cache_dir)
         table_cache[t_name] = ips
         src_label = t_url.split("/")[-1]
-        print(f"[*] 載入 [{t_name.upper()}] 表 ({src_label}): 取得 {len(ips)} 個極品 IP")
+        print(f"[*] 載入 [{t_name.upper()}] 表 ({src_label}): 取得 {len(ips)} 個候選優選 IP")
 
     # 2. 查詢資料庫節點
     target_ids = [int(item["id"]) for item in nodes_to_update]
@@ -350,7 +410,7 @@ def perform_db_sync(
         t_name = str(item.get("table", "ct")).lower()
         pref_country = str(item.get("country", "")).upper()
         rank = int(item.get("rank", 1))
-        strategy = str(item.get("strategy", "top"))
+        strategy = str(item.get("strategy", "random_all"))
 
         node = nodes.get(node_id)
         if not node:
@@ -359,32 +419,41 @@ def perform_db_sync(
 
         name = node["name"]
         curr_host = node["host"]
-        port = node["port"]
+        port = int(node["port"])
+        sni = node.get("sni", "")
+        host_header = node.get("host_header", "")
+        ws_path = node.get("ws_path", "/ws?ed=2048")
+
+        strat_desc = "全表隨機抽取 (random_all)" if "random_all" in strategy or strategy == "all" else ("前列隨機" if "random" in strategy else f"第 {rank} 名")
+        print(f"[*] 節點 ID: {node_id} 【{name}】")
+        print(f"    - 原入口地址 (host)  : {curr_host}:{port}")
+        print(f"    - 握手目標 (SNI/Host): {sni} / {host_header}")
+        print(f"    - WebSocket 握手路徑 : {ws_path}")
+        print(f"    - 綁定來源表         : {t_name.upper()} 表 | 偏好落地國: {pref_country or '不限'} | 模式: {strat_desc}")
 
         ip_pool = table_cache.get(t_name, [])
-        sni = node.get("sni", "")
-        best_choice = select_best_ip(
+        best_choice = select_best_verified_ip(
             ip_pool,
             preferred_country=pref_country,
             rank=rank,
             strategy=strategy,
             current_ip=curr_host,
             sni=sni,
-            port=int(port)
+            host_header=host_header,
+            ws_path=ws_path,
+            port=port
         )
         if not best_choice:
-            print(f"❌ 表 [{t_name}] 中無可用 IP！(節點 ID: {node_id})")
+            print(f"    - ❌ [安全警報] 表 [{t_name.upper()}] 中所有候選 IP 經真實回源測活均未通過！")
+            print(f"    - 🛡️ [零中斷保護] 嚴格拒絕寫入不可用 IP，安全保留現有 host: {curr_host}")
+            print("----------------------------------------------------------------------")
             continue
 
-        new_ip, tag = best_choice
-        strat_desc = "全表隨機抽取 (random_all)" if "random_all" in strategy or strategy == "all" else ("前列隨機" if "random" in strategy else f"第 {rank} 名")
-        print(f"[*] 節點 ID: {node_id} 【{name}】")
-        print(f"    - 原入口地址 (host)  : {curr_host}:{port}")
-        print(f"    - 綁定表與策略       : {t_name.upper()} 表 (#{tag}) | 模式: {strat_desc}")
-        print(f"    - 選定純 IP          : {new_ip} (#{tag})")
+        new_ip, tag, reason, rtt_ms = best_choice
+        print(f"    - 🎯 [最終選定] 經端到端測活確認，選定 IP: {new_ip} (#{tag}) ➡️ {reason} ({rtt_ms}ms)")
 
         if curr_host == new_ip:
-            print(f"    - 執行結果           : ⚡ 目前已是選定 IP ({new_ip})，無需變更！")
+            print(f"    - 執行結果           : ⚡ 目前資料庫已是選定 IP ({new_ip})，無需變更！")
             success_count += 1
             print("----------------------------------------------------------------------")
             continue
@@ -412,6 +481,15 @@ def perform_db_sync(
             print(f"    - 執行結果           : ❌ MySQL 更新出錯: {e}")
         print("----------------------------------------------------------------------")
 
+    # 快取刷新
+    if has_modified:
+        try:
+            artisan = panel_root / "artisan"
+            if artisan.is_file():
+                subprocess.run(["php", str(artisan), "cache:clear"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+                print("[*] 面板快取已自動刷新 (php artisan cache:clear)")
+        except Exception as e:
+            print(f"[*] 嘗試刷新快取提示: {e}")
 
     print(f"🎉 執行完畢！成功處理 {success_count}/{len(nodes_to_update)} 個節點。")
     print("======================================================================")
@@ -424,7 +502,7 @@ def main():
     parser.add_argument("--node", "-n", type=int, help="指定替換的單一節點 ID (例如: 7)")
     parser.add_argument("--table", "-t", choices=["ct", "cu", "cm"], help="指定使用的表 (ct/cu/cm)")
     parser.add_argument("--country", help="指定偏好落地國 (JP/HK/SG/US)")
-    parser.add_argument("--strategy", choices=["top", "random", "random_top3", "random_top5"], default="top", help="IP 選取策略")
+    parser.add_argument("--strategy", choices=["top", "random", "random_top3", "random_top5", "random_all"], default="top", help="IP 選取策略")
     parser.add_argument("--daemon", action="store_true", help="啟用常駐守護模式 (背景持續循環執行)")
     parser.add_argument("--interval", type=int, default=1800, help="常駐循環時間間隔，單位秒 (預設: 1800 秒 / 30 分鐘)")
     parser.add_argument("--dry-run", action="store_true", help="模擬執行 (不實際寫入資料庫)")
