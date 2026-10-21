@@ -238,81 +238,54 @@ def normalize_country_code(raw: str | None) -> str:
 
 
 def resolve_country_tag(item: Dict[str, Any], runner_trace_colo: str = "", carrier: str = "") -> str:
-    """多層級決定最終輸出的 #COUNTRY 標籤，保證輸出標準雙字元大寫代碼 (絕不輸出 #CF)：
+    """多層級決定最終輸出的 #COUNTRY 標籤，保證 100% 符應運營商物理出境海纜與互聯點：
 
-    優先級 1: 運營商 (Carrier) 專屬 BGP Anycast 物理落地判定 (例如電信 172.64.144.* 走新加坡 SIN，172.64.52.* 走台灣 TPE)
-    優先級 2: 網域特徵指紋 (如 ctsg.cfyx -> SG, www.visa.com.hk -> HK)
-    優先級 3: 靜態網段字典 (CIDR -> Country 映射，由 data/countries/ 與種子庫載入)
-    優先級 4: 境內探針實測 source_colo (如 HKG, TPE, NRT, SIN)
-    優先級 5: 原生 source_country 或 country 標籤
-    優先級 6: Runner 實測 Colo (若在亞太/歐洲則採信；若在美國且延遲低於 90ms 判定為 Anycast 亞太直連段)
+    核心原則：
+    1. 運營商 (Carrier) 專屬 BGP Anycast 物理路由矩陣為最高依據 (如電信 108.162.198.* 走東京 JP，172.64.144.* 走新加坡 SG)
+    2. 嚴禁採信 Runner (GitHub Actions / 本地 PC) 測得的 colo，因為海外或本地機器連線 Anycast 與大陸三網完全不同
+    3. 中國移動 (CM): CMI 骨幹將 104.16~20.* 與 104.26.* 全數拉回香港 Mega-i，標註 #HK
+    4. 中國電信 (CT) 與 中國聯通 (CU): 凡未在亞太直連海纜白名單內之普通 Cloudflare 網段 (如 104.16.*, 104.17.*, 104.18.*, 104.20.*)，100% 繞美，標註 #US
     """
     ip = str(item.get("ip", "")).strip()
-    source_colo = str(item.get("source_colo") or "").strip().upper()
-    raw_source_country = item.get("source_country") or ""
     domain = str(item.get("domain") or "").lower()
     target_carrier = (carrier or str(item.get("carrier") or item.get("target_carrier") or "")).lower()
-    est_lat = float(item.get("est_cn_latency_ms") or item.get("cn_latency_ms") or 0.0)
 
-    # 1. 運營商專屬 BGP Anycast 物理路由矩陣查詢 (三網真實海纜與互聯點落地)
+    # 1. 運營商專屬 BGP Anycast 物理路由矩陣查詢 (最高優先級)
     if target_carrier in ("ct", "cu", "cm"):
         matrix_country = lookup_carrier_landing_country(ip, target_carrier)
         if matrix_country:
             return matrix_country
 
-    # 2. 網域命名特徵指紋
+    # 2. 針對中國移動 (CM): CMI 國際骨幹將流量全數匯聚於香港 Mega-i
+    if target_carrier == "cm":
+        if ip.startswith(("104.16.", "104.17.", "104.18.", "104.19.", "104.20.", "104.26.")):
+            return "HK"
+
+    # 3. 針對中國電信 (CT) 與 中國聯通 (CU):
+    # 普通免費/Pro 段 (104.16~25.*, 172.67.*, 104.21.*) 在電信 163 與聯通 169 上全部跨太平洋走西海岸 (SJC/LAX) 繞美
+    if target_carrier in ("ct", "cu"):
+        if ip.startswith(("104.16.", "104.17.", "104.18.", "104.19.", "104.20.", "104.21.", "104.25.", "172.67.")):
+            return "US"
+
+    # 4. 網域命名特徵指紋 (如 ctsg.cfyx -> SG)
     if "ctsg" in domain or "singapore" in domain:
         return "SG"
-    if "tw" in domain or "taiwan" in domain:
-        return "TW"
-    if "jp" in domain or "japan" in domain:
-        return "JP"
-    if "hk" in domain or "hongkong" in domain:
-        return "HK"
 
-    # 3. 檢查已知母體網段字典 (由 data/countries/ 與種子庫載入)
+    # 5. 檢查已知母體網段字典 (由 data/countries/ 載入)
     subnet_tag = lookup_subnet_country(ip)
     if subnet_tag:
         norm_sub = normalize_country_code(subnet_tag)
         if norm_sub and norm_sub not in ("CF", "UNKNOWN"):
+            # 若為電信或聯通，非 Enterprise 網段仍不得誤標亞太
+            if target_carrier in ("ct", "cu") and norm_sub in ("TW", "HK") and ip.startswith(("104.16.", "104.17.", "104.18.", "104.19.", "104.20.", "104.21.")):
+                return "US"
             return norm_sub
 
-    # 4. 境內探針實測 Colo
-    if source_colo and source_colo != "DEFAULT":
-        mapped = get_country_by_colo(source_colo)
-        if mapped and mapped not in ("CF", "UNKNOWN"):
-            return mapped
-
-    # 5. 情報源/種子庫原生國家標籤
-    norm_tag = normalize_country_code(raw_source_country)
-    if norm_tag and norm_tag not in ("CF", "UNKNOWN"):
-        return norm_tag
-
-    orig_country = normalize_country_code(item.get("country"))
-    if orig_country and orig_country not in ("CF", "UNKNOWN"):
-        return orig_country
-
-    for c in item.get("countries", []):
-        norm_c = normalize_country_code(c)
-        if norm_c and norm_c not in ("CF", "UNKNOWN"):
-            return norm_c
-
-    # 6. Runner 測得的 Colo 解析
-    runner_c = get_country_by_colo(runner_trace_colo)
-    if runner_c in ("HK", "TW", "JP", "SG", "KR", "DE", "GB", "NL"):
-        return runner_c
-
-    # 7. 若國內延遲超過 135ms，判定為繞美節點
-    if est_lat >= 135.0:
-        return "US"
-
-    # 8. 國內低延遲兜底：若國內延遲極低 (< 85ms)，依照運營商特性推斷亞太國家，絕不輸出 #CF
-    if target_carrier == "ct":
-        return "SG" if ip.startswith("172.64.") else "HK"
-    elif target_carrier == "cu":
-        return "JP"
-    elif target_carrier == "cm":
+    # 6. 兜底判定：絕不輸出 #CF
+    if target_carrier == "cm":
         return "HK"
+    elif target_carrier in ("ct", "cu"):
+        return "US"
 
     return "HK"
 

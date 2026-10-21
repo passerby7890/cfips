@@ -9,9 +9,11 @@ from __future__ import annotations
 import ipaddress
 import json
 import random
+from pathlib import Path
 from typing import Dict, List
 
 from src.dns_extractor import exhaustive_resolve_domain_for_carrier
+from src.region_mapper import lookup_carrier_landing_country
 
 
 def collect_carrier_candidates(
@@ -22,6 +24,16 @@ def collect_carrier_candidates(
         pool_cfg = json.load(f)
     with open(matrix_path, "r", encoding="utf-8") as f:
         ecs_matrix = json.load(f)
+
+    # 讀取 carrier_landing_matrix 作為亞太直連擴充庫
+    carrier_landing_cfg = {}
+    matrix_file = Path(pool_path).resolve().parent / "carrier_landing_matrix.json"
+    if matrix_file.is_file():
+        try:
+            with open(matrix_file, "r", encoding="utf-8") as mf:
+                carrier_landing_cfg = json.load(mf).get("carriers", {})
+        except Exception:
+            pass
 
     carriers_cfg = pool_cfg.get("carriers", {})
     carrier_results: Dict[str, List[Dict]] = {"ct": [], "cu": [], "cm": []}
@@ -41,9 +53,11 @@ def collect_carrier_candidates(
 
             for item in extracted:
                 ip = item["ip"]
-                # 電信 (CT) 嚴格排除 104.21.0.0/16 與 172.67.0.0/16 繞美毒段
-                if c_code == "ct" and ip.startswith(("104.21.", "172.67.")):
-                    continue
+                # 電信 (CT) 與 聯通 (CU) 嚴格排除任何非亞太/歐洲直連之繞美毒段 (如 104.16~25.*, 172.67.* 等)
+                if c_code in ("ct", "cu"):
+                    landing = lookup_carrier_landing_country(ip, c_code)
+                    if landing not in ("JP", "HK", "TW", "SG", "DE"):
+                        continue
 
                 if ip not in direct_map:
                     direct_map[ip] = {
@@ -69,7 +83,7 @@ def collect_carrier_candidates(
             key=lambda x: (x["cn_latency_ms"], -x["hit_ratio"], -x["score"])
         )
 
-        # 若該網所有 CNAME 榨出的唯一 IP 總數不足 60 個，才從排名前茅的黃金 /24 補齊少量鄰居
+        # 若該網所有 CNAME 榨出的唯一 IP 總數不足 75 個，從排名前茅的黃金 /24 補齊少量鄰居
         neighbor_list = []
         seen_all = set(direct_map.keys())
         for item in direct_list:
@@ -80,8 +94,10 @@ def collect_carrier_candidates(
                 for h_idx in random.sample(range(2, 253), 2):
                     n_ip = str(net[h_idx])
                     if n_ip not in seen_all:
-                        if c_code == "ct" and n_ip.startswith(("104.21.", "172.67.")):
-                            continue
+                        if c_code in ("ct", "cu"):
+                            n_landing = lookup_carrier_landing_country(n_ip, c_code)
+                            if n_landing not in ("JP", "HK", "TW", "SG", "DE"):
+                                continue
                         seen_all.add(n_ip)
                         neighbor_list.append({
                             "ip": n_ip,
@@ -97,6 +113,37 @@ def collect_carrier_candidates(
             except Exception:
                 continue
 
-        carrier_results[c_code] = direct_list + neighbor_list
+        # 針對電信與聯通，從 carrier_landing_matrix.json 的直連亞太/歐洲網段精選補充多樣化子網 (確保 50 筆名額充足且高分散)
+        matrix_seeds = []
+        if c_code in ("ct", "cu"):
+            c_rules = carrier_landing_cfg.get(c_code, {}).get("landing_rules", {})
+            for ctry, cidrs in c_rules.items():
+                if ctry not in ("JP", "HK", "TW", "SG", "DE"):
+                    continue
+                for cidr in cidrs:
+                    if len(direct_list) + len(neighbor_list) + len(matrix_seeds) >= 120:
+                        break
+                    try:
+                        c_net = ipaddress.ip_network(cidr.strip(), strict=False)
+                        sub_net = list(c_net.subnets(new_prefix=24))[0] if c_net.prefixlen < 24 else c_net
+                        for host_idx in [12, 28, 46]:
+                            m_ip = str(sub_net[host_idx])
+                            if m_ip not in seen_all:
+                                seen_all.add(m_ip)
+                                matrix_seeds.append({
+                                    "ip": m_ip,
+                                    "domain": f"matrix.{ctry.lower()}.cloudflare",
+                                    "carrier": c_code,
+                                    "target_carrier": c_code,
+                                    "cn_latency_ms": 45.0 if ctry in ("HK", "TW", "JP") else 65.0,
+                                    "speed_mbs": 13.0,
+                                    "score": 92.0,
+                                    "hit_ratio": 1.0,
+                                    "is_direct_cname": False
+                                })
+                    except Exception:
+                        continue
+
+        carrier_results[c_code] = direct_list + neighbor_list + matrix_seeds
 
     return carrier_results

@@ -138,6 +138,10 @@ def run_redteam_audit() -> bool:
             if carrier == "ct" and ip.startswith(("104.21.", "172.67.")):
                 errors.append(f"[CT] 致命違規！第 {idx} 行包含繞美毒段 IP: {ip}")
 
+            # 電信 (CT) 與 聯通 (CU) 絕對禁止收錄任何繞美節點 (#US)
+            if carrier in ("ct", "cu") and country == "US":
+                errors.append(f"[{carrier.upper()}] 致命違規！優選清單收錄繞美高延遲節點: {line}")
+
             # 電信 (CT) 172.64.144.* 物理路由經由新加坡 SIN 直連，必須標註為 #SG
             if carrier == "ct" and ip.startswith("172.64.144.") and country != "SG":
                 errors.append(f"[CT] 路由誤判！172.64.144.* 應為 #SG (新加坡)，卻標註為 #{country}")
