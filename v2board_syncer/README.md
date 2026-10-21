@@ -19,8 +19,8 @@
    - **絕不盲選、絕不寫入未經認證的 IP！** 若表內候選 IP 全數未能通過回源測活，系統立即觸發保護機制，**安全保留當前正常運行的 host，不對 MySQL 做任何破壞性變更**。
 5. **【0 延遲直連資料庫】**：
    - 免 Token、免登入、無過期風險，只修改 `v2_server_vless` 的 `host` 欄位，保留 port、tls、network、flow 等所有參數。
-6. **【自動刷新面板快取】**：
-   - 每次成功變更後，自動調用 `php artisan cache:clear`，客戶端訂閱與面板前台即時生效。
+6. **【零快取干擾保障 Session 穩定】**：
+   - 經源碼審查，V2Board 的客戶端訂閱與節點服務（`ServerService.php`）直接查詢 MySQL 資料庫，不快取 VLESS 節點清單。因此 MySQL 寫入後立即生效，完全無需執行 `php artisan cache:clear`，徹底杜絕 Redis Session 丟失或面板用戶登入被踢出的風險！
 
 ---
 

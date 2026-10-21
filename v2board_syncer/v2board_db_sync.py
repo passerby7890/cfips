@@ -7,7 +7,7 @@ V2Board / Xboard (Xiao 版) MySQL 資料庫直接極速替換引擎 (v3.0.0)
   1. 【0 延遲直連資料庫】：免 Token、免登入、無 Session 過期、無 Web 路由問題！
   2. 【自動讀取 .env】：自動抓取面板 .env 中的 MySQL 與 Redis 連線資訊，零設定！
   3. 【原子級安全更新】：只更新 v2_server_vless 中的 host 欄位為純 IP，嚴格保留所有其他欄位！
-  4. 【自動刷新面板快取】：更新後自動調用 php artisan cache:clear，前台與客戶端立即生效！
+  4. 【零快取干擾】：經審計 V2Board 直讀 MySQL，無需 flush 快取，保障面板登入與 Session 100% 穩定！
   5. 【支援隨機輪替】：可選固定榜首 (top) 或前 3~5 名隨機 (random_top3) 分散負載！
   6. 【支援 --dry-run 模擬】與 【--daemon --interval 常駐守護】模式！
 """
@@ -481,15 +481,10 @@ def perform_db_sync(
             print(f"    - 執行結果           : ❌ MySQL 更新出錯: {e}")
         print("----------------------------------------------------------------------")
 
-    # 快取刷新
+    # 經源碼審查 (ServerService.php)，V2Board/Xboard 讀取節點乃直接查詢 MySQL，完全不快取 VLESS 伺服器列表。
+    # 為徹底杜絕快取刷新可能導致的 Redis Session 丟失或登入中斷，依指令嚴格禁止執行全域 cache:clear！
     if has_modified:
-        try:
-            artisan = panel_root / "artisan"
-            if artisan.is_file():
-                subprocess.run(["php", str(artisan), "cache:clear"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
-                print("[*] 面板快取已自動刷新 (php artisan cache:clear)")
-        except Exception as e:
-            print(f"[*] 嘗試刷新快取提示: {e}")
+        print("[*] 提示：MySQL 節點已即時生效（V2Board 直讀 MySQL，無需清除 Laravel 快取，保障 Session 與登入 100% 穩定）")
 
     print(f"🎉 執行完畢！成功處理 {success_count}/{len(nodes_to_update)} 個節點。")
     print("======================================================================")
