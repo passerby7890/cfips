@@ -28,6 +28,7 @@ from src.cn_real_tester import (
 from src.region_mapper import (
     init_carrier_landing_matrix,
     init_subnet_country_map,
+    lookup_carrier_landing_country,
     resolve_country_tag,
 )
 from src.verifier import batch_verify_with_health_stats
@@ -53,19 +54,15 @@ async def run_pipeline():
     pool_path = str(PROJECT_ROOT / "data" / "cname_pool.json")
     carrier_pools, domain_map = collect_carrier_candidates_with_domain_map(pool_path)
 
-    # 階段 1：收集完 CNAME 解析出 IP 後，先用 is_blacklisted_us_range() 砍掉所有繞美西網段！
+    # 階段 1：收集完 CNAME 解析出 IP，交由 2053 WebSocket 101 回源測活
     unique_candidates = {}
-    filtered_us_cnt = 0
     for c_code, items in carrier_pools.items():
         for item in items:
             ip = item["ip"]
-            if is_blacklisted_us_range(ip, c_code):
-                filtered_us_cnt += 1
-                continue
             if ip not in unique_candidates or (item.get("is_direct_cname") and not unique_candidates[ip].get("is_direct_cname")):
                 unique_candidates[ip] = item
 
-    print(f"[*] 階段 1 完成：已硬性攔截剔除 {filtered_us_cnt} 顆 104.18~26 / 172.67 繞美西前綴 IP！")
+    print(f"[*] 階段 1 完成：共萃取 {len(unique_candidates)} 個唯一候選 IP，開始執行 2053 WebSocket 101 回源測活 (100% 斬殺 Error 1034)...")
     print(f"[*] 共剩餘 {len(unique_candidates)} 個唯一候選 IP，開始執行 2053 WebSocket 101 回源測活 (100% 斬殺 Error 1034)...")
 
     # 階段 2：2053 端口 WebSocket 101 握手測活（砍掉所有 Error 1034 與非 101 節點）
@@ -140,8 +137,6 @@ async def run_pipeline():
 
         for cand in carrier_pools[c_code]:
             ip = cand["ip"]
-            if is_blacklisted_us_range(ip, c_code):
-                continue
             if ip in alive_map and ip not in seen_ips:
                 v_data = alive_map[ip]
                 merged = dict(cand)
@@ -160,24 +155,20 @@ async def run_pipeline():
             rep_ip = items[0]["ip"]
             real_country, real_ms, real_loss = probe_subnet_from_mainland_cn(rep_ip, c_code)
             for it in items:
-                it["country"] = real_country
-                it["real_cn_country"] = real_country
+                ip_str = it["ip"]
+                indiv_country = lookup_carrier_landing_country(ip_str, c_code)
+                final_country = indiv_country if indiv_country else real_country
+                it["country"] = final_country
+                it["real_cn_country"] = final_country
                 it["real_cn_ms"] = real_ms
                 it["real_cn_loss"] = real_loss
                 it["cn_latency_ms"] = real_ms
 
-        # 階段 4：過濾與排序
-        # 剔除所有判定為 #US 或實測延遲 > 115ms 的繞美節點
-        apac_nodes = [
+        # 階段 4：依用戶指示廢除截斷，保留全部健康測活節點，按大陸實測延遲由低到高排序
+        usable_nodes = [
             it for it in carrier_candidates
-            if it.get("country") not in ("US", "UNKNOWN", "CF") and it.get("real_cn_ms", 999.0) <= 115.0
+            if it.get("country") not in ("UNKNOWN", "CF")
         ]
-
-        if len(apac_nodes) >= 10:
-            usable_nodes = apac_nodes
-        else:
-            print(f"    ⚠️ [{c_code.upper()}] 亞太直連低延遲節點少於 10 顆 ({len(apac_nodes)} 顆)，允許備援節點排在最末尾")
-            usable_nodes = apac_nodes + [it for it in carrier_candidates if it not in apac_nodes]
 
         # 嚴格按 real_cn_ms 由低到高排序
         usable_nodes.sort(
@@ -188,7 +179,7 @@ async def run_pipeline():
             )
         )
 
-        # 同 /24 網段最多取 3 顆，總數最多取 50 顆
+        # 第一輪：同 /24 網段最多取 3 顆，優先分散子網
         final_list = []
         subnet_tracker: dict[str, int] = {}
         for it in usable_nodes:
@@ -198,6 +189,14 @@ async def run_pipeline():
                 subnet_tracker[sub] = subnet_tracker.get(sub, 0) + 1
             if len(final_list) >= 50:
                 break
+
+        # 第二輪：若總數未滿 50 顆，從剩餘低延遲節點中依序補齊至最多 50 顆
+        if len(final_list) < 50:
+            for it in usable_nodes:
+                if it not in final_list:
+                    final_list.append(it)
+                if len(final_list) >= 50:
+                    break
 
         out_path = out_dir / f"{c_code}.txt"
         if final_list:

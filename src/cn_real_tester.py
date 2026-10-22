@@ -55,14 +55,9 @@ _SUBNET_PROBE_CACHE: Dict[Tuple[str, str], Tuple[str, float, float]] = {}
 
 
 def is_blacklisted_us_range(ip: str, carrier: str) -> bool:
-    """判斷該 IP 是否屬於該運營商必繞美西之黑名單 Anycast 網段。
-    注意：104.* 與 172.67.* 在移動 (CM) 下多數直連香港 HKG (30~45ms)，絕不可對移動一刀切！
-    """
-    c = carrier.lower().strip()
-    if c in ("ct", "cu"):
-        return ip.startswith(CT_CU_US_BLACKLIST_PREFIXES)
-    # 移動 (CM) 僅過濾極少數已知海外死循環段
-    return ip.startswith(("172.66.",))
+    """依據用戶指示：廢除任何先入為主的 Anycast 前綴黑名單，
+    由實體真機探針與延遲判定節點質量與落地，不做任何硬性前綴攔截！"""
+    return False
 
 
 def get_subnet_24(ip: str) -> str:
@@ -196,52 +191,50 @@ def probe_subnet_from_mainland_cn(rep_ip: str, carrier: str, timeout_sec: float 
     except Exception:
         pass
 
-    # 3. 根據 Colo 機房判定國家
-    country = ""
-    if real_colo:
+    # 3. 國家代碼判定：
+    # A. 優先查詢該運營商專屬真實物理落地矩陣 (carrier_landing_matrix.json) 權威標記
+    country = lookup_carrier_landing_country(rep_ip, c_key)
+
+    # B. 若矩陣無記錄，則依據大陸境內實體探針實測 Colo 機房判定
+    if not country and real_colo:
         if real_colo in US_COLOS:
             country = "US"
         else:
             country = COLO_COUNTRY_MAP.get(real_colo, "") or APAC_COLO_MAP.get(real_colo, "")
 
-    # 4. 若 Globalping 未解析出 Colo，啟用三維物理定律與矩陣保底：
+    # C. 若仍未取得國家，啟用三維物理延遲定律保底：
     if not country:
-        # A. 優先查詢該運營商真實物理落地矩陣 (carrier_landing_matrix.json)
-        matrix_c = lookup_carrier_landing_country(rep_ip, c_key)
-        if matrix_c:
-            country = matrix_c
-        else:
-            # B. 依運營商出境特性與 RTT 物理光速定律判斷：
-            if c_key == "cm":
-                # 移動 CMI 骨幹幾乎 100% 匯流香港 HKG
-                if real_ms < 140.0:
-                    country = "HK"
-                else:
-                    country = "US"
-            elif c_key == "ct":
-                # 電信 163 骨幹特性
-                if rep_ip.startswith(("172.64.14", "172.64.15", "108.162.19", "108.162.20")):
-                    country = "SG"
-                elif rep_ip.startswith(("162.159.38", "162.159.39")):
-                    country = "JP"
-                elif rep_ip.startswith(("162.159.44", "162.159.45")):
-                    country = "HK"
-                elif rep_ip.startswith(("172.64.52", "172.64.53")):
-                    country = "TW"
-                elif real_ms <= 85.0:
-                    country = "SG"
-                else:
-                    country = "US"
-            else: # cu
-                # 聯通 169 骨幹特性
-                if rep_ip.startswith(("162.159.38", "108.162.198")):
-                    country = "JP"
-                elif rep_ip.startswith(("188.114.96",)):
-                    country = "DE"
-                elif real_ms <= 85.0:
-                    country = "JP"
-                else:
-                    country = "US"
+        # 依運營商出境特性與 RTT 物理光速定律判斷：
+        if c_key == "cm":
+            # 移動 CMI 骨幹幾乎 100% 匯流香港 HKG
+            if real_ms < 140.0:
+                country = "HK"
+            else:
+                country = "US"
+        elif c_key == "ct":
+            # 電信 163 骨幹特性
+            if rep_ip.startswith(("172.64.229.", "162.159.38.", "162.159.39.")):
+                country = "JP"
+            elif rep_ip.startswith(("172.64.14", "172.64.15", "108.162.19", "108.162.20")):
+                country = "SG"
+            elif rep_ip.startswith(("162.159.44.", "162.159.45.")):
+                country = "HK"
+            elif rep_ip.startswith(("172.64.52.", "172.64.53.")):
+                country = "TW"
+            elif real_ms <= 85.0:
+                country = "SG"
+            else:
+                country = "US"
+        else: # cu
+            # 聯通 169 骨幹特性
+            if rep_ip.startswith(("172.64.229.", "162.159.38.", "108.162.198.")):
+                country = "JP"
+            elif rep_ip.startswith(("188.114.96.",)):
+                country = "DE"
+            elif real_ms <= 85.0:
+                country = "JP"
+            else:
+                country = "US"
 
     # 若未能實測到延遲，依該運營商典型亞太延遲兜底
     if real_ms >= 900.0:

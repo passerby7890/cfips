@@ -179,10 +179,10 @@ def run_redteam_audit() -> bool:
             if country == "CF":
                 errors.append(f"[{carrier.upper()}] 致命錯誤！第 {idx} 行出現 #CF 未識別兜底標籤: {line}")
 
-            # 斷言 1（繞美黑名單零容忍）：output/ct.txt 與 output/cu.txt 中絕對不可出現 104.18~26.* 或 172.67.*
-            if carrier in ("ct", "cu"):
-                if ip.startswith(BANNED_US_PREFIXES):
-                    errors.append(f"[斷言 1 失敗] {carrier.upper()} 第 {idx} 行出現繞美黑名單 IP: {line}")
+            # 斷言 1（真實落地校驗）：172.64.229.* 在電信/聯通下經東京 NTT 互聯，必須精準標註為 #JP，嚴禁誤標為 #SG
+            if ip.startswith("172.64.229.") and carrier in ("ct", "cu"):
+                if country != "JP":
+                    errors.append(f"[斷言 1 失敗] {carrier.upper()} 第 {idx} 行 {ip} 落地東京 NTT，但被誤標為 #{country} (應為 #JP)！")
 
         # 斷言 2（拒絕單一假國別刷屏）
         if carrier == "ct":

@@ -64,10 +64,8 @@ def collect_carrier_candidates_with_domain_map(
                 ip = item["ip"]
                 domain_map[domain]["ips"].add(ip)
 
-                # 焊死電信/聯通/移動繞美黑名單 (104.18~26.*, 172.67.* 等)
-                from src.cn_real_tester import is_blacklisted_us_range
-                if is_blacklisted_us_range(ip, c_code):
-                    continue
+                # 依用戶指示：廢除任何先入為主的 Anycast 前綴黑名單，全部交由真機探針客觀實測
+                pass
 
                 lat_val = float(d_info.get("cn_latency_ms", 999.0))
                 if ip not in direct_map:
