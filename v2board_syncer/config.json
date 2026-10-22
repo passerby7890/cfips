@@ -1,5 +1,5 @@
 {
-  "_comment": "V2Board (Xiao 版) 節點入口純 IP 替換設定檔 (v4.0.0 實戰自癒與防繞美版)",
+  "_comment": "V2Board (Xiao 版) 節點入口純 IP 替換設定檔 (v4.3.0 實戰自癒與防繞美漂移版)",
   "database": {
     "host": "127.0.0.1",
     "port": 3306,
@@ -25,7 +25,8 @@
       "strategy": "top_k_sticky",
       "top_k": 8,
       "sticky_minutes": 15,
-      "enable_cn_probe": true
+      "enable_cn_probe": true,
+      "max_cn_rtt_ms": 115
     },
     {
       "node_id": 7,
@@ -39,7 +40,8 @@
       "strategy": "top_k_sticky",
       "top_k": 8,
       "sticky_minutes": 15,
-      "enable_cn_probe": true
+      "enable_cn_probe": true,
+      "max_cn_rtt_ms": 115
     },
     {
       "node_id": 6,
@@ -53,7 +55,8 @@
       "strategy": "top_k_sticky",
       "top_k": 8,
       "sticky_minutes": 15,
-      "enable_cn_probe": true
+      "enable_cn_probe": true,
+      "max_cn_rtt_ms": 115
     }
   ]
 }

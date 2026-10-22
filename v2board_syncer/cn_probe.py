@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
 =============================================================================
-V2Board Syncer - 大陸境內真機 TCP 防牆探測模組 (cn_probe.py)
+V2Board Syncer - 大陸境內真機 TCP 防牆與防繞美漂移探測模組 (cn_probe.py v4.3.0)
 =============================================================================
 功能：
-  1. 呼叫 Globalping REST API (https://api.globalping.io/v1/measurements)。
-  2. 指定中國大陸境內實體探針 (locations: [{"country": "CN"}])。
-  3. 對候選 IP 發起真實 TCP 握手 (protocol: "TCP", port: 節點連接埠)。
-  4. 只要有任何一顆境內探針回應成功 (loss < 100%)，即證明未被大陸 GFW 封鎖。
-  5. 支援 Fail-open 原則：若 API 限流、網路超時或不可達，預設放行不阻塞主流程。
+  1. 呼叫 Globalping REST API，按節點所屬三網 (CT:4134 / CU:4837 / CM:9808) 指定大陸境內實體探針。
+  2. 雙重防護判定：
+     - 防 GFW 封鎖：至少一顆境內探針回應成功 (loss < 100%)。
+     - 防 Anycast 漂移繞美：境內探針實測最低/平均 RTT 必須 <= max_cn_rtt_ms (預設 115ms)！
+       若實測高達 140ms~210ms，代表該 Anycast IP 當下已漂移至美國西岸，立即攔截淘汰！
 """
 
 import json
@@ -17,28 +17,43 @@ import time
 import urllib.request
 from typing import Tuple
 
+CARRIER_ASN_MAP = {
+    "ct": 4134,  # 中國電信
+    "cu": 4837,  # 中國聯通
+    "cm": 9808   # 中國移動
+}
 
-def verify_cn_mainland_tcp(ip: str, port: int = 443, timeout_sec: float = 5.0) -> Tuple[bool, str]:
+
+def verify_cn_mainland_tcp(
+    ip: str,
+    port: int = 443,
+    carrier: str = "ct",
+    max_cn_rtt_ms: float = 115.0,
+    timeout_sec: float = 5.5
+) -> Tuple[bool, str]:
     """
-    透過 Globalping 大陸境內實體探針驗證該 IP:Port 在中國境內是否未被 GFW 封鎖。
-    回傳: (is_reachable, detail_msg)
-    若 API 配額滿、網路異常或超時，預設回傳 (True, "API 略過/Fail-open") 以免阻塞主流程。
+    透過 Globalping 大陸境內實體探針驗證該 IP:Port：
+    1. 在中國境內是否未被 GFW 封鎖 (loss < 100%)
+    2. 在中國境內是否未發生 Anycast 漂移繞美 (RTT <= max_cn_rtt_ms)
     """
     api_url = "https://api.globalping.io/v1/measurements"
+    asn = CARRIER_ASN_MAP.get(str(carrier).lower().strip())
+
+    locations = [{"country": "CN", "asn": asn}] if asn else [{"country": "CN"}]
     payload = {
         "type": "ping",
         "target": ip,
-        "locations": [{"country": "CN"}],
+        "locations": locations,
         "limit": 2,
         "measurementOptions": {
             "protocol": "TCP",
             "port": int(port),
-            "packets": 2
+            "packets": 3
         }
     }
     headers = {
         "Content-Type": "application/json",
-        "User-Agent": "cf-v2board-syncer/3.2"
+        "User-Agent": "cf-v2board-syncer/4.3"
     }
 
     ctx = ssl.create_default_context()
@@ -71,21 +86,31 @@ def verify_cn_mainland_tcp(ip: str, port: int = 443, timeout_sec: float = 5.0) -
                         results = d2.get("results", [])
                         if not results:
                             return True, "無探針結果 (Fail-open 略過)"
+
                         probe_summaries = []
-                        has_alive = False
+                        alive_rtts = []
                         for probe in results:
                             city = probe.get("probe", {}).get("city", "CN")
+                            p_asn = probe.get("probe", {}).get("asn", "")
                             stats = probe.get("result", {}).get("stats", {})
                             loss = stats.get("loss", 100)
-                            avg_rtt = stats.get("avg", 0)
-                            probe_summaries.append(f"{city}:{avg_rtt}ms(丟包{loss}%)")
-                            if loss is not None and float(loss) < 100.0:
-                                has_alive = True
+                            avg_rtt = stats.get("avg")
+                            probe_summaries.append(f"{city}(AS{p_asn}):{avg_rtt}ms/丟包{loss}%")
+                            if loss is not None and float(loss) < 100.0 and avg_rtt is not None and float(avg_rtt) > 0:
+                                alive_rtts.append(float(avg_rtt))
+
                         summary_str = ", ".join(probe_summaries)
-                        if has_alive:
-                            return True, f"境內探針暢通 [{summary_str}]"
-                        else:
+                        if not alive_rtts:
                             return False, f"境內 100% 丟包阻斷 (疑似 GFW 封鎖) [{summary_str}]"
+
+                        best_cn_rtt = min(alive_rtts)
+                        if best_cn_rtt > max_cn_rtt_ms:
+                            return (
+                                False,
+                                f"Anycast 路由漂移繞美! 境內實測延遲過高 ({best_cn_rtt:.1f}ms > 上限 {max_cn_rtt_ms}ms) [{summary_str}]"
+                            )
+
+                        return True, f"境內亞太直連暢通 (最佳 {best_cn_rtt:.1f}ms <= {max_cn_rtt_ms}ms) [{summary_str}]"
     except Exception as e:
         return True, f"探針 API 調用略過: {e}"
 

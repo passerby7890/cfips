@@ -1,27 +1,35 @@
-# V2Board (Xiao 版) 節點入口純 IP 替換引擎（v3.2.0 實戰自癒版）
+# V2Board (Xiao 版) 節點入口純 IP 替換引擎（v4.3.0 五道防護機制版）
 
 本工具包專為 **V2Board / Xboard (Xiao 版)** 打造，部署於伺服器 `/www/wwwroot/0n21.com/v2board_syncer`。  
-採用純 Python 3 原生標準庫實現，具備 **「原子級直連 MySQL」**、**「Top-K 黏性調度」**、**「1034/GFW 記憶冷卻庫」** 與 **「Globalping 大陸境內真機探測」** 機制，嚴格落實**零中斷（Zero Downtime）**高可用保障！
+採用純 Python 3 原生標準庫實現，落實**決策驗收官 (@DecisionMaker)** 制定的「最後選取五道防護閘門」，徹底杜絕 Anycast 路由動態漂移繞美、GFW 阻斷、1034 限制及節點衝突，保障**零中斷（Zero Downtime）**與**真亞太低延遲**！
 
 ---
 
-## 🌟 核心特色與五大自癒架構 (v3.2.0)
+## 🛡️ 最後選取五道防護閘門 (v4.3.0)
 
-1. **【Top-K 黏性優選調度 (top_k_sticky)】（解決盲選洗牌問題）**：
-   - 每次執行時，先對「目前 MySQL 節點正在使用的現任 IP」進行 `verify_node_origin_handshake()` 與境內探針檢測。
-   - 若現任 IP 依然通過 `HTTP 101` 握手、境內暢通且在當期優選清單的前 15 名內，在黏性保持期（如 15 分鐘）內**優先保持現任 IP 不動**！
-   - 徹底杜絕過去 `random_all` 每 5 分鐘把 40ms 冠軍 IP 隨機換成次級 IP 的抽盲盒慘況。
-2. **【本地持久化黑名單與冷卻記憶庫 (`state_cache.json`)】**：
-   - **`error_1034_blacklist` (封禁 24 小時)**：凡觸發 Cloudflare `1034` / `403` 的 IP，24 小時內跳過不測，0ms 快速放行。
-   - **`timeout_cooldown` (冷卻 2 小時)**：凡握手超時或被大陸 GFW 阻斷的 IP，冷卻 2 小時，避免同週期內無謂重複測死 IP。
-   - **`node_state` (節點狀態追蹤)**：記錄每個 `node_id` 目前綁定的 `current_ip` 與 `assigned_at`。
-3. **【大陸境內真機防牆驗證 (`cn_probe.py`)】（防海外 101 假活盲區）**：
-   - 透過 Globalping 公開 REST API，指定中國大陸境內實體探針（`locations: [{"country": "CN"}]`）對候選 IP 進行真機 TCP 探測。
-   - 若境內探針 100% 丟包阻斷，判定為「國內被牆假活 IP」，立刻打入冷卻池並換血；API 忙碌時支援 Fail-open 保障主流程。
-4. **【跨節點防撞車互斥鎖 (`used_ips_in_run`)】**：
-   - 同一次同步中，已經分配給 Node 7（電信）的 IP，自動從 Node 6（移動）的候選池排除，防止流量集中單點觸發省牆 QoS。
-5. **【0 延遲直連資料庫與零快取干擾】**：
-   - 直讀直寫 `v2_server_vless` 的 `host` 欄位。經審計 V2Board 直讀 MySQL，無需清除 Laravel 快取，保障 Session 與登入 100% 穩定！
+```text
+[候選 IP 進入選拔]
+   │
+   ├─► 閘門 1：【記憶庫與三網繞美底線攔截】
+   │     ├── 0ms 剔除 state_cache.json 內的 24h (1034) 與 2h (超時/被牆/高延遲漂移) 黑名單
+   │     └── 電信(ct)/聯通(cu) 強制攔截 104.18./104.20./104.21./104.26./172.67. 等必繞美西前綴
+   │
+   ├─► 閘門 2：【跨節點同 IP 與同 /24 網段防撞車】
+   │     └── Node 8 (SG 電信)、Node 7 (JP 電信) 與 Node 6 (HK 移動) 禁止共用同 IP，優先打散不同 /24 網段
+   │
+   ├─► 閘門 3：【事前真實 V2bX 端到端 101 握手】
+   │     └── 帶著該節點在 MySQL 中的真實 SNI / Port / WS Path 握手，非 HTTP 101 立即淘汰並冷卻
+   │
+   ├─► 閘門 4：【大陸境內三網 ASN 探針「雙指標」驗證 (防牆 + 防 Anycast 漂移繞美)】
+   │     ├── 依節點 carrier 指定大陸對應運營商 ASN (電信 AS4134 / 聯通 AS4837 / 移動 AS9808)
+   │     ├── 指標 A (防 GFW 封鎖)：丟包率必須 <= 50% (不可 100% 丟包)
+   │     └── 指標 B (防漂移繞美)：大陸境內實測平均延遲 (avg_rtt) 必須 <= max_cn_rtt_ms (預設 115ms)！
+   │         (一旦發現 avg_rtt > 115ms，代表該 Anycast IP 已漂移至美西，當場淘汰並冷卻 2h！)
+   │
+   └─► 閘門 5：【智慧條件式黏性守護 (Smart Sticky Guard)】
+         ├── 若現任 IP 為首選國別 (如 JP)，且 101 + 大陸 RTT <= 115ms 均合格 ➡️ 鎖定保持
+         └── 若現任 IP 為備援國別 (如 HK/SG)，僅當候選池中「確實還有未進黑名單的首選國別 (JP) IP」時才解除黏性嘗試升級；若首選國別已全滅，則穩定保持現任備援 IP，杜絕每 5 分鐘反覆斷線！
+```
 
 ---
 
@@ -29,11 +37,11 @@
 
 ```text
 /www/wwwroot/0n21.com/v2board_syncer/
-├── v2board_db_sync.py     # 【核心】MySQL 資料庫直連替換引擎 (含 Top-K 黏性自癒)
-├── state_manager.py       # 【狀態】1034/GFW 黑名單與節點黏性狀態管理器
-├── cn_probe.py            # 【探針】Globalping 大陸境內真機 TCP 防牆驗證模組
+├── v2board_db_sync.py     # 【核心】MySQL 資料庫直連替換引擎 (含五道防護與智慧黏性)
+├── state_manager.py       # 【狀態】1034/GFW/漂移繞美黑名單與節點黏性管理器
+├── cn_probe.py            # 【探針】Globalping 大陸三網 ASN 對齊與延遲防漂移模組
 ├── state_cache.json       # 【快取】本地持久化記憶庫 (自動產生與輪替)
-├── config.json            # 節點設定檔 (節點 ID、三網表、落地國、策略)
+├── config.json            # 節點設定檔 (節點 ID、三網表、落地國、策略、延遲上限)
 ├── README.md              # 系統技術手冊與操作筆記
 ├── cache/                 # 離線容災快取目錄
 └── backups/               # 每次變更前的節點備份 JSON
@@ -45,6 +53,7 @@
 
 ```json
 {
+  "_comment": "V2Board (Xiao 版) 節點入口純 IP 替換設定檔 (v4.3.0 實戰自癒與防繞美漂移版)",
   "database": {
     "host": "127.0.0.1",
     "port": 3306,
@@ -59,17 +68,34 @@
   },
   "nodes": [
     {
+      "node_id": 8,
+      "id": 8,
+      "name": "SG 电信专用-新加坡(3倍)",
+      "carrier": "ct",
+      "table": "ct",
+      "prefer_country": "SG",
+      "prefer_countries": ["SG", "JP", "HK"],
+      "reject_countries": ["US"],
+      "strategy": "top_k_sticky",
+      "top_k": 8,
+      "sticky_minutes": 15,
+      "enable_cn_probe": true,
+      "max_cn_rtt_ms": 115
+    },
+    {
       "node_id": 7,
       "id": 7,
       "name": "JP 电信专用-日本(3倍)",
       "carrier": "ct",
       "table": "ct",
       "prefer_country": "JP",
-      "country": "JP",
+      "prefer_countries": ["JP", "HK", "SG"],
+      "reject_countries": ["US"],
       "strategy": "top_k_sticky",
       "top_k": 8,
       "sticky_minutes": 15,
-      "enable_cn_probe": true
+      "enable_cn_probe": true,
+      "max_cn_rtt_ms": 115
     },
     {
       "node_id": 6,
@@ -78,11 +104,13 @@
       "carrier": "cm",
       "table": "cm",
       "prefer_country": "HK",
-      "country": "HK",
+      "prefer_countries": ["HK", "SG", "JP"],
+      "reject_countries": ["US"],
       "strategy": "top_k_sticky",
       "top_k": 8,
       "sticky_minutes": 15,
-      "enable_cn_probe": true
+      "enable_cn_probe": true,
+      "max_cn_rtt_ms": 115
     }
   ]
 }

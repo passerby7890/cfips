@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """
 =============================================================================
-V2Board / Xboard (Xiao 版) MySQL 資料庫直接極速替換引擎 (v3.2.0 實戰自癒版)
+V2Board / Xboard (Xiao 版) MySQL 資料庫直接極速替換引擎 (v4.3.0 五道防護機制版)
 =============================================================================
 特色：
   1. 【0 延遲直連資料庫】：免 Token、免登入、無 Session 過期、無 Web 路由問題！
-  2. 【Top-K 黏性調度 (top_k_sticky)】：現任 IP 依然頂級健康 (101 通過且在 Top 15 內) 則黏性保持，杜絕盲選洗牌！
-  3. 【本地持久化黑名單庫 (state_cache.json)】：Error 1034 封禁 24h、超時/GFW 冷卻 2h，0ms 跳過死 IP！
-  4. 【大陸境內真機防牆驗證 (Globalping CN)】：海外 101 回源通過後，再由大陸境內探針檢驗 TCP，徹底防 GFW 假活！
-  5. 【跨節點防撞車鎖 (used_ips_in_run)】：同一輪同步中不同節點互斥，防止單 IP 流量聚集被省牆 QoS！
-  6. 【零快取干擾】：V2Board 直讀 MySQL，無需 flush 快取，保障面板登入與 Session 100% 穩定！
+  2. 【閘門 1：三網繞美西前綴攔截 + 0ms 記憶庫跳過 (state_cache.json)】：攔截 104.18/172.67 必繞美段，過濾 24h 1034 / 2h 漂移超時！
+  3. 【閘門 2：跨節點防撞車鎖 + /24 網段分散】：不同節點禁止共用同 IP，優先打散不同 /24 網段！
+  4. 【閘門 3：事前真實 V2bX 端到端 101 握手】：帶真實 SNI/Port/WS Path 握手，非 101 立即淘汰！
+  5. 【閘門 4：大陸三網 ASN 對齊 + 延遲防 Anycast 漂移閘門 (cn_probe)】：實測 RTT 必須 <= max_cn_rtt_ms (115ms)，超標即淘！
+  6. 【閘門 5：智慧條件式黏性守護 (Smart Sticky Guard)】：備援健康時僅當首選池有未拉黑新血才升級，首選全滅時穩定保持！
+  7. 【零快取干擾】：V2Board 直讀 MySQL，無需 flush 快取，保障面板登入與 Session 100% 穩定！
 """
 
 from __future__ import annotations
@@ -57,7 +58,7 @@ except ImportError:
     try:
         from v2board_syncer.cn_probe import verify_cn_mainland_tcp
     except ImportError:
-        def verify_cn_mainland_tcp(ip: str, port: int = 443, timeout_sec: float = 5.0):
+        def verify_cn_mainland_tcp(ip: str, port: int = 443, carrier: str = "ct", max_cn_rtt_ms: float = 115.0, timeout_sec: float = 5.5, **kwargs):
             return True, "探針模組未載入 (略過)"
 
 logging.basicConfig(
@@ -242,14 +243,15 @@ def select_best_verified_ip(
     enable_cn_probe: bool = True,
     state_mgr: Optional[StateManager] = None,
     used_ips_in_run: Optional[set] = None,
-    carrier: str = ""
+    carrier: str = "",
+    max_cn_rtt_ms: float = 115.0
 ) -> Optional[Tuple[str, str, str, float]]:
-    """全方位實戰自癒回源測活篩選 (v4.1.0 防繞美西與亞太優先版)：
-      1. 【防繞美西與拒絕國別立即換血】：凡現任為電信/聯通繞美網段或 #US，無條件強制換血！(注意：移動 CMI 104.* 直連香港，不予誤殺)
-      2. 【Top-K 黏性調度 (top_k_sticky)】：若現任 IP 仍健康且符合亞太偏好國別，維持不動。
-      3. 【0ms 記憶庫跳過 (state_cache)】：自動過濾 24h 1034 黑名單與 2h 超時/被牆冷卻 IP。
-      4. 【跨節點防撞車鎖 (used_ips_in_run)】：跳過本輪已分配給其他節點的 IP。
-      5. 【雙重真・測活防線】：海外 101 WebSocket 回源握手 ＋ Globalping 大陸境內真機 TCP 探測。
+    """全方位實戰自癒回源測活篩選 (v4.3.0 五道防護閘門版)：
+      1. 【記憶庫與三網繞美底線攔截】：0ms 剔除 24h/2h 黑名單，電信/聯通強制攔截 104.18./104.20./104.21./104.26./172.67.
+      2. 【跨節點防撞車鎖】：不同節點禁止共用同 IP，優先分散不同 /24 網段。
+      3. 【事前真實 V2bX 端到端 101 握手】：帶真實 SNI/Port/WS Path 握手，非 101 立即淘汰。
+      4. 【大陸境內三網 ASN 探針雙指標驗證】：按節點 carrier 指定 ASN (CT:4134, CU:4837, CM:9808)，丟包<100% 且 RTT <= max_cn_rtt_ms。
+      5. 【智慧條件式黏性駐留】：首選健康則鎖定保持；備援健康時僅當首選池有未拉黑新血才解除黏性升級。
       回傳: (ip, country_tag, reason, rtt_ms) 或 None
     """
     if not ip_list:
@@ -257,14 +259,30 @@ def select_best_verified_ip(
 
     strat = str(strategy).lower().strip()
     c_carrier = str(carrier).lower().strip()
-    # v4.2.0: 廢除硬編碼前綴黑名單，嚴格由實測國別標籤 (#US) 與 target_reject_list 進行過濾
-    us_blacklist_prefixes = ()
+
+    # 閘門 1 底線防禦：三網繞美西前綴攔截
+    if c_carrier in ("ct", "cu"):
+        us_blacklist_prefixes = (
+            "104.18.", "104.19.", "104.20.", "104.21.", "104.22.",
+            "104.24.", "104.25.", "104.26.", "172.66.", "172.67."
+        )
+    else:
+        # 移動 (cm) 僅攔截明確繞美段 (CMI 走香港直連段予以放行)
+        us_blacklist_prefixes = ("104.18.", "104.20.", "104.21.")
 
     target_prefer_list = [c.upper() for c in (prefer_countries or ([preferred_country] if preferred_country else []))]
     target_reject_list = [c.upper() for c in (reject_countries or ["US"])]
 
+    # 預先計算候選池中是否還有未進黑名單的首選國別 (preferred_country) 候選 (閘門 5 智慧條件黏性守護)
+    has_available_preferred = any(
+        item[1].upper() == preferred_country.upper()
+        and not item[0].startswith(us_blacklist_prefixes)
+        and not (state_mgr and state_mgr.is_blacklisted(item[0]))
+        for item in ip_list
+    ) if preferred_country else False
+
     # -------------------------------------------------------------------------
-    # 階段 1：【Top-K 黏性審計 (Sticky Retention)】
+    # 階段 1：【閘門 5：智慧條件式黏性審查 (Smart Sticky Guard)】
     # -------------------------------------------------------------------------
     if strat in ("top_k_sticky", "sticky_top_k", "sticky") and current_ip and IP_REGEX.match(current_ip):
         node_st = state_mgr.get_node_state(node_id) if state_mgr else {}
@@ -283,24 +301,35 @@ def select_best_verified_ip(
                 break
 
         is_us_detour_ip = current_ip.startswith(us_blacklist_prefixes) if us_blacklist_prefixes else False
+        force_eject = False
 
-        # [Country Mismatch Guard & US Detour Guard (v4.0.0)]
         if is_us_detour_ip or (current_country and current_country.upper() in target_reject_list):
             print(
                 f"    🚫 [繞美黑名單/拒絕國別] Node {node_id} 現任 IP {current_ip} 屬於繞美西網段或 #{current_country}，"
                 f"無條件強制解除黏性並立刻換血為亞太低延遲 IP！"
             )
-        elif preferred_country and current_country and current_country.upper() != preferred_country.upper():
-            print(
-                f"    ⚠️ [非首選國別換血] Node {node_id} 現任 IP {current_ip} 國別為 #{current_country} "
-                f"(節點指定首選 #{preferred_country.upper()})，解除黏性並升級為首選國別 IP！"
-            )
+            force_eject = True
         elif target_prefer_list and current_country and current_country.upper() not in target_prefer_list:
             print(
                 f"    ⚠️ [國別不符降級態] Node {node_id} 現任 IP {current_ip} 國別為 #{current_country} "
                 f"(目標偏好要求 {target_prefer_list})，拒絕黏性保持，強制重新選拔！"
             )
-        elif not is_banned and elapsed_min < sticky_minutes and current_rank <= 15:
+            force_eject = True
+        elif preferred_country and current_country and current_country.upper() != preferred_country.upper():
+            if current_country.upper() in target_prefer_list and not has_available_preferred:
+                print(
+                    f"    🛡️ [智慧備援守護] Node {node_id} 現任 IP {current_ip} (#{current_country}) 雖非首選 (#{preferred_country.upper()})，"
+                    f"但首選國別候選目前已全數進入黑名單/不可用，智慧保持當前健康備援 IP！"
+                )
+                force_eject = False
+            else:
+                print(
+                    f"    ⚠️ [非首選國別換血] Node {node_id} 現任 IP {current_ip} 國別為 #{current_country} "
+                    f"(節點指定首選 #{preferred_country.upper()} 且池中尚有可用首選新血)，解除黏性並嘗試升級！"
+                )
+                force_eject = True
+
+        if not force_eject and not is_banned and elapsed_min < sticky_minutes and current_rank <= 15:
             print(f"    [*] [Top-K 黏性審計] 現任 IP {current_ip} (排名 #{current_rank}, 已服役 {elapsed_min:.1f}/{sticky_minutes} 分鐘) 執行健康複檢...")
             ok, reason, rtt = verify_node_origin_handshake(
                 current_ip,
@@ -313,8 +342,13 @@ def select_best_verified_ip(
                 cn_passed = True
                 cn_detail = ""
                 if enable_cn_probe:
-                    print(f"    [*] [國內探針複檢] 對現任 IP {current_ip}:{port} 發起 Globalping CN TCP 探測...")
-                    cn_passed, cn_detail = verify_cn_mainland_tcp(current_ip, port=port)
+                    print(f"    [*] [國內探針複檢] 對現任 IP {current_ip}:{port} 發起 Globalping CN TCP 探測 (ASN: {c_carrier.upper()}, 上限: {max_cn_rtt_ms}ms)...")
+                    cn_passed, cn_detail = verify_cn_mainland_tcp(
+                        current_ip,
+                        port=port,
+                        carrier=c_carrier,
+                        max_cn_rtt_ms=max_cn_rtt_ms
+                    )
 
                 if cn_passed:
                     print(f"    [🔒 黏性保持] 現任 IP {current_ip} 依然頂級健康 (握手 {rtt}ms, {cn_detail or '101 暢通'})，維持不動！")
@@ -323,7 +357,7 @@ def select_best_verified_ip(
                     curr_tag = next((tag for ip, tag in ip_list if ip == current_ip), preferred_country or "CF")
                     return current_ip, curr_tag, f"Top-K 黏性保持 ({reason})", rtt
                 else:
-                    print(f"    [!] [GFW 阻斷告警] 現任 IP {current_ip} 境內探針失敗: {cn_detail}，解除黏性並強制換血！")
+                    print(f"    [!] [GFW/Anycast 漂移告警] 現任 IP {current_ip} 境內探針失敗: {cn_detail}，解除黏性並強制換血！")
                     if state_mgr:
                         state_mgr.mark_timeout_or_gfw(current_ip)
             else:
@@ -333,7 +367,7 @@ def select_best_verified_ip(
                         state_mgr.mark_1034(current_ip)
                     else:
                         state_mgr.mark_timeout_or_gfw(current_ip)
-        elif current_rank > 15:
+        elif not force_eject and current_rank > 15:
             print(f"    [*] [榜單調度] 現任 IP {current_ip} 掉出前 15 名 (當前 #{current_rank})，觸發良性換血！")
 
     # -------------------------------------------------------------------------
@@ -386,6 +420,13 @@ def select_best_verified_ip(
         if not valid_candidates:
             return None
 
+        # 閘門 2 優化：同 /24 網段防撞車 (優先挑選與其他節點不同 /24 網段之候選 IP)
+        if used_ips_in_run:
+            used_subnets = {ip.rsplit(".", 1)[0] for ip in used_ips_in_run if "." in ip}
+            diff_subnet_candidates = [item for item in valid_candidates if item[0].rsplit(".", 1)[0] not in used_subnets]
+            same_subnet_candidates = [item for item in valid_candidates if item[0].rsplit(".", 1)[0] in used_subnets]
+            valid_candidates = diff_subnet_candidates + same_subnet_candidates
+
         # 2. 策略調度建構測試隊列
         if strat in ("top_k_sticky", "sticky_top_k", "top_k", "top_k_random", "random_topk"):
             k = max(1, top_k)
@@ -416,7 +457,7 @@ def select_best_verified_ip(
                 break
             tested += 1
 
-            # 防線 A: 海外端到端 WebSocket 101 回源握手驗證
+            # 閘門 3: 事前真實 V2bX 端到端 101 握手驗證
             ok, reason, rtt = verify_node_origin_handshake(
                 cand_ip,
                 port=port,
@@ -436,19 +477,24 @@ def select_best_verified_ip(
                     print(f"    [✖ 握手失敗] {cand_ip:16s} (#{cand_tag:2s}) ➡️ {reason}")
                 continue
 
-            # 防線 B: 大陸境內真機實體探針驗證 (Globalping CN TCP)
+            # 閘門 4: 大陸境內三網 ASN 探針「雙指標」驗證 (防 GFW + 防 Anycast 漂移繞美)
             if enable_cn_probe:
-                print(f"    [*] 正在對通過 101 之候選 IP {cand_ip}:{port} 執行大陸境內實體探針驗證...")
-                cn_ok, cn_msg = verify_cn_mainland_tcp(cand_ip, port=port)
+                print(f"    [*] 正在對通過 101 之候選 IP {cand_ip}:{port} 執行大陸境內實體探針驗證 (ASN: {c_carrier.upper()}, 上限: {max_cn_rtt_ms}ms)...")
+                cn_ok, cn_msg = verify_cn_mainland_tcp(
+                    cand_ip,
+                    port=port,
+                    carrier=c_carrier,
+                    max_cn_rtt_ms=max_cn_rtt_ms
+                )
                 if not cn_ok:
                     if state_mgr:
                         state_mgr.mark_timeout_or_gfw(cand_ip)
-                    print(f"    [✖ GFW 阻斷] {cand_ip:16s} (#{cand_tag:2s}) ➡️ {cn_msg} (已入 2h 冷卻池)")
+                    print(f"    [✖ GFW/漂移繞美] {cand_ip:16s} (#{cand_tag:2s}) ➡️ {cn_msg} (已入 2h 冷卻池)")
                     continue
                 else:
                     print(f"    [✔ 境內暢通] {cand_ip:16s} (#{cand_tag:2s}) ➡️ {cn_msg}")
 
-            # 雙重驗證全部通過！
+            # 五道防護閘門全部通過！
             print(f"    [✔ 最終選定] {cand_ip:16s} (#{cand_tag:2s}) ➡️ {reason} (耗時 {rtt}ms)")
             if used_ips_in_run is not None:
                 used_ips_in_run.add(cand_ip)
@@ -621,12 +667,13 @@ def perform_db_sync(
             else ("全表隨機抽取 (random_all)" if "random_all" in strategy or strategy == "all"
             else ("前列隨機" if "random" in strategy else f"第 {rank} 名")))
         )
+        max_cn_rtt_ms = float(item.get("max_cn_rtt_ms", 115.0))
         print(f"[*] 節點 ID: {node_id} 【{name}】")
         print(f"    - 原入口地址 (host)  : {curr_host}:{port}")
         print(f"    - 握手目標 (SNI/Host): {sni} / {host_header}")
         print(f"    - WebSocket 握手路徑 : {ws_path}")
         print(f"    - 綁定來源表         : {t_name.upper()} 表 | 偏好落地國: {pref_country or '不限'} | 模式: {strat_desc}")
-        print(f"    - 大陸真機探測 (GFW) : {'已啟用 (Globalping CN TCP)' if enable_cn_probe else '未啟用'}")
+        print(f"    - 大陸真機探測 (GFW) : {'已啟用 (Globalping CN TCP | ASN: ' + t_name.upper() + ' | RTT<=' + str(max_cn_rtt_ms) + 'ms)' if enable_cn_probe else '未啟用'}")
 
         ip_pool = table_cache.get(t_name, [])
         best_choice = select_best_verified_ip(
@@ -647,7 +694,8 @@ def perform_db_sync(
             enable_cn_probe=enable_cn_probe,
             state_mgr=state_mgr,
             used_ips_in_run=used_ips_in_run,
-            carrier=carrier
+            carrier=t_name,
+            max_cn_rtt_ms=max_cn_rtt_ms
         )
         if not best_choice:
             print(f"    - ❌ [安全警報] 表 [{t_name.upper()}] 中所有候選 IP 經測活均未通過！")
