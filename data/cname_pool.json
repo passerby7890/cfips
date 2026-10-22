@@ -56,6 +56,12 @@
       { "domain": "ctsg.cfyx.aliyun.20237737.xyz" },
       { "domain": "eteaf.cf.3666888.xyz" },
       { "domain": "cfsaas.080112.xyz" },
+      { "domain": "cf.godns.cc" },
+      { "domain": "www.carousell.sg" },
+      { "domain": "cfvip.cf.3666888.xyz" },
+      { "domain": "www.oopt.eu.cc" },
+      { "domain": "cf.92555.xyz" },
+      { "domain": "fn.130519.xyz" },
       { "domain": "224322.xyz" },
       { "domain": "www.090902.xyz" },
       { "domain": "cf.090227.xyz" },
@@ -67,7 +73,13 @@
       { "domain": "666.cf.cname.vvhan.com" },
       { "domain": "bestcf.top" },
       { "domain": "cf.877774.xyz" },
-      { "domain": "freeyx.cloudflare88.eu.org" }
+      { "domain": "freeyx.cloudflare88.eu.org" },
+      { "domain": "www.shopify.com" },
+      { "domain": "www.asda.com" },
+      { "domain": "openai.com" },
+      { "domain": "www.broadcom.com" },
+      { "domain": "onetrust.com" },
+      { "domain": "www.zendesk.com" }
     ],
     "cm": [
       { "domain": "cf.godns.cc" },
@@ -81,7 +93,16 @@
       { "domain": "666.cf.cname.vvhan.com" },
       { "domain": "cf.090227.xyz" },
       { "domain": "bestcf.top" },
-      { "domain": "cf.877774.xyz" }
+      { "domain": "cf.877774.xyz" },
+      { "domain": "www.asda.com" },
+      { "domain": "www.shopify.com" },
+      { "domain": "openai.com" },
+      { "domain": "www.udacity.com" },
+      { "domain": "7.cf.3666888.xyz" },
+      { "domain": "cf.legspcpd.top" },
+      { "domain": "www.carousell.sg" },
+      { "domain": "cfvip.cf.3666888.xyz" },
+      { "domain": "cf.92555.xyz" }
     ],
     "cu": [
       { "domain": "www.090902.xyz" },
@@ -92,7 +113,14 @@
       { "domain": "eteaf.cf.3666888.xyz" },
       { "domain": "cf.090227.xyz" },
       { "domain": "bestcf.top" },
-      { "domain": "cf.877774.xyz" }
+      { "domain": "cf.877774.xyz" },
+      { "domain": "cf.godns.cc" },
+      { "domain": "cfvip.cf.3666888.xyz" },
+      { "domain": "www.shopify.com" },
+      { "domain": "www.asda.com" },
+      { "domain": "openai.com" },
+      { "domain": "www.zendesk.com" },
+      { "domain": "investor.apple.com" }
     ]
   }
 }

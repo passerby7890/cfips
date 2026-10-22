@@ -45,11 +45,15 @@ _SUBNET_PROBE_CACHE: Dict[Tuple[str, str], Tuple[str, float, float]] = {}
 
 
 def is_blacklisted_us_range(ip: str, carrier: str) -> bool:
-    """判斷該 IP 是否屬於電信/聯通必繞美西之黑名單 Anycast 網段"""
-    c = carrier.lower().strip()
-    if c in ("ct", "cu"):
-        return ip.startswith(CT_CU_US_BLACKLIST_PREFIXES)
-    return ip.startswith(("104.18.", "104.20.", "104.21.", "104.24.", "104.26.", "172.67."))
+    """
+    v4.1.0 升級：廢除 Anycast 前綴一刀切黑名單！
+    杜絕任何預設偏見，只過濾私有/保留/無效 IP，
+    所有公網 Anycast IP 一律交給大陸真機探針以真實 RTT 與 Colo 判定生死。
+    """
+    ip_s = ip.strip()
+    if ip_s.startswith(("10.", "127.", "192.168.", "169.254.", "0.", "11.11.11.11")):
+        return True
+    return False
 
 
 def get_subnet_24(ip: str) -> str:

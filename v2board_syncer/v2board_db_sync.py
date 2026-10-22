@@ -281,12 +281,12 @@ def select_best_verified_ip(
                 current_country = tag
                 break
 
-        is_us_detour_ip = current_ip.startswith(us_blacklist_prefixes)
+        is_us_detour_ip = (current_country.upper() == "US") if current_country else False
 
-        # [Country Mismatch Guard & US Detour Guard (v4.0.0)]
+        # [Country Mismatch Guard & US Detour Guard (v4.1.0)]
         if is_us_detour_ip or (current_country and current_country.upper() in target_reject_list):
             print(
-                f"    🚫 [繞美黑名單/拒絕國別] Node {node_id} 現任 IP {current_ip} 屬於繞美西網段或 #{current_country}，"
+                f"    🚫 [繞美黑名單/拒絕國別] Node {node_id} 現任 IP {current_ip} 屬於實測繞美西 (#{current_country})，"
                 f"無條件強制解除黏性並立刻換血為亞太低延遲 IP！"
             )
         elif target_prefer_list and current_country and current_country.upper() not in target_prefer_list:

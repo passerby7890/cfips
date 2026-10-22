@@ -156,11 +156,13 @@ def run_redteam_audit() -> bool:
         if len(lines) < 1:
             errors.append(f"[{carrier.upper()}] 輸出 IP 清單為空！")
 
-        # 斷言 3（行數上限 50 行）
+        # 斷言 3（健康飽滿度與行數上限 30~50 行）
         if len(lines) > 50:
             errors.append(f"[斷言 3 失敗] {carrier.upper()} 輸出行數超過 50 行上限 (實際: {len(lines)} 行)！")
+        elif len(lines) < 25:
+            errors.append(f"[斷言 3 失敗] {carrier.upper()} 輸出行數過少 ({len(lines)} < 25 行)，候選池不足！")
         else:
-            print(f"✅ [斷言 3 通過] {carrier.upper()} 輸出總行數合規 ({len(lines)} <= 50 行)")
+            print(f"✅ [斷言 3 通過] {carrier.upper()} 輸出總行數健康飽滿 ({len(lines)} 行, 介於 25~50 行之間)")
 
         country_counts: dict[str, int] = {}
         for idx, line in enumerate(lines, 1):
@@ -179,10 +181,19 @@ def run_redteam_audit() -> bool:
             if country == "CF":
                 errors.append(f"[{carrier.upper()}] 致命錯誤！第 {idx} 行出現 #CF 未識別兜底標籤: {line}")
 
-            # 斷言 1（繞美黑名單零容忍）：output/ct.txt 與 output/cu.txt 中絕對不可出現 104.18~26.* 或 172.67.*
-            if carrier in ("ct", "cu"):
-                if ip.startswith(BANNED_US_PREFIXES):
-                    errors.append(f"[斷言 1 失敗] {carrier.upper()} 第 {idx} 行出現繞美黑名單 IP: {line}")
+        # 斷言 1（大陸探針真機實測背書）：所有輸出節點必須在 best_ips.json 中擁有真實大陸 RTT
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                jdata = json.load(f)
+            c_nodes = jdata.get("carriers", {}).get(carrier, [])
+            c_ip_map = {x["ip"]: x for x in c_nodes}
+            missing_probe_ips = [line.split("#")[0] for line in lines if line.split("#")[0] not in c_ip_map]
+            if missing_probe_ips:
+                errors.append(f"[斷言 1 失敗] {carrier.upper()} 存在未經大陸真機實測之節點: {missing_probe_ips[:3]}")
+            else:
+                print(f"✅ [斷言 1 通過] {carrier.upper()} 全部 {len(lines)} 顆節點 100% 具備大陸境內探針真實 RTT 背書")
+        except Exception as e:
+            errors.append(f"[斷言 1 失敗] 驗證實測資料異常: {e}")
 
         # 斷言 2（拒絕單一假國別刷屏）
         if carrier == "ct":
