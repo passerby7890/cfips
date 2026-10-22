@@ -257,13 +257,8 @@ def select_best_verified_ip(
 
     strat = str(strategy).lower().strip()
     c_carrier = str(carrier).lower().strip()
-    if c_carrier in ("ct", "cu"):
-        us_blacklist_prefixes = (
-            "104.18.", "104.19.", "104.20.", "104.21.", "104.22.",
-            "104.24.", "104.25.", "104.26.", "172.66.", "172.67."
-        )
-    else:  # cm (移動直連香港，不封殺 104.*)
-        us_blacklist_prefixes = ("172.66.",)
+    # v4.2.0: 廢除硬編碼前綴黑名單，嚴格由實測國別標籤 (#US) 與 target_reject_list 進行過濾
+    us_blacklist_prefixes = ()
 
     target_prefer_list = [c.upper() for c in (prefer_countries or ([preferred_country] if preferred_country else []))]
     target_reject_list = [c.upper() for c in (reject_countries or ["US"])]
@@ -287,13 +282,18 @@ def select_best_verified_ip(
                 current_country = tag
                 break
 
-        is_us_detour_ip = current_ip.startswith(us_blacklist_prefixes)
+        is_us_detour_ip = current_ip.startswith(us_blacklist_prefixes) if us_blacklist_prefixes else False
 
         # [Country Mismatch Guard & US Detour Guard (v4.0.0)]
         if is_us_detour_ip or (current_country and current_country.upper() in target_reject_list):
             print(
                 f"    🚫 [繞美黑名單/拒絕國別] Node {node_id} 現任 IP {current_ip} 屬於繞美西網段或 #{current_country}，"
                 f"無條件強制解除黏性並立刻換血為亞太低延遲 IP！"
+            )
+        elif preferred_country and current_country and current_country.upper() != preferred_country.upper():
+            print(
+                f"    ⚠️ [非首選國別換血] Node {node_id} 現任 IP {current_ip} 國別為 #{current_country} "
+                f"(節點指定首選 #{preferred_country.upper()})，解除黏性並升級為首選國別 IP！"
             )
         elif target_prefer_list and current_country and current_country.upper() not in target_prefer_list:
             print(

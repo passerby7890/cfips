@@ -14,6 +14,20 @@
   },
   "nodes": [
     {
+      "node_id": 8,
+      "id": 8,
+      "name": "SG 电信专用-新加坡(3倍)",
+      "carrier": "ct",
+      "table": "ct",
+      "prefer_country": "SG",
+      "prefer_countries": ["SG", "JP", "HK"],
+      "reject_countries": ["US"],
+      "strategy": "top_k_sticky",
+      "top_k": 8,
+      "sticky_minutes": 15,
+      "enable_cn_probe": true
+    },
+    {
       "node_id": 7,
       "id": 7,
       "name": "JP 电信专用-日本(3倍)",
