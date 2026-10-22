@@ -1,41 +1,41 @@
 {
   "version": "v4.2.0",
-  "updated_at": "2026-10-22T14:38:34.751924+00:00",
+  "updated_at": "2026-10-22T15:14:42.375547+00:00",
   "summary": {
-    "total_domains": 19,
-    "healthy": 8,
+    "total_domains": 22,
+    "healthy": 10,
     "degraded": 6,
-    "dead_or_1034": 5
+    "dead_or_1034": 6
   },
   "domains": {
     "cfyx.aliyun.20237737.xyz": {
       "carrier": "ct",
       "total_ips": 18,
       "alive_ips": 8,
-      "error_1034_ips": 1,
-      "timeout_ips": 9,
+      "error_1034_ips": 3,
+      "timeout_ips": 7,
       "alive_rate": "44.4%",
-      "error_1034_rate": "5.6%",
+      "error_1034_rate": "16.7%",
       "status": "DEGRADED"
     },
     "ctsg.cfyx.aliyun.20237737.xyz": {
       "carrier": "ct",
       "total_ips": 20,
       "alive_ips": 8,
-      "error_1034_ips": 1,
-      "timeout_ips": 11,
+      "error_1034_ips": 3,
+      "timeout_ips": 9,
       "alive_rate": "40.0%",
-      "error_1034_rate": "5.0%",
+      "error_1034_rate": "15.0%",
       "status": "DEGRADED"
     },
     "eteaf.cf.3666888.xyz": {
       "carrier": "ct",
       "total_ips": 38,
       "alive_ips": 34,
-      "error_1034_ips": 0,
-      "timeout_ips": 4,
+      "error_1034_ips": 1,
+      "timeout_ips": 3,
       "alive_rate": "89.5%",
-      "error_1034_rate": "0.0%",
+      "error_1034_rate": "2.6%",
       "status": "HEALTHY"
     },
     "cfsaas.080112.xyz": {
@@ -60,21 +60,21 @@
     },
     "www.090902.xyz": {
       "carrier": "ct",
-      "total_ips": 9,
+      "total_ips": 10,
       "alive_ips": 2,
       "error_1034_ips": 0,
-      "timeout_ips": 7,
-      "alive_rate": "22.2%",
+      "timeout_ips": 8,
+      "alive_rate": "20.0%",
       "error_1034_rate": "0.0%",
       "status": "DEGRADED"
     },
     "cf.090227.xyz": {
       "carrier": "ct",
       "total_ips": 66,
-      "alive_ips": 60,
+      "alive_ips": 56,
       "error_1034_ips": 0,
-      "timeout_ips": 6,
-      "alive_rate": "90.9%",
+      "timeout_ips": 10,
+      "alive_rate": "84.8%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
@@ -100,11 +100,11 @@
     },
     "yg8.ygkkk.dpdns.org": {
       "carrier": "ct",
-      "total_ips": 66,
-      "alive_ips": 60,
+      "total_ips": 64,
+      "alive_ips": 56,
       "error_1034_ips": 0,
-      "timeout_ips": 6,
-      "alive_rate": "90.9%",
+      "timeout_ips": 8,
+      "alive_rate": "87.5%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
@@ -130,11 +130,11 @@
     },
     "666.cf.cname.vvhan.com": {
       "carrier": "ct",
-      "total_ips": 68,
-      "alive_ips": 62,
+      "total_ips": 64,
+      "alive_ips": 56,
       "error_1034_ips": 0,
-      "timeout_ips": 6,
-      "alive_rate": "91.2%",
+      "timeout_ips": 8,
+      "alive_rate": "87.5%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
@@ -151,10 +151,10 @@
     "cf.877774.xyz": {
       "carrier": "ct",
       "total_ips": 38,
-      "alive_ips": 36,
+      "alive_ips": 38,
       "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "94.7%",
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
@@ -168,13 +168,43 @@
       "error_1034_rate": "0.0%",
       "status": "DEAD_OR_1034"
     },
+    "www.ntu.edu.sg": {
+      "carrier": "ct",
+      "total_ips": 1,
+      "alive_ips": 0,
+      "error_1034_ips": 0,
+      "timeout_ips": 1,
+      "alive_rate": "0.0%",
+      "error_1034_rate": "0.0%",
+      "status": "DEAD_OR_1034"
+    },
+    "ip.skk.moe": {
+      "carrier": "ct",
+      "total_ips": 15,
+      "alive_ips": 15,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "cdn.aneko.ink": {
+      "carrier": "ct",
+      "total_ips": 6,
+      "alive_ips": 3,
+      "error_1034_ips": 0,
+      "timeout_ips": 3,
+      "alive_rate": "50.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
     "cf.877771.xyz": {
       "carrier": "cu",
-      "total_ips": 16,
+      "total_ips": 15,
       "alive_ips": 7,
       "error_1034_ips": 0,
-      "timeout_ips": 9,
-      "alive_rate": "43.8%",
+      "timeout_ips": 8,
+      "alive_rate": "46.7%",
       "error_1034_rate": "0.0%",
       "status": "DEGRADED"
     },
