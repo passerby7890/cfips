@@ -67,7 +67,10 @@
       { "domain": "666.cf.cname.vvhan.com" },
       { "domain": "bestcf.top" },
       { "domain": "cf.877774.xyz" },
-      { "domain": "freeyx.cloudflare88.eu.org" }
+      { "domain": "freeyx.cloudflare88.eu.org" },
+      { "domain": "www.ntu.edu.sg" },
+      { "domain": "ip.skk.moe" },
+      { "domain": "cdn.aneko.ink" }
     ],
     "cm": [
       { "domain": "cf.godns.cc" },
@@ -81,7 +84,8 @@
       { "domain": "666.cf.cname.vvhan.com" },
       { "domain": "cf.090227.xyz" },
       { "domain": "bestcf.top" },
-      { "domain": "cf.877774.xyz" }
+      { "domain": "cf.877774.xyz" },
+      { "domain": "cdn.aneko.ink" }
     ],
     "cu": [
       { "domain": "www.090902.xyz" },
