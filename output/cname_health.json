@@ -1,6 +1,6 @@
 {
   "version": "v4.2.0",
-  "updated_at": "2026-10-22T15:14:42.375547+00:00",
+  "updated_at": "2026-10-22T17:30:49.423929+00:00",
   "summary": {
     "total_domains": 22,
     "healthy": 10,
@@ -20,22 +20,22 @@
     },
     "ctsg.cfyx.aliyun.20237737.xyz": {
       "carrier": "ct",
-      "total_ips": 20,
-      "alive_ips": 8,
+      "total_ips": 19,
+      "alive_ips": 7,
       "error_1034_ips": 3,
       "timeout_ips": 9,
-      "alive_rate": "40.0%",
-      "error_1034_rate": "15.0%",
+      "alive_rate": "36.8%",
+      "error_1034_rate": "15.8%",
       "status": "DEGRADED"
     },
     "eteaf.cf.3666888.xyz": {
       "carrier": "ct",
       "total_ips": 38,
       "alive_ips": 34,
-      "error_1034_ips": 1,
-      "timeout_ips": 3,
+      "error_1034_ips": 0,
+      "timeout_ips": 4,
       "alive_rate": "89.5%",
-      "error_1034_rate": "2.6%",
+      "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
     "cfsaas.080112.xyz": {
@@ -60,32 +60,32 @@
     },
     "www.090902.xyz": {
       "carrier": "ct",
-      "total_ips": 10,
+      "total_ips": 9,
       "alive_ips": 2,
       "error_1034_ips": 0,
-      "timeout_ips": 8,
-      "alive_rate": "20.0%",
+      "timeout_ips": 7,
+      "alive_rate": "22.2%",
       "error_1034_rate": "0.0%",
       "status": "DEGRADED"
     },
     "cf.090227.xyz": {
       "carrier": "ct",
       "total_ips": 66,
-      "alive_ips": 56,
+      "alive_ips": 60,
       "error_1034_ips": 0,
-      "timeout_ips": 10,
-      "alive_rate": "84.8%",
+      "timeout_ips": 6,
+      "alive_rate": "90.9%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
     "cloudflare.19931110.xyz": {
       "carrier": "ct",
-      "total_ips": 82,
+      "total_ips": 131,
       "alive_ips": 23,
-      "error_1034_ips": 59,
-      "timeout_ips": 0,
-      "alive_rate": "28.0%",
-      "error_1034_rate": "72.0%",
+      "error_1034_ips": 107,
+      "timeout_ips": 1,
+      "alive_rate": "17.6%",
+      "error_1034_rate": "81.7%",
       "status": "DEGRADED"
     },
     "yg12.ygkkk.dpdns.org": {
@@ -100,11 +100,11 @@
     },
     "yg8.ygkkk.dpdns.org": {
       "carrier": "ct",
-      "total_ips": 64,
-      "alive_ips": 56,
+      "total_ips": 66,
+      "alive_ips": 60,
       "error_1034_ips": 0,
-      "timeout_ips": 8,
-      "alive_rate": "87.5%",
+      "timeout_ips": 6,
+      "alive_rate": "90.9%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
@@ -130,11 +130,11 @@
     },
     "666.cf.cname.vvhan.com": {
       "carrier": "ct",
-      "total_ips": 64,
-      "alive_ips": 56,
+      "total_ips": 66,
+      "alive_ips": 60,
       "error_1034_ips": 0,
-      "timeout_ips": 8,
-      "alive_rate": "87.5%",
+      "timeout_ips": 6,
+      "alive_rate": "90.9%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
@@ -151,10 +151,10 @@
     "cf.877774.xyz": {
       "carrier": "ct",
       "total_ips": 38,
-      "alive_ips": 38,
+      "alive_ips": 36,
       "error_1034_ips": 0,
-      "timeout_ips": 0,
-      "alive_rate": "100.0%",
+      "timeout_ips": 2,
+      "alive_rate": "94.7%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
@@ -200,11 +200,11 @@
     },
     "cf.877771.xyz": {
       "carrier": "cu",
-      "total_ips": 15,
+      "total_ips": 16,
       "alive_ips": 7,
       "error_1034_ips": 0,
-      "timeout_ips": 8,
-      "alive_rate": "46.7%",
+      "timeout_ips": 9,
+      "alive_rate": "43.8%",
       "error_1034_rate": "0.0%",
       "status": "DEGRADED"
     },
@@ -220,11 +220,11 @@
     },
     "youxuan.cf.636949.xyz": {
       "carrier": "cm",
-      "total_ips": 10,
+      "total_ips": 12,
       "alive_ips": 10,
       "error_1034_ips": 0,
-      "timeout_ips": 0,
-      "alive_rate": "100.0%",
+      "timeout_ips": 2,
+      "alive_rate": "83.3%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     }
