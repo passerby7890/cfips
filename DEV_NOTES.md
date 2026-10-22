@@ -1,5 +1,21 @@
 # 開發筆記與架構演化歷程 (Development Notes)
 
+## [v3.3.0] 演化實錄 (2026-10-22)
+### 決策官強制修正令：破除 region_mapper 硬編碼死結 + 上游 100% 斬殺 Error 1034 + 下游國別黏性守衛
+- **核心決策與破局突破**：
+  1. **破除硬編碼死結（`src/region_mapper.py`）**：
+     - 先前 `104.*` 與 `172.*` 被硬編碼強制覆蓋為 `#SG`，導致能跑通 101 的標準 CDN 網段永遠無法獲得 `#JP` 標籤，而拿到 `#JP` 標籤的只有 `162.159.*` / `108.162.*` 等 1034 毒段。
+     - 改採優先比對 `APAC_COLO_MAP`，若遇到 Anycast 偏轉，嚴格依照 `data/cname_pool.json` 來源網域標註之 `prefer_region` 繼承國別，徹底釋放日本與亞太標準 Anycast 池。
+  2. **上游源頭淨化（`src/verifier.py`）**：
+     - `/cdn-cgi/trace` 不會觸發 Cloudflare Edge IP Validation (Error 1034)。
+     - 上游直接向 `nodejp.snowcat77.com:2053/ws?ed=2048` 發送真實 WebSocket Upgrade 請求，只有收到 `HTTP/1.1 101 Switching Protocols` 才放行，403 / 1034 / 非 101 當場斬殺淘汰，保證 `output/*.txt` 100% 零 1034。
+  3. **下游國別黏性守衛與自我修復（`v2board_db_sync.py`）**：
+     - 增設 `Country Mismatch Guard`：當現任 IP 為臨時跨區降級狀態（如現任為 `#SG` 但目標為 `#JP`），拒絕黏性鎖定，每輪強制重新尋找正牌 `#JP`，達成自動升回自癒。
+     - 前置過濾黑名單，避免 1034/冷卻 IP 耗盡 15 次測活配額。
+  4. **紅隊驗收硬性斷言（`scripts/self_test_audit.py`）**：
+     - 斷言 A：`output/ct.txt` 中 `#JP` 數量 $\ge 10$ 顆且前 10 行必含 `#JP`。
+     - 斷言 B：抽檢前 5 顆 `#JP` 實機 2053 WebSocket 握手，100% 必須回傳 101，零容忍 Error 1034。
+
 ## [v3.2.0] 演化實錄 (2026-10-22)
 ### 實戰自癒架構：解決五大生產環境真實盲點
 - **架構盲點復盤與工程落實**：

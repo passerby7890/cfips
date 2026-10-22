@@ -265,7 +265,21 @@ def select_best_verified_ip(
         # 檢查現任 IP 在當期池中的排位 (不分落地國與落地國池綜合排位)
         current_rank = next((idx + 1 for idx, (ip, _) in enumerate(ip_list) if ip == current_ip), 999)
 
-        if not is_banned and elapsed_min < sticky_minutes and current_rank <= 15:
+        # 找出 current_ip 在本期清單或快取中的真實國別
+        current_country = node_st.get("country", "")
+        for idx, (ip, tag) in enumerate(ip_list):
+            if ip == current_ip:
+                current_country = tag
+                break
+
+        # [Country Mismatch Guard 國別嚴格比對 (v3.3.0)]
+        # 若現任 IP 處於跨區降級狀態 (例如現任為 #SG 但目標要求 #JP)，拒絕黏性鎖定，強制重新選拔正牌目標國別！
+        if current_ip and preferred_country and current_country and current_country.upper() != preferred_country.upper():
+            print(
+                f"    ⚠️ [國別不符降級態] Node {node_id} 現任 IP {current_ip} 國別為 #{current_country} "
+                f"(目標要求 #{preferred_country})，拒絕黏性保持，強制重新選拔正牌 #{preferred_country}！"
+            )
+        elif not is_banned and elapsed_min < sticky_minutes and current_rank <= 15:
             print(f"    [*] [Top-K 黏性審計] 現任 IP {current_ip} (排名 #{current_rank}, 已服役 {elapsed_min:.1f}/{sticky_minutes} 分鐘) 執行健康複檢...")
             ok, reason, rtt = verify_node_origin_handshake(
                 current_ip,
@@ -304,8 +318,18 @@ def select_best_verified_ip(
     # -------------------------------------------------------------------------
     # 階段 2：【新血候選池過濾與選拔】
     # -------------------------------------------------------------------------
-    primary_candidates = [item for item in ip_list if item[1].upper() == preferred_country.upper()] if preferred_country else list(ip_list)
-    fallback_candidates = [item for item in ip_list if item not in primary_candidates]
+    # (A) 黑名單與撞車前置過濾：在切分 prefer_country 候選池與截取測活名額「之前」，先剔除黑名單與已分配 IP
+    healthy_candidates = [
+        item for item in ip_list
+        if not (state_mgr and state_mgr.is_blacklisted(item[0]))
+        and (used_ips_in_run is None or item[0] not in used_ips_in_run)
+    ]
+    if len(healthy_candidates) < len(ip_list):
+        diff = len(ip_list) - len(healthy_candidates)
+        print(f"    [*] [前置過濾] 已自候選清單預先剔除 {diff} 顆黑名單/冷卻/已佔用 IP (剩餘 {len(healthy_candidates)} 顆可用)")
+
+    primary_candidates = [item for item in healthy_candidates if item[1].upper() == preferred_country.upper()] if preferred_country else list(healthy_candidates)
+    fallback_candidates = [item for item in healthy_candidates if item not in primary_candidates]
 
     def verify_pool(pool: List[Tuple[str, str]], pool_desc: str) -> Optional[Tuple[str, str, str, float]]:
         if not pool:

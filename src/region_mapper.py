@@ -237,54 +237,51 @@ def normalize_country_code(raw: str | None) -> str:
     return ""
 
 
-def resolve_country_tag(item: Dict[str, Any], runner_trace_colo: str = "", carrier: str = "") -> str:
-    """決定最終輸出的 #COUNTRY 標籤，100% 落實實測之三大運營商真實出境路由規則：
+APAC_COLO_MAP: Dict[str, str] = {
+    "NRT": "JP", "KIX": "JP", "FUK": "JP", "OKA": "JP", "NGO": "JP",
+    "HKG": "HK", "MFM": "MO",
+    "TPE": "TW", "KHH": "TW",
+    "SIN": "SG",
+    "ICN": "KR", "PUS": "KR"
+}
 
-    1. 中國電信 (CT):
-       - 新加坡 (SG): 172.*, 173.*, 104.*
-       - 日本 (JP): 162.*, 108.*
-    2. 中國移動 (CM):
-       - 香港 (HK): 104.*, 172.*
-       - 美國 (US): 141.* (如 141.101.121.216)
-    3. 中國聯通 (CU):
-       - 德國 (DE): 188.114.*
-       - 日本 (JP): 162.159.38.*, 108.162.198.*
-       - 美國 (US): 幾乎所有 Anycast (104.*, 172.*, 141.* 等) 皆由 AS4837 跨太平洋走美西直連
+
+def resolve_accurate_country(item: dict, trace_colo: str = "") -> str:
+    """決定最終輸出的精確國家代碼 (v3.3.0 決策官強制修正令)：
+
+    1. 若來源網域配置了明確的 prefer_region (如 JP / HK / SG)，
+       則因 Anycast 效應 (海外 Runner 在美東回傳 IAD/SJC，本地 Runner 回傳 TPE/KHH)，
+       嚴格以 prefer_region 為準，絕不可再被 Runner 所在地的 Colo 誤導覆蓋，更不可硬編碼為 SG！
+    2. 若未配置 prefer_region，優先依實測 trace_colo 映射亞太國別 (NRT/KIX -> JP, SIN -> SG, HKG -> HK 等)。
+    3. 其餘依運營商標準骨幹落地歸屬兜底。
     """
-    ip = str(item.get("ip", "")).strip()
-    target_carrier = (carrier or str(item.get("carrier") or item.get("target_carrier") or "")).lower().strip()
+    prefer_reg = (item.get("prefer_region") or item.get("source_country") or "").strip().upper()
+    colo_upper = (trace_colo or "").strip().upper()
+    colo_country = APAC_COLO_MAP.get(colo_upper, "")
 
-    # 1. 運營商專屬 BGP Anycast 物理路由矩陣查詢
-    if target_carrier in ("ct", "cu", "cm"):
-        matrix_country = lookup_carrier_landing_country(ip, target_carrier)
-        if matrix_country:
-            return matrix_country
+    # 若來源配置了明確目標國家 (如 JP/SG/HK)，且 Colo 不符 (例如海外或本地 Runner Anycast 效應)，優先採用 prefer_region
+    if prefer_reg in ("JP", "HK", "SG", "TW", "KR", "US", "DE", "GB"):
+        if not colo_country or colo_country != prefer_reg:
+            return prefer_reg
+        return colo_country
 
-    # 2. 中國電信 (CT) 規則直通
-    if target_carrier == "ct":
-        if ip.startswith(("172.", "173.", "104.")):
-            return "SG"
-        if ip.startswith(("162.", "108.")):
-            return "JP"
-        return "SG"
+    if colo_country:
+        return colo_country
 
-    # 3. 中國移動 (CM) 規則直通
-    if target_carrier == "cm":
-        if ip.startswith("141."):
-            return "US"
-        if ip.startswith(("104.", "172.")):
-            return "HK"
+    c_carrier = (item.get("carrier") or item.get("target_carrier") or "").lower().strip()
+    if c_carrier == "cm":
         return "HK"
-
-    # 4. 中國聯通 (CU) 規則直通
-    if target_carrier == "cu":
-        if ip.startswith("188.114."):
-            return "DE"
-        if ip.startswith(("162.159.38.", "108.162.198.")):
-            return "JP"
-        # 聯通絕大多數直連美國西海岸
+    elif c_carrier == "cu":
         return "US"
 
-    return "US"
+    return "JP"
+
+
+def resolve_country_tag(item: Dict[str, Any], runner_trace_colo: str = "", carrier: str = "") -> str:
+    """決定最終輸出的 #COUNTRY 標籤 (v3.3.0 破除 104/172 硬編碼死結)"""
+    item_copy = dict(item)
+    if carrier and not item_copy.get("carrier"):
+        item_copy["carrier"] = carrier
+    return resolve_accurate_country(item_copy, trace_colo=runner_trace_colo)
 
 

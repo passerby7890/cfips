@@ -48,15 +48,17 @@ def collect_carrier_candidates_with_domain_map(
 
         for d_info in c_domains:
             domain = d_info["domain"]
+            prefer_reg = (d_info.get("prefer_region") or "").strip().upper()
             if domain not in domain_map:
                 domain_map[domain] = {
                     "carrier": c_code,
                     "ips": set(),
-                    "cn_latency_ms": float(d_info.get("cn_latency_ms", 999.0))
+                    "cn_latency_ms": float(d_info.get("cn_latency_ms", 999.0)),
+                    "prefer_region": prefer_reg
                 }
             extracted = exhaustive_resolve_domain_for_carrier(domain, c_anchors, rounds=2)
             ip_summary = ", ".join([f"{x['ip']}({x['hit_ratio']}%)" for x in extracted[:6]])
-            print(f"    -> [{c_code.upper()}] {domain} 榨出 {len(extracted)} 個唯一 IP: {ip_summary}")
+            print(f"    -> [{c_code.upper()}] {domain} (prefer: {prefer_reg or 'AUTO'}) 榨出 {len(extracted)} 個唯一 IP: {ip_summary}")
 
             for item in extracted:
                 ip = item["ip"]
@@ -65,7 +67,7 @@ def collect_carrier_candidates_with_domain_map(
                 # 電信 (CT) 嚴格遵循落地規則：僅收錄落地為新加坡 (SG) 與日本 (JP) 之節點
                 if c_code == "ct":
                     landing = lookup_carrier_landing_country(ip, c_code)
-                    if landing not in ("JP", "SG"):
+                    if landing not in ("JP", "SG") and prefer_reg not in ("JP", "SG"):
                         continue
 
                 if ip not in direct_map:
@@ -78,6 +80,7 @@ def collect_carrier_candidates_with_domain_map(
                         "speed_mbs": float(d_info.get("speed_mbs", 12.0)),
                         "score": float(d_info.get("score", 90.0)),
                         "hit_ratio": item["hit_ratio"],
+                        "prefer_region": prefer_reg,
                         "is_direct_cname": True
                     }
                 else:
@@ -85,6 +88,8 @@ def collect_carrier_candidates_with_domain_map(
                     direct_map[ip]["hit_ratio"] = round(direct_map[ip]["hit_ratio"] + item["hit_ratio"], 2)
                     if float(d_info["cn_latency_ms"]) < direct_map[ip]["cn_latency_ms"]:
                         direct_map[ip]["cn_latency_ms"] = float(d_info["cn_latency_ms"])
+                    if prefer_reg and not direct_map[ip].get("prefer_region"):
+                        direct_map[ip]["prefer_region"] = prefer_reg
 
         # 按：1. 國內實測延遲由低到高；2. 跨省解析命中率 (hit_ratio) 由高到低；3. 評分由高到低
         direct_list = sorted(

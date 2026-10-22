@@ -1,5 +1,20 @@
 # 更新紀錄 (Changelog)
 
+## [v3.3.0] - 2026-10-22
+### fix!: 破除 region_mapper 硬編碼 #SG 死結，上游強制以 nodejp:2053 斬殺 Error 1034，下游增設國別黏性守衛
+- 1. **破除 `src/region_mapper.py` 硬編碼死結**：
+  - 廢除原先將所有 `104.*` 與 `172.*` 全部強制標註為 `#SG` 的錯誤規則，改採實測亞太機房代碼 (`NRT/KIX` $\to$ `#JP`、`HKG` $\to$ `#HK`、`SIN` $\to$ `#SG`、`TPE` $\to$ `#TW`)。
+  - 當遇到海外或本地 Runner Anycast 偏轉時，嚴格繼承 `data/cname_pool.json` 中來源網域標註之 `prefer_region`（如 `JP`, `SG`, `HK`），使能通 101 的標準 CDN 網段 (`104.16~26.*`, `172.64~67.*`) 正確獲得 `#JP` 標籤並榮登前列。
+- 2. **上游 `src/verifier.py` 100% 斬殺 Error 1034 與非 101 毒 IP**：
+  - 放棄無效的 `/cdn-cgi/trace` 測活，全面改為向 `nodejp.snowcat77.com:2053/ws?ed=2048` 發起真實 WebSocket Upgrade 請求。
+  - 只有收到 `HTTP/1.1 101 Switching Protocols` 才判定通過，凡遇 `HTTP 403`、`Error 1034` 或非 101 狀態碼直接於上游拋棄，徹底杜絕 1034 毒 IP 流入 `output/*.txt`。
+- 3. **下游 `v2board_db_sync.py` 實裝「國別黏性守衛 (Country Mismatch Guard)」與黑名單前置過濾**：
+  - 審查現任 IP 時，嚴格比對 `current_country == prefer_country`。若現任 IP 為跨區臨時降級狀態 (例如現任為 `#SG` 但目標要求 `#JP`)，主動印出警示並拒絕黏性鎖定，強制觸發換血升回正牌 `#JP`！
+  - 在劃分偏好國別候選池前，預先剔除 `state_cache.json` 黑名單與冷卻名單，確保測活配額 100% 留給健康候選 IP。
+- 4. **紅隊驗收雙硬性斷言 (`scripts/self_test_audit.py`)**：
+  - 斷言 A：`output/ct.txt` 中 `#JP` 數量必須 $\ge 10$ 顆且前 10 行必須出現 `#JP`。
+  - 斷言 B：抽取前 5 顆 `#JP` IP 實測 2053 WebSocket 握手，100% 必須回傳 101，零容忍 Error 1034。
+
 ## [v3.2.0] - 2026-10-22
 ### feat: 升級實戰自癒引擎 (Top-K 黏性調度 + 1034/GFW 記憶冷卻庫 + Globalping 國內真機防牆驗證 + 跨節點防撞車鎖)
 - 1. **下游 `v2board_syncer` 廢除盲抽，全面實裝 `top_k_sticky` 與 `top_k_random`**：
