@@ -166,7 +166,7 @@ def verify_node_origin_handshake(
     sni: str = "",
     host_header: str = "",
     ws_path: str = "/ws?ed=2048",
-    timeout: float = 2.5
+    timeout: float = 4.0
 ) -> Tuple[bool, str, float]:
     """針對節點特定配置進行端到端回源驗證
     回傳: (is_valid, reason, rtt_ms)
