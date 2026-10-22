@@ -89,88 +89,31 @@ async def run_pipeline():
                 merged["country"] = c_tag
                 verified_carrier_ips.append(merged)
 
-        # 排序規則：1. CNAME 原生解析優先；2. 各省命中次數越多越好；3. 延遲越低越好
+        # 排序規則：1. 國內實測延遲由低到高；2. 跨省解析命中率 (hit_ratio) 由高到低；3. 評分由高到低
         verified_carrier_ips.sort(
             key=lambda x: (
-                0 if x.get("is_direct_cname") else 1,
-                -x.get("hit_count", 1),
-                x.get("cn_latency_ms", 999.0)
+                x.get("cn_latency_ms", 999.0),
+                -x.get("hit_ratio", 0.0),
+                -x.get("score", 0.0)
             )
         )
 
-        # 若該網候選不足 50 個，從其餘未被牆之健康 IP 補充 (聯通除外，聯通嚴格僅收錄 www.090902.xyz A 紀錄解析)
-        if c_code != "cu" and len(verified_carrier_ips) < 50:
-            for ip, v_data in alive_map.items():
-                if ip not in seen_ips:
-                    c_tag = resolve_country_tag(v_data, carrier=c_code)
-                    if c_code == "ct" and c_tag not in ("JP", "SG"):
-                        continue
-                    seen_ips.add(ip)
-                    merged = dict(v_data)
-                    merged["cn_latency_ms"] = float(v_data.get("cn_latency_ms", 99.0))
-                    merged["score"] = float(v_data.get("score", 85.0))
-                    merged["colo"] = v_data.get("colo", "")
-                    merged["country"] = c_tag
-                    verified_carrier_ips.append(merged)
-                if len(verified_carrier_ips) >= 50:
-                    break
-
-        # 實施「特色 5：同 C 段分散 (抗 QoS)」防護：同一個 /24 網段最多只收錄 3 個 IP
-        subnet_counts = {}
-        filtered_top50 = []
-        for item in verified_carrier_ips:
-            if c_code == "ct" and item.get("country") not in ("JP", "SG"):
-                continue
-            subnet = ".".join(item["ip"].split(".")[:3]) + ".0/24"
-            if subnet_counts.get(subnet, 0) < 3:
-                subnet_counts[subnet] = subnet_counts.get(subnet, 0) + 1
-                filtered_top50.append(item)
-            if len(filtered_top50) >= 50:
-                break
-
-        # 若經嚴格 /24 限制後候選不足 50 個，從候補中放寬至最多 5 個補齊，確保線路充足
-        if len(filtered_top50) < 50:
-            for item in verified_carrier_ips:
-                if item not in filtered_top50:
-                    if c_code == "ct" and item.get("country") not in ("JP", "SG"):
-                        continue
-                    subnet = ".".join(item["ip"].split(".")[:3]) + ".0/24"
-                    if subnet_counts.get(subnet, 0) < 5:
-                        subnet_counts[subnet] = subnet_counts.get(subnet, 0) + 1
-                        filtered_top50.append(item)
-                if len(filtered_top50) >= 50:
-                    break
-
-        # 若仍不足 50 筆，無限制放寬同段限制補齊至 50 筆
-        if len(filtered_top50) < 50:
-            for item in verified_carrier_ips:
-                if item not in filtered_top50:
-                    if c_code == "ct" and item.get("country") not in ("JP", "SG"):
-                        continue
-                    filtered_top50.append(item)
-                if len(filtered_top50) >= 50:
-                    break
-
-        # 聯通 (CU) 依指令嚴格輸出 www.090902.xyz 解析之原生 A 紀錄
-        if c_code == "cu":
-            final_top50 = verified_carrier_ips
-        else:
-            final_top50 = filtered_top50
+        # 依用戶指示：只針對 DNS 萃取出來的優選 IP 做紀錄，標示位置並排序，不做延伸與強行補位
+        final_list = verified_carrier_ips
         out_path = out_dir / f"{c_code}.txt"
 
-        if final_top50:
+        if final_list:
             with open(out_path, "w", encoding="utf-8") as f:
-                for item in final_top50:
+                for item in final_list:
                     f.write(f"{item['ip']}#{item['country']}\n")
-            direct_cnt = sum(1 for x in final_top50 if x.get("is_direct_cname"))
             print(
-                f"✅ [{c_code.upper()}] 成功寫入 {len(final_top50)} 筆優選 IP 至 {out_path.name} "
-                f"(含 CNAME 原生 IP {direct_cnt} 筆，已實施 /24 網段分散與 carrier 專屬國家判定)"
+                f"✅ [{c_code.upper()}] 成功寫入 {len(final_list)} 筆純 DNS 萃取優選 IP 至 {out_path.name} "
+                f"(純淨無延伸，已依延遲與權重排序並標註落地國家)"
             )
         else:
             print(f"⚠️ [{c_code.upper()}] 當次無測活通過節點，保留既有 {out_path.name} 快照！")
 
-        summary_json["carriers"][c_code] = final_top50
+        summary_json["carriers"][c_code] = final_list
 
     # 輸出結構化 JSON 總表
     best_json_path = out_dir / "best_ips.json"

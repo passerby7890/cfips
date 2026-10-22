@@ -83,70 +83,7 @@ def collect_carrier_candidates(
             key=lambda x: (x["cn_latency_ms"], -x["hit_ratio"], -x["score"])
         )
 
-        # 若該網為聯通 (CU)，依用戶指示嚴格僅獲取 www.090902.xyz A 紀錄解析，不進行鄰居擴充與外部矩陣補充
-        if c_code == "cu":
-            carrier_results[c_code] = direct_list
-            continue
-
-        # 若該網所有 CNAME 榨出的唯一 IP 總數不足 75 個，從排名前茅的黃金 /24 補齊少量鄰居
-        neighbor_list = []
-        seen_all = set(direct_map.keys())
-        for item in direct_list:
-            if len(direct_list) + len(neighbor_list) >= 75:
-                break
-            try:
-                net = ipaddress.IPv4Network(f"{item['ip']}/24", strict=False)
-                for h_idx in random.sample(range(2, 253), 2):
-                    n_ip = str(net[h_idx])
-                    if n_ip not in seen_all:
-                        if c_code == "ct":
-                            n_landing = lookup_carrier_landing_country(n_ip, c_code)
-                            if n_landing not in ("JP", "SG"):
-                                continue
-                        seen_all.add(n_ip)
-                        neighbor_list.append({
-                            "ip": n_ip,
-                            "domain": f"{item['domain']}(/24同段)",
-                            "carrier": c_code,
-                            "target_carrier": c_code,
-                            "cn_latency_ms": round(item["cn_latency_ms"] + 2.0, 1),
-                            "speed_mbs": item["speed_mbs"],
-                            "score": item["score"] - 1.0,
-                            "hit_ratio": 1.0,
-                            "is_direct_cname": False
-                        })
-            except Exception:
-                continue
-
-        # 從 carrier_landing_matrix.json 的專屬網段精選補充多樣化子網 (確保 50 筆名額充足且高分散)
-        matrix_seeds = []
-        if c_code in ("ct", "cm"):
-            c_rules = carrier_landing_cfg.get(c_code, {}).get("landing_rules", {})
-            for ctry, cidrs in c_rules.items():
-                for cidr in cidrs:
-                    if len(direct_list) + len(neighbor_list) + len(matrix_seeds) >= 120:
-                        break
-                    try:
-                        c_net = ipaddress.ip_network(cidr.strip(), strict=False)
-                        sub_net = list(c_net.subnets(new_prefix=24))[0] if c_net.prefixlen < 24 else c_net
-                        for host_idx in [12, 28, 46]:
-                            m_ip = str(sub_net[host_idx])
-                            if m_ip not in seen_all:
-                                seen_all.add(m_ip)
-                                matrix_seeds.append({
-                                    "ip": m_ip,
-                                    "domain": f"matrix.{ctry.lower()}.cloudflare",
-                                    "carrier": c_code,
-                                    "target_carrier": c_code,
-                                    "cn_latency_ms": 45.0 if ctry in ("HK", "JP", "SG") else 145.0,
-                                    "speed_mbs": 13.0,
-                                    "score": 92.0,
-                                    "hit_ratio": 1.0,
-                                    "is_direct_cname": False
-                                })
-                    except Exception:
-                        continue
-
-        carrier_results[c_code] = direct_list + neighbor_list + matrix_seeds
+        # 依用戶指示：只針對 DNS 萃取出來的優選 IP 做紀錄並排序，不做任何延伸 (不補鄰居、不補外部矩陣)
+        carrier_results[c_code] = direct_list
 
     return carrier_results
