@@ -253,36 +253,47 @@ US_COLOS = {
 
 
 def resolve_accurate_country(item: dict, trace_colo: str = "") -> str:
-    """決定最終輸出的精確國家代碼 (v4.0.0 杜絕假 JP/假 SG，誠實反映大陸實測機房)："""
+    """決定最終輸出的精確國家代碼 (v4.1.0 依據運營商 BGP 落地與真實實測，嚴禁海外 Runner 覆蓋)"""
     # 1. 若已經有大陸真機探針實測出的 country，直接採用！
     if item.get("real_cn_country"):
         return item["real_cn_country"]
 
-    colo_upper = (trace_colo or "").strip().upper()
-    if colo_upper in US_COLOS:
-        return "US"
-
-    colo_country = APAC_COLO_MAP.get(colo_upper, "")
-    if colo_country:
-        return colo_country
-
-    c = COLO_COUNTRY_MAP.get(colo_upper, "")
-    if c:
-        return c
-
     ip = str(item.get("ip", "")).strip()
-    if ip.startswith(("172.64.14", "172.64.15", "172.64.32", "172.64.52", "172.64.53")):
-        c_carrier = (item.get("carrier") or item.get("target_carrier") or "").lower().strip()
-        return "SG" if c_carrier == "ct" else "HK"
-
-    # 若屬繞美前綴，誠實標記為 US
-    if ip.startswith(("104.18.", "104.19.", "104.20.", "104.21.", "104.22.", "104.24.", "104.25.", "104.26.", "172.66.", "172.67.")):
-        return "US"
-
     c_carrier = (item.get("carrier") or item.get("target_carrier") or "").lower().strip()
+
+    # 2. 依據該運營商專屬真實物理落地矩陣 (carrier_landing_matrix.json)
+    if c_carrier:
+        matrix_country = lookup_carrier_landing_country(ip, c_carrier)
+        if matrix_country:
+            return matrix_country
+
+    # 3. 境內 Colo 代碼比對 (若有境內實測提供的 source_colo)
+    colo_upper = (item.get("source_colo") or "").strip().upper()
+    if colo_upper:
+        if colo_upper in US_COLOS:
+            return "US"
+        c = APAC_COLO_MAP.get(colo_upper) or COLO_COUNTRY_MAP.get(colo_upper)
+        if c:
+            return c
+
+    # 4. 運營商特性兜底：
     if c_carrier == "cm":
-        return "HK"
+        return "HK"  # 移動 CMI 出口 95%+ 落地香港
+    elif c_carrier == "ct":
+        if ip.startswith(("172.64.14", "172.64.15", "108.162.19", "108.162.20")):
+            return "SG"
+        elif ip.startswith(("162.159.38", "162.159.39")):
+            return "JP"
+        elif ip.startswith(("162.159.44", "162.159.45")):
+            return "HK"
+        elif ip.startswith(("172.64.52", "172.64.53")):
+            return "TW"
+        return "US"
     elif c_carrier == "cu":
+        if ip.startswith(("162.159.38", "108.162.198")):
+            return "JP"
+        elif ip.startswith(("188.114.96",)):
+            return "DE"
         return "US"
 
     return "SG"

@@ -53,17 +53,20 @@ async def run_pipeline():
     pool_path = str(PROJECT_ROOT / "data" / "cname_pool.json")
     carrier_pools, domain_map = collect_carrier_candidates_with_domain_map(pool_path)
 
-    # 階段 1：收集 CNAME 解析 IP（僅排除私有保留無效 IP，所有公網 Anycast IP 均納入測活）
+    # 階段 1：收集完 CNAME 解析出 IP 後，先用 is_blacklisted_us_range() 砍掉所有繞美西網段！
     unique_candidates = {}
+    filtered_us_cnt = 0
     for c_code, items in carrier_pools.items():
         for item in items:
             ip = item["ip"]
             if is_blacklisted_us_range(ip, c_code):
+                filtered_us_cnt += 1
                 continue
             if ip not in unique_candidates or (item.get("is_direct_cname") and not unique_candidates[ip].get("is_direct_cname")):
                 unique_candidates[ip] = item
 
-    print(f"[*] 階段 1 完成：共萃取 {len(unique_candidates)} 個唯一公網候選 IP，開始執行 2053 WebSocket 101 回源測活 (100% 斬殺 Error 1034)...")
+    print(f"[*] 階段 1 完成：已硬性攔截剔除 {filtered_us_cnt} 顆 104.18~26 / 172.67 繞美西前綴 IP！")
+    print(f"[*] 共剩餘 {len(unique_candidates)} 個唯一候選 IP，開始執行 2053 WebSocket 101 回源測活 (100% 斬殺 Error 1034)...")
 
     # 階段 2：2053 端口 WebSocket 101 握手測活（砍掉所有 Error 1034 與非 101 節點）
     alive_list, all_results = await batch_verify_with_health_stats(list(unique_candidates.values()), concurrency=35)
@@ -163,19 +166,21 @@ async def run_pipeline():
                 it["real_cn_loss"] = real_loss
                 it["cn_latency_ms"] = real_ms
 
-        # 階段 4：過濾與自適應選拔 (v4.1.0 大陸真機實測淘汰與 40~50 顆飽滿排程)
-        healthy_candidates = [
-            it for it in carrier_candidates
-            if it.get("real_cn_loss", 0.0) < 50.0 and it.get("real_cn_ms", 999.0) < 500.0
-        ]
-
-        # 優先篩選出真機實測為亞太直連低延遲節點 (<= 115ms 且非 #US)
+        # 階段 4：過濾與排序
+        # 剔除所有判定為 #US 或實測延遲 > 115ms 的繞美節點
         apac_nodes = [
-            it for it in healthy_candidates
+            it for it in carrier_candidates
             if it.get("country") not in ("US", "UNKNOWN", "CF") and it.get("real_cn_ms", 999.0) <= 115.0
         ]
 
-        apac_nodes.sort(
+        if len(apac_nodes) >= 10:
+            usable_nodes = apac_nodes
+        else:
+            print(f"    ⚠️ [{c_code.upper()}] 亞太直連低延遲節點少於 10 顆 ({len(apac_nodes)} 顆)，允許備援節點排在最末尾")
+            usable_nodes = apac_nodes + [it for it in carrier_candidates if it not in apac_nodes]
+
+        # 嚴格按 real_cn_ms 由低到高排序
+        usable_nodes.sort(
             key=lambda x: (
                 x.get("real_cn_ms", 999.0),
                 -x.get("hit_ratio", 0.0),
@@ -183,60 +188,16 @@ async def run_pipeline():
             )
         )
 
-        non_apac_nodes = [it for it in healthy_candidates if it not in apac_nodes]
-        non_apac_nodes.sort(
-            key=lambda x: (
-                x.get("real_cn_ms", 999.0),
-                -x.get("hit_ratio", 0.0),
-                -x.get("score", 0.0)
-            )
-        )
-
+        # 同 /24 網段最多取 3 顆，總數最多取 50 顆
         final_list = []
         subnet_tracker: dict[str, int] = {}
-
-        # 第一輪：優先由亞太直連低延遲節點選拔，同 /24 網段先取最多 4 顆
-        for it in apac_nodes:
+        for it in usable_nodes:
             sub = get_subnet_24(it["ip"])
-            if subnet_tracker.get(sub, 0) < 4:
+            if subnet_tracker.get(sub, 0) < 3:
                 final_list.append(it)
                 subnet_tracker[sub] = subnet_tracker.get(sub, 0) + 1
             if len(final_list) >= 50:
                 break
-
-        # 第二輪：若亞太直連尚未達 45 筆，適度放寬同 /24 網段至最多 8 顆
-        if len(final_list) < 45:
-            for it in apac_nodes:
-                if it in final_list:
-                    continue
-                sub = get_subnet_24(it["ip"])
-                if subnet_tracker.get(sub, 0) < 8:
-                    final_list.append(it)
-                    subnet_tracker[sub] = subnet_tracker.get(sub, 0) + 1
-                if len(final_list) >= 50:
-                    break
-
-        # 第三輪：若總數仍未達 40 筆，允許其餘測活通過之健康節點依大陸實測延遲由低到高在後方遞補 (最多 8 顆/網段)
-        if len(final_list) < 40:
-            print(f"    ⚠️ [{c_code.upper()}] 亞太直連低延遲節點不足 40 顆 (當前 {len(final_list)} 顆)，由實測合格備援節點遞補至充沛容量")
-            for it in non_apac_nodes:
-                if it in final_list:
-                    continue
-                sub = get_subnet_24(it["ip"])
-                if subnet_tracker.get(sub, 0) < 8:
-                    final_list.append(it)
-                    subnet_tracker[sub] = subnet_tracker.get(sub, 0) + 1
-                if len(final_list) >= 50:
-                    break
-
-        # 最終全體清單再次嚴格按 real_cn_ms 由低到高排序
-        final_list.sort(
-            key=lambda x: (
-                x.get("real_cn_ms", 999.0),
-                -x.get("hit_ratio", 0.0),
-                -x.get("score", 0.0)
-            )
-        )
 
         out_path = out_dir / f"{c_code}.txt"
         if final_list:
@@ -251,7 +212,6 @@ async def run_pipeline():
             print(f"⚠️ [{c_code.upper()}] 無測活合格節點，保留既有 {out_path.name}！")
 
         summary_json["carriers"][c_code] = final_list
-
 
     best_json_path = out_dir / "best_ips.json"
     with open(best_json_path, "w", encoding="utf-8") as f:

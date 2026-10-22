@@ -64,7 +64,7 @@ def collect_carrier_candidates_with_domain_map(
                 ip = item["ip"]
                 domain_map[domain]["ips"].add(ip)
 
-                # 過濾私有/無效 IP（所有公網 Anycast IP 均保留並交由真機探針以真實 RTT 淘汰）
+                # 焊死電信/聯通/移動繞美黑名單 (104.18~26.*, 172.67.* 等)
                 from src.cn_real_tester import is_blacklisted_us_range
                 if is_blacklisted_us_range(ip, c_code):
                     continue

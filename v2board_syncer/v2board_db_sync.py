@@ -241,10 +241,11 @@ def select_best_verified_ip(
     sticky_minutes: int = 15,
     enable_cn_probe: bool = True,
     state_mgr: Optional[StateManager] = None,
-    used_ips_in_run: Optional[set] = None
+    used_ips_in_run: Optional[set] = None,
+    carrier: str = ""
 ) -> Optional[Tuple[str, str, str, float]]:
-    """全方位實戰自癒回源測活篩選 (v4.0.0 防繞美西與亞太優先版)：
-      1. 【防繞美西與拒絕國別立即換血】：凡現任為 104.18~26.*、172.67.* 或 #US，無條件強制換血！
+    """全方位實戰自癒回源測活篩選 (v4.1.0 防繞美西與亞太優先版)：
+      1. 【防繞美西與拒絕國別立即換血】：凡現任為電信/聯通繞美網段或 #US，無條件強制換血！(注意：移動 CMI 104.* 直連香港，不予誤殺)
       2. 【Top-K 黏性調度 (top_k_sticky)】：若現任 IP 仍健康且符合亞太偏好國別，維持不動。
       3. 【0ms 記憶庫跳過 (state_cache)】：自動過濾 24h 1034 黑名單與 2h 超時/被牆冷卻 IP。
       4. 【跨節點防撞車鎖 (used_ips_in_run)】：跳過本輪已分配給其他節點的 IP。
@@ -255,10 +256,15 @@ def select_best_verified_ip(
         return None
 
     strat = str(strategy).lower().strip()
-    us_blacklist_prefixes = (
-        "104.18.", "104.19.", "104.20.", "104.21.", "104.22.",
-        "104.24.", "104.25.", "104.26.", "172.66.", "172.67."
-    )
+    c_carrier = str(carrier).lower().strip()
+    if c_carrier in ("ct", "cu"):
+        us_blacklist_prefixes = (
+            "104.18.", "104.19.", "104.20.", "104.21.", "104.22.",
+            "104.24.", "104.25.", "104.26.", "172.66.", "172.67."
+        )
+    else:  # cm (移動直連香港，不封殺 104.*)
+        us_blacklist_prefixes = ("172.66.",)
+
     target_prefer_list = [c.upper() for c in (prefer_countries or ([preferred_country] if preferred_country else []))]
     target_reject_list = [c.upper() for c in (reject_countries or ["US"])]
 
@@ -281,12 +287,12 @@ def select_best_verified_ip(
                 current_country = tag
                 break
 
-        is_us_detour_ip = (current_country.upper() == "US") if current_country else False
+        is_us_detour_ip = current_ip.startswith(us_blacklist_prefixes)
 
-        # [Country Mismatch Guard & US Detour Guard (v4.1.0)]
+        # [Country Mismatch Guard & US Detour Guard (v4.0.0)]
         if is_us_detour_ip or (current_country and current_country.upper() in target_reject_list):
             print(
-                f"    🚫 [繞美黑名單/拒絕國別] Node {node_id} 現任 IP {current_ip} 屬於實測繞美西 (#{current_country})，"
+                f"    🚫 [繞美黑名單/拒絕國別] Node {node_id} 現任 IP {current_ip} 屬於繞美西網段或 #{current_country}，"
                 f"無條件強制解除黏性並立刻換血為亞太低延遲 IP！"
             )
         elif target_prefer_list and current_country and current_country.upper() not in target_prefer_list:
@@ -640,7 +646,8 @@ def perform_db_sync(
             sticky_minutes=sticky_minutes,
             enable_cn_probe=enable_cn_probe,
             state_mgr=state_mgr,
-            used_ips_in_run=used_ips_in_run
+            used_ips_in_run=used_ips_in_run,
+            carrier=carrier
         )
         if not best_choice:
             print(f"    - ❌ [安全警報] 表 [{t_name.upper()}] 中所有候選 IP 經測活均未通過！")

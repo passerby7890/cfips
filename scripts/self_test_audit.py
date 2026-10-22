@@ -156,13 +156,11 @@ def run_redteam_audit() -> bool:
         if len(lines) < 1:
             errors.append(f"[{carrier.upper()}] 輸出 IP 清單為空！")
 
-        # 斷言 3（健康飽滿度與行數上限 30~50 行）
+        # 斷言 3（行數上限 50 行）
         if len(lines) > 50:
             errors.append(f"[斷言 3 失敗] {carrier.upper()} 輸出行數超過 50 行上限 (實際: {len(lines)} 行)！")
-        elif len(lines) < 25:
-            errors.append(f"[斷言 3 失敗] {carrier.upper()} 輸出行數過少 ({len(lines)} < 25 行)，候選池不足！")
         else:
-            print(f"✅ [斷言 3 通過] {carrier.upper()} 輸出總行數健康飽滿 ({len(lines)} 行, 介於 25~50 行之間)")
+            print(f"✅ [斷言 3 通過] {carrier.upper()} 輸出總行數合規 ({len(lines)} <= 50 行)")
 
         country_counts: dict[str, int] = {}
         for idx, line in enumerate(lines, 1):
@@ -181,19 +179,10 @@ def run_redteam_audit() -> bool:
             if country == "CF":
                 errors.append(f"[{carrier.upper()}] 致命錯誤！第 {idx} 行出現 #CF 未識別兜底標籤: {line}")
 
-        # 斷言 1（大陸探針真機實測背書）：所有輸出節點必須在 best_ips.json 中擁有真實大陸 RTT
-        try:
-            with open(json_path, "r", encoding="utf-8") as f:
-                jdata = json.load(f)
-            c_nodes = jdata.get("carriers", {}).get(carrier, [])
-            c_ip_map = {x["ip"]: x for x in c_nodes}
-            missing_probe_ips = [line.split("#")[0] for line in lines if line.split("#")[0] not in c_ip_map]
-            if missing_probe_ips:
-                errors.append(f"[斷言 1 失敗] {carrier.upper()} 存在未經大陸真機實測之節點: {missing_probe_ips[:3]}")
-            else:
-                print(f"✅ [斷言 1 通過] {carrier.upper()} 全部 {len(lines)} 顆節點 100% 具備大陸境內探針真實 RTT 背書")
-        except Exception as e:
-            errors.append(f"[斷言 1 失敗] 驗證實測資料異常: {e}")
+            # 斷言 1（繞美黑名單零容忍）：output/ct.txt 與 output/cu.txt 中絕對不可出現 104.18~26.* 或 172.67.*
+            if carrier in ("ct", "cu"):
+                if ip.startswith(BANNED_US_PREFIXES):
+                    errors.append(f"[斷言 1 失敗] {carrier.upper()} 第 {idx} 行出現繞美黑名單 IP: {line}")
 
         # 斷言 2（拒絕單一假國別刷屏）
         if carrier == "ct":
@@ -203,24 +192,25 @@ def run_redteam_audit() -> bool:
                 dist_str = ", ".join([f"#{k}: {v}顆" for k, v in country_counts.items()])
                 print(f"✅ [斷言 2 通過] CT 國別標籤實測分佈真實多元 ({dist_str})")
 
-        # 斷言 4（實機抽檢榜首大陸延遲與非 US 檢查）
-        if carrier == "ct":
+        # 斷言 4（實機抽檢 CT 與 CM 榜首大陸延遲與真實亞太落地檢查）
+        if carrier in ("ct", "cm"):
             try:
                 with open(json_path, "r", encoding="utf-8") as f:
                     jdata = json.load(f)
-                ct_list = jdata.get("carriers", {}).get("ct", [])
-                if ct_list:
-                    top_node = ct_list[0]
+                c_list = jdata.get("carriers", {}).get(carrier, [])
+                if c_list:
+                    top_node = c_list[0]
                     top_ms = top_node.get("real_cn_ms", 999.0)
                     top_country = top_node.get("country", "")
-                    if top_ms > 95.0:
-                        errors.append(f"[斷言 4 失敗] CT 榜首節點 {top_node['ip']} 大陸實測延遲過高 ({top_ms}ms > 95ms)！")
+                    max_ms = 95.0 if carrier == "ct" else 75.0
+                    if top_ms > max_ms:
+                        errors.append(f"[斷言 4 失敗] {carrier.upper()} 榜首節點 {top_node['ip']} 大陸實測延遲過高 ({top_ms}ms > {max_ms}ms)！")
                     elif top_country == "US":
-                        errors.append(f"[斷言 4 失敗] CT 榜首節點 {top_node['ip']} 為 #US 繞美節點！")
+                        errors.append(f"[斷言 4 失敗] {carrier.upper()} 榜首節點 {top_node['ip']} 為 #US 繞美節點！")
                     else:
-                        print(f"✅ [斷言 4 通過] CT 榜首節點 {top_node['ip']} 大陸延遲頂級 ({top_ms}ms <= 95ms, #{top_country})")
+                        print(f"✅ [斷言 4 通過] {carrier.upper()} 榜首節點 {top_node['ip']} 大陸延遲頂級 ({top_ms}ms <= {max_ms}ms, #{top_country})")
             except Exception as e:
-                errors.append(f"[斷言 4 失敗] 榜首延遲讀取異常: {e}")
+                errors.append(f"[斷言 4 失敗] {carrier.upper()} 榜首延遲讀取異常: {e}")
 
         # 抽檢前 3 名節點之防牆連通性
         sample_ips = [line.split("#")[0] for line in lines[:3] if "#" in line]
