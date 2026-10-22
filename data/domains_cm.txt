@@ -1,8 +1,13 @@
 # =====================================================================
-# 中國移動 (CM) VPS789 專屬優選 CNAME 域名清單
-# 來源：VPS789 實時監控榜單 (移動延遲 2-80ms / 丟包率 <= 3%)
+# 中國移動 (CM) 專屬優選 CNAME 域名清單
 # =====================================================================
-cf.godns.cc
+www.asda.com
 www.shopify.com
-dash.cloudflare.com
-1749991941.bilibiliapp.cn
+openai.com
+yg8.ygkkk.dpdns.org
+www.udacity.com
+7.cf.3666888.xyz
+cf.legspcpd.top
+www.carousell.sg
+cfvip.cf.3666888.xyz
+cf.92555.xyz

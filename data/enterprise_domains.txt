@@ -1,26 +1,37 @@
 # =====================================================================
-# VPS789 三網專屬優選 CNAME 域名清單 (24H 實時監控榜單)
+# 三網專屬優選 CNAME 域名清單 (24H 實時監控榜單)
 # =====================================================================
 
-# --- 中國電信 (CT) 專屬優選域名 (延遲 2-80ms / 丟包率 <= 2%) ---
-cf.godns.cc:443#電信優選 | godns (55ms/0%丟包)
-cfsaas.080112.xyz:443#電信優選 | cfsaas (60ms/0%丟包)
-cfyx.aliyun.20237737.xyz:443#電信優選 | 阿里雲優選 (56ms/0%丟包)
-cloudflare.19931110.xyz:443#電信優選 | 19931110 (61ms/0%丟包)
-cf.3666888.xyz:443#電信優選 | 3666888 (57ms/0%丟包)
-china-mobile.cname.cloudflare.468123.xyz:468123#電信優選 | cnae (71ms/0%丟包)
-cf-cname.xingpingcn.top:443#電信優選 | xingpingcn (57ms/0%丟包)
+# --- 中國電信 (CT) 專屬優選域名 ---
+www.asda.com:443#電信優選 | ASDA (32ms/0%丟包)
+www.shopify.com:443#電信優選 | Shopify (35ms/0%丟包)
+openai.com:443#電信優選 | OpenAI (36ms/0%丟包)
+www.broadcom.com:443#電信優選 | Broadcom (38ms/0%丟包)
+onetrust.com:443#電信優選 | OneTrust (40ms/0%丟包)
+www.zendesk.com:443#電信優選 | Zendesk (42ms/0%丟包)
+cf.godns.cc:443#電信優選 | GoDNS (45ms/0%丟包)
+www.carousell.sg:443#電信優選 | 旋轉拍賣 (48ms/0%丟包)
+cfvip.cf.3666888.xyz:443#電信優選 | 3666888 VIP (50ms/0%丟包)
+www.oopt.eu.cc:443#電信優選 | OOPT (52ms/0%丟包)
+cf.92555.xyz:443#電信優選 | 92555 (55ms/0%丟包)
 fn.130519.xyz:443#電信優選 | fn130519 (58ms/0%丟包)
-cf.130519.xyz:443#電信優選 | cf130519 (58ms/0%丟包)
-cmcc.vvvv.ee:443#電信優選 | cmcc.vvvv (56ms/0.2%丟包)
+cfsaas.080112.xyz:443#電信優選 | cfsaas (60ms/0%丟包)
 
-# --- 中國移動 (CM) 專屬優選域名 (延遲 2-80ms / 丟包率 <= 3%) ---
-cf.godns.cc:443#移動優選 | godns (71ms/1.99%丟包)
-www.shopify.com:443#移動優選 | shopify (68ms/2.81%丟包)
-dash.cloudflare.com:443#移動優選 | Cloudflare官方 (67ms/2.67%丟包)
-1749991941.bilibiliapp.cn:443#移動優選 | bilibili (68ms/2.67%丟包)
+# --- 中國移動 (CM) 專屬優選域名 ---
+www.asda.com:443#移動優選 | ASDA (55ms/1.2%丟包)
+www.shopify.com:443#移動優選 | Shopify (58ms/1.5%丟包)
+openai.com:443#移動優選 | OpenAI (60ms/1.5%丟包)
+yg8.ygkkk.dpdns.org:443#移動優選 | 甬哥分線8 (64ms/2.0%丟包)
+www.udacity.com:443#移動優選 | Udacity (65ms/1.8%丟包)
+7.cf.3666888.xyz:443#移動優選 | 3666888 分線7 (68ms/2.1%丟包)
+cf.legspcpd.top:443#移動優選 | legspcpd (70ms/2.2%丟包)
+www.carousell.sg:443#移動優選 | 旋轉拍賣 (72ms/2.0%丟包)
+cfvip.cf.3666888.xyz:443#移動優選 | 3666888 VIP (75ms/2.3%丟包)
+cf.92555.xyz:443#移動優選 | 92555 (78ms/2.5%丟包)
 
-# --- 中國聯通 (CU) 專屬優選域名 (延遲 2-150ms / 丟包率 <= 3%) ---
-cf.877771.xyz:443#聯通優選 | 877771 (138ms/0.41%丟包)
-224322.xyz:443#聯通優選 | 224322 (135ms/0%丟包)
-www.090902.xyz:443#聯通優選 | 墨宇博客 (43ms/0.82%丟包)
+# --- 中國聯通 (CU) 專屬優選域名 ---
+www.shopify.com:443#聯通優選 | Shopify (110ms/0%丟包)
+www.asda.com:443#聯通優選 | ASDA (115ms/0%丟包)
+openai.com:443#聯通優選 | OpenAI (118ms/0%丟包)
+www.zendesk.com:443#聯通優選 | Zendesk (120ms/0%丟包)
+investor.apple.com:443#聯通優選 | Apple Investor (125ms/0%丟包)

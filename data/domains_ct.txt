@@ -1,14 +1,16 @@
 # =====================================================================
-# 中國電信 (CT) VPS789 專屬優選 CNAME 域名清單
-# 來源：VPS789 實時監控榜單 (電信延遲 2-80ms / 丟包率 <= 2%)
+# 中國電信 (CT) 專屬優選 CNAME 域名清單
 # =====================================================================
+www.asda.com
+www.shopify.com
+openai.com
+www.broadcom.com
+onetrust.com
+www.zendesk.com
 cf.godns.cc
-cfsaas.080112.xyz
-cfyx.aliyun.20237737.xyz
-cloudflare.19931110.xyz
-cf.3666888.xyz
-china-mobile.cname.cloudflare.468123.xyz
-cf-cname.xingpingcn.top
+www.carousell.sg
+cfvip.cf.3666888.xyz
+www.oopt.eu.cc
+cf.92555.xyz
 fn.130519.xyz
-cf.130519.xyz
-cmcc.vvvv.ee
+cfsaas.080112.xyz
