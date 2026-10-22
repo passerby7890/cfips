@@ -1,5 +1,18 @@
 # 更新紀錄 (Changelog)
 
+## [v3.2.0] - 2026-10-22
+### feat: 升級實戰自癒引擎 (Top-K 黏性調度 + 1034/GFW 記憶冷卻庫 + Globalping 國內真機防牆驗證 + 跨節點防撞車鎖)
+- 1. **下游 `v2board_syncer` 廢除盲抽，全面實裝 `top_k_sticky` 與 `top_k_random`**：
+  - 徹底解決 `random_all` 盲目換掉好 IP 的矛盾。當前 MySQL 正在使用的 IP 若依然健康且在 Top 15 內，在黏性期間 (如 15m) 維持不動；到期或失效時，嚴格僅從通過測活的前 8 名 (Top 8) 菁英池中替換。
+- 2. **建立本地持久化狀態與黑名單記憶庫 (`state_cache.json`)**：
+  - 由 `state_manager.py` 管理。凡測出 `HTTP 403` / `Error 1034` 的 IP 記錄 24 小時封禁，超時或被牆 IP 記錄 2 小時冷卻，下次執行時 0ms 秒級跳過，消除重複測試無效 Socket 消耗。
+- 3. **防海外測 101 假活盲區：接入 Globalping 大陸境內真機實體探針驗證 (`cn_probe.py`)**：
+  - 呼叫 Globalping REST API (`country: "CN"`) 對通過 101 的候選 IP 進行真機 TCP 探測。若大陸境內 100% 丟包阻斷，立刻判定為「國內被牆」並打入冷卻池，實現境內境外雙重閉環。
+- 4. **跨節點防撞車互斥鎖 (`used_ips_in_run`)**：
+  - 同一輪排程中，已被 Node 7 (電信) 認領之 IP，自動從 Node 6 (移動) 候選池中剃除，避免流量單點集中觸發省牆 QoS 限速。
+- 5. **上游新增 CNAME 域名健康計分板 (`output/cname_health.json`) 與擴充聯通 CNAME 池**：
+  - 統計各來源域名解析 IP 的 101 存活率與 1034 比例；若有 0% 存活或 100% 1034 則標記為 `DEAD_OR_1034`。在 `data/cname_pool.json` 與 `data/domains_cu.txt` 中補入 `cf.godns.cc`、`eteaf.cf.3666888.xyz`、`cfsaas.080112.xyz` 確保深度充足。
+
 ## [v3.2.4] - 2026-10-21
 ### feat: 聯通專用網域切換為 www.090902.xyz 獨家 A 紀錄解析、支援動態 SNI 測活與精準非 Anycast 落地標籤
 - 1. **聯通 (CU) 專用網域切換與純淨解析**：

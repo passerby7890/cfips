@@ -1,0 +1,202 @@
+{
+  "version": "v3.2.0",
+  "updated_at": "2026-10-22T05:51:07.018635+00:00",
+  "summary": {
+    "total_domains": 19,
+    "healthy": 19,
+    "degraded": 0,
+    "dead_or_1034": 0
+  },
+  "domains": {
+    "www.asda.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.shopify.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "openai.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.broadcom.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "onetrust.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.zendesk.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "cf.godns.cc": {
+      "carrier": "ct",
+      "total_ips": 16,
+      "alive_ips": 15,
+      "error_1034_ips": 0,
+      "timeout_ips": 1,
+      "alive_rate": "93.8%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.carousell.sg": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "cfvip.cf.3666888.xyz": {
+      "carrier": "ct",
+      "total_ips": 38,
+      "alive_ips": 38,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.oopt.eu.cc": {
+      "carrier": "ct",
+      "total_ips": 18,
+      "alive_ips": 17,
+      "error_1034_ips": 0,
+      "timeout_ips": 1,
+      "alive_rate": "94.4%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "cf.92555.xyz": {
+      "carrier": "ct",
+      "total_ips": 8,
+      "alive_ips": 8,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "fn.130519.xyz": {
+      "carrier": "ct",
+      "total_ips": 10,
+      "alive_ips": 10,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "cfsaas.080112.xyz": {
+      "carrier": "ct",
+      "total_ips": 3,
+      "alive_ips": 3,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "investor.apple.com": {
+      "carrier": "cu",
+      "total_ips": 1,
+      "alive_ips": 1,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "eteaf.cf.3666888.xyz": {
+      "carrier": "cu",
+      "total_ips": 5,
+      "alive_ips": 5,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "yg8.ygkkk.dpdns.org": {
+      "carrier": "cm",
+      "total_ips": 45,
+      "alive_ips": 45,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.udacity.com": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "7.cf.3666888.xyz": {
+      "carrier": "cm",
+      "total_ips": 35,
+      "alive_ips": 35,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "cf.legspcpd.top": {
+      "carrier": "cm",
+      "total_ips": 5,
+      "alive_ips": 5,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    }
+  }
+}

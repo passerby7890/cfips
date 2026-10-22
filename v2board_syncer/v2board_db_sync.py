@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
 =============================================================================
-V2Board / Xboard (Xiao 版) MySQL 資料庫直接極速替換引擎 (v3.0.0)
+V2Board / Xboard (Xiao 版) MySQL 資料庫直接極速替換引擎 (v3.2.0 實戰自癒版)
 =============================================================================
 特色：
   1. 【0 延遲直連資料庫】：免 Token、免登入、無 Session 過期、無 Web 路由問題！
-  2. 【自動讀取 .env】：自動抓取面板 .env 中的 MySQL 與 Redis 連線資訊，零設定！
-  3. 【原子級安全更新】：只更新 v2_server_vless 中的 host 欄位為純 IP，嚴格保留所有其他欄位！
-  4. 【零快取干擾】：經審計 V2Board 直讀 MySQL，無需 flush 快取，保障面板登入與 Session 100% 穩定！
-  5. 【支援隨機輪替】：可選固定榜首 (top) 或前 3~5 名隨機 (random_top3) 分散負載！
-  6. 【支援 --dry-run 模擬】與 【--daemon --interval 常駐守護】模式！
+  2. 【Top-K 黏性調度 (top_k_sticky)】：現任 IP 依然頂級健康 (101 通過且在 Top 15 內) 則黏性保持，杜絕盲選洗牌！
+  3. 【本地持久化黑名單庫 (state_cache.json)】：Error 1034 封禁 24h、超時/GFW 冷卻 2h，0ms 跳過死 IP！
+  4. 【大陸境內真機防牆驗證 (Globalping CN)】：海外 101 回源通過後，再由大陸境內探針檢驗 TCP，徹底防 GFW 假活！
+  5. 【跨節點防撞車鎖 (used_ips_in_run)】：同一輪同步中不同節點互斥，防止單 IP 流量聚集被省牆 QoS！
+  6. 【零快取干擾】：V2Board 直讀 MySQL，無需 flush 快取，保障面板登入與 Session 100% 穩定！
 """
 
 from __future__ import annotations
@@ -41,6 +41,24 @@ CURRENT_DIR = Path(__file__).resolve().parent
 DEFAULT_CONFIG = CURRENT_DIR / "config.json"
 DEFAULT_CACHE_DIR = CURRENT_DIR / "cache"
 DEFAULT_BACKUP_DIR = CURRENT_DIR / "backups"
+
+# 導入本地狀態記憶庫與大陸真機探針模組
+try:
+    from state_manager import StateManager
+except ImportError:
+    try:
+        from v2board_syncer.state_manager import StateManager
+    except ImportError:
+        StateManager = None
+
+try:
+    from cn_probe import verify_cn_mainland_tcp
+except ImportError:
+    try:
+        from v2board_syncer.cn_probe import verify_cn_mainland_tcp
+    except ImportError:
+        def verify_cn_mainland_tcp(ip: str, port: int = 443, timeout_sec: float = 5.0):
+            return True, "探針模組未載入 (略過)"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -209,54 +227,140 @@ def select_best_verified_ip(
     ip_list: List[Tuple[str, str]],
     preferred_country: str = "",
     rank: int = 1,
-    strategy: str = "random_all",
+    strategy: str = "top_k_sticky",
     current_ip: str = "",
     sni: str = "",
     host_header: str = "",
     ws_path: str = "/ws?ed=2048",
     port: int = 2053,
-    max_test_count: int = 15
+    max_test_count: int = 15,
+    node_id: int = 0,
+    top_k: int = 8,
+    sticky_minutes: int = 15,
+    enable_cn_probe: bool = True,
+    state_mgr: Optional[StateManager] = None,
+    used_ips_in_run: Optional[set] = None
 ) -> Optional[Tuple[str, str, str, float]]:
-    """全方位真實回源測活篩選：
-      1. 依節點特定 SNI、Host 標頭、Path 與 Port 逐一對候選 IP 進行真實回源測活。
-      2. 優先在目標落地國池中篩選。
-      3. 若目標落地國 IP 均受限或失效，自動啟用同表中其他通過驗證之健康 IP 備援池。
-      4. 只有「100% 測活成功並通過回源」的 IP 才會被選定。
-      5. 若全軍覆沒，返回 None，嚴格禁止寫入無效 IP！
+    """全方位實戰自癒回源測活篩選 (v3.2.0)：
+      1. 【Top-K 黏性調度 (top_k_sticky)】：若現任 IP 仍健康 (101 通過且在 Top 15 內)，黏性保持，杜絕盲選洗牌。
+      2. 【0ms 記憶庫跳過 (state_cache)】：自動過濾 24h 1034 黑名單與 2h 超時/被牆冷卻 IP。
+      3. 【跨節點防撞車鎖 (used_ips_in_run)】：跳過本輪已分配給其他節點的 IP，防止集中被省牆 QoS。
+      4. 【雙重真・測活防線】：海外 101 WebSocket 回源握手 ＋ Globalping 大陸境內真機 TCP 探測。
       回傳: (ip, country_tag, reason, rtt_ms) 或 None
     """
     if not ip_list:
         return None
 
     strat = str(strategy).lower().strip()
+
+    # -------------------------------------------------------------------------
+    # 階段 1：【Top-K 黏性審計 (Sticky Retention)】
+    # -------------------------------------------------------------------------
+    if strat in ("top_k_sticky", "sticky_top_k", "sticky") and current_ip and IP_REGEX.match(current_ip):
+        node_st = state_mgr.get_node_state(node_id) if state_mgr else {}
+        assigned_at = node_st.get("assigned_at", 0)
+        elapsed_min = (time.time() - assigned_at) / 60.0 if assigned_at else 999.0
+        is_banned = state_mgr.is_blacklisted(current_ip) if state_mgr else False
+
+        # 檢查現任 IP 在當期池中的排位 (不分落地國與落地國池綜合排位)
+        current_rank = next((idx + 1 for idx, (ip, _) in enumerate(ip_list) if ip == current_ip), 999)
+
+        if not is_banned and elapsed_min < sticky_minutes and current_rank <= 15:
+            print(f"    [*] [Top-K 黏性審計] 現任 IP {current_ip} (排名 #{current_rank}, 已服役 {elapsed_min:.1f}/{sticky_minutes} 分鐘) 執行健康複檢...")
+            ok, reason, rtt = verify_node_origin_handshake(
+                current_ip,
+                port=port,
+                sni=sni,
+                host_header=host_header,
+                ws_path=ws_path
+            )
+            if ok:
+                cn_passed = True
+                cn_detail = ""
+                if enable_cn_probe:
+                    print(f"    [*] [國內探針複檢] 對現任 IP {current_ip}:{port} 發起 Globalping CN TCP 探測...")
+                    cn_passed, cn_detail = verify_cn_mainland_tcp(current_ip, port=port)
+
+                if cn_passed:
+                    print(f"    [🔒 黏性保持] 現任 IP {current_ip} 依然頂級健康 (握手 {rtt}ms, {cn_detail or '101 暢通'})，維持不動！")
+                    if used_ips_in_run is not None:
+                        used_ips_in_run.add(current_ip)
+                    curr_tag = next((tag for ip, tag in ip_list if ip == current_ip), preferred_country or "CF")
+                    return current_ip, curr_tag, f"Top-K 黏性保持 ({reason})", rtt
+                else:
+                    print(f"    [!] [GFW 阻斷告警] 現任 IP {current_ip} 境內探針失敗: {cn_detail}，解除黏性並強制換血！")
+                    if state_mgr:
+                        state_mgr.mark_timeout_or_gfw(current_ip)
+            else:
+                print(f"    [!] [握手失效告警] 現任 IP {current_ip} 複檢失敗: {reason}，解除黏性並強制換血！")
+                if state_mgr:
+                    if "1034" in reason:
+                        state_mgr.mark_1034(current_ip)
+                    else:
+                        state_mgr.mark_timeout_or_gfw(current_ip)
+        elif current_rank > 15:
+            print(f"    [*] [榜單調度] 現任 IP {current_ip} 掉出前 15 名 (當前 #{current_rank})，觸發良性換血！")
+
+    # -------------------------------------------------------------------------
+    # 階段 2：【新血候選池過濾與選拔】
+    # -------------------------------------------------------------------------
     primary_candidates = [item for item in ip_list if item[1].upper() == preferred_country.upper()] if preferred_country else list(ip_list)
     fallback_candidates = [item for item in ip_list if item not in primary_candidates]
 
     def verify_pool(pool: List[Tuple[str, str]], pool_desc: str) -> Optional[Tuple[str, str, str, float]]:
         if not pool:
             return None
-        test_pool = list(pool)
-        if strat in ("random_all", "random", "all"):
+
+        # 1. 記憶庫過濾 (0ms 跳過黑名單) 與跨節點防撞車過濾
+        valid_candidates = []
+        skipped_banned = 0
+        skipped_collision = 0
+        for cand_ip, cand_tag in pool:
+            if state_mgr and state_mgr.is_blacklisted(cand_ip):
+                skipped_banned += 1
+                continue
+            if used_ips_in_run is not None and cand_ip in used_ips_in_run:
+                skipped_collision += 1
+                continue
+            valid_candidates.append((cand_ip, cand_tag))
+
+        if skipped_banned > 0 or skipped_collision > 0:
+            print(f"    [*] [{pool_desc}] 自動防護過濾: 跳過 {skipped_banned} 顆黑名單/冷卻 IP，跳過 {skipped_collision} 顆其他節點已佔用 IP")
+
+        if not valid_candidates:
+            return None
+
+        # 2. 策略調度建構測試隊列
+        if strat in ("top_k_sticky", "sticky_top_k", "top_k", "top_k_random", "random_topk"):
+            k = max(1, top_k)
+            elite_slice = list(valid_candidates[:k])
+            rest_slice = list(valid_candidates[k:])
+            if strat in ("top_k_random", "random_topk"):
+                random.shuffle(elite_slice)
+            test_pool = elite_slice + rest_slice
+        elif strat in ("random_all", "random", "all"):
+            test_pool = list(valid_candidates)
             random.shuffle(test_pool)
-            if len(test_pool) > 1 and current_ip:
-                test_pool.sort(key=lambda x: 1 if x[0] == current_ip else 0)
         elif "random" in strat:
             m = re.search(r"\d+", strat)
             limit = int(m.group(0)) if m else 3
-            sub = test_pool[:max(1, limit)]
+            sub = list(valid_candidates[:max(1, limit)])
             random.shuffle(sub)
-            test_pool = sub + test_pool[limit:]
-        elif strat == "top" and rank > 1 and rank <= len(test_pool):
-            target_item = test_pool[rank - 1]
-            test_pool.remove(target_item)
-            test_pool.insert(0, target_item)
+            test_pool = sub + valid_candidates[limit:]
+        elif strat == "top" and rank > 1 and rank <= len(valid_candidates):
+            target_item = valid_candidates[rank - 1]
+            test_pool = [target_item] + [x for x in valid_candidates if x != target_item]
+        else:
+            test_pool = list(valid_candidates)
 
         tested = 0
         for cand_ip, cand_tag in test_pool:
             if tested >= max_test_count:
-                print(f"    ⚠️ [{pool_desc}] 達到單池最大測活限制 ({max_test_count} 個)，中止本池測試。")
+                print(f"    ⚠️ [{pool_desc}] 達到單池最大測活限制 ({max_test_count} 個)，中止測試。")
                 break
             tested += 1
+
+            # 防線 A: 海外端到端 WebSocket 101 回源握手驗證
             ok, reason, rtt = verify_node_origin_handshake(
                 cand_ip,
                 port=port,
@@ -264,28 +368,52 @@ def select_best_verified_ip(
                 host_header=host_header,
                 ws_path=ws_path
             )
-            if ok:
-                print(f"    [✔ 測活通過] {cand_ip:16s} (#{cand_tag:2s}) ➡️ {reason} (耗時 {rtt}ms)")
-                return cand_ip, cand_tag, reason, rtt
-            else:
-                print(f"    [✖ 測活淘汰] {cand_ip:16s} (#{cand_tag:2s}) ➡️ {reason}")
+            if not ok:
+                if state_mgr:
+                    if "1034" in reason:
+                        state_mgr.mark_1034(cand_ip)
+                        print(f"    [✖ 1034 阻斷] {cand_ip:16s} (#{cand_tag:2s}) ➡️ {reason} (已入 24h 黑名單)")
+                    else:
+                        state_mgr.mark_timeout_or_gfw(cand_ip)
+                        print(f"    [✖ 握手失敗] {cand_ip:16s} (#{cand_tag:2s}) ➡️ {reason} (已入 2h 冷卻池)")
+                else:
+                    print(f"    [✖ 握手失敗] {cand_ip:16s} (#{cand_tag:2s}) ➡️ {reason}")
+                continue
+
+            # 防線 B: 大陸境內真機實體探針驗證 (Globalping CN TCP)
+            if enable_cn_probe:
+                print(f"    [*] 正在對通過 101 之候選 IP {cand_ip}:{port} 執行大陸境內實體探針驗證...")
+                cn_ok, cn_msg = verify_cn_mainland_tcp(cand_ip, port=port)
+                if not cn_ok:
+                    if state_mgr:
+                        state_mgr.mark_timeout_or_gfw(cand_ip)
+                    print(f"    [✖ GFW 阻斷] {cand_ip:16s} (#{cand_tag:2s}) ➡️ {cn_msg} (已入 2h 冷卻池)")
+                    continue
+                else:
+                    print(f"    [✔ 境內暢通] {cand_ip:16s} (#{cand_tag:2s}) ➡️ {cn_msg}")
+
+            # 雙重驗證全部通過！
+            print(f"    [✔ 最終選定] {cand_ip:16s} (#{cand_tag:2s}) ➡️ {reason} (耗時 {rtt}ms)")
+            if used_ips_in_run is not None:
+                used_ips_in_run.add(cand_ip)
+            return cand_ip, cand_tag, reason, rtt
+
         return None
 
-    # 1. 優先測活目標落地國池
+    # 1. 優先選拔目標落地國池
     target_label = preferred_country or "ALL"
-    print(f"    [*] 正在對目標落地國 [{target_label}] 候選池進行逐一回源測活 (SNI: {sni}, Port: {port})...")
+    print(f"    [*] 正在對目標落地國 [{target_label}] 候選池進行逐一測活選拔 (SNI: {sni}, Port: {port})...")
     chosen = verify_pool(primary_candidates, target_label)
     if chosen:
         return chosen
 
-    # 2. 目標國別池無合格 IP (如 ct.txt 中的 162.159.* / 108.162.* 專用段)，啟用同表跨區健康備援池
+    # 2. 備援池選拔
     if fallback_candidates:
-        print(f"    ⚠️ [防 1034 阻斷保護] 目標國別 [{preferred_country}] 候選 IP 均未通過回源測活，啟用同表健康備援池進行深度測活...")
+        print(f"    ⚠️ [防阻斷保護] 目標國別 [{preferred_country}] 候選 IP 均未通過測活，啟用同表跨區健康備援池...")
         chosen = verify_pool(fallback_candidates, "備援池")
         if chosen:
             return chosen
 
-    # 3. 嚴禁盲選！若全數失敗返回 None
     return None
 
 
@@ -381,9 +509,13 @@ def perform_db_sync(
     dry_run: bool = False
 ) -> bool:
     print("======================================================================")
-    print("⚡ V2Board (Xiao 版) MySQL 直接極速入口純 IP 替換引擎 (具備回源測活認證)")
+    print("⚡ V2Board (Xiao 版) MySQL 極速入口替換 (v3.2.0 Top-K 黏性自癒版)")
     print(f"[*] 連線資料庫: {db_mgr.database} ({db_mgr.host}:{db_mgr.port})")
     print("======================================================================")
+
+    # 0. 初始化本地狀態記憶庫與跨節點防撞車鎖
+    state_mgr = StateManager(CURRENT_DIR / "state_cache.json") if StateManager else None
+    used_ips_in_run: set = set()
 
     # 1. 載入三張表
     table_cache: Dict[str, List[Tuple[str, str]]] = {}
@@ -394,7 +526,7 @@ def perform_db_sync(
         print(f"[*] 載入 [{t_name.upper()}] 表 ({src_label}): 取得 {len(ips)} 個候選優選 IP")
 
     # 2. 查詢資料庫節點
-    target_ids = [int(item["id"]) for item in nodes_to_update]
+    target_ids = [int(item.get("node_id") or item.get("id")) for item in nodes_to_update]
     try:
         nodes = db_mgr.get_vless_nodes(target_ids)
     except Exception as e:
@@ -406,11 +538,14 @@ def perform_db_sync(
     has_modified = False
 
     for item in nodes_to_update:
-        node_id = int(item["id"])
-        t_name = str(item.get("table", "ct")).lower()
-        pref_country = str(item.get("country", "")).upper()
+        node_id = int(item.get("node_id") or item.get("id"))
+        t_name = str(item.get("table") or item.get("carrier") or "ct").lower()
+        pref_country = str(item.get("prefer_country") or item.get("country") or "").upper()
         rank = int(item.get("rank", 1))
-        strategy = str(item.get("strategy", "random_all"))
+        strategy = str(item.get("strategy", "top_k_sticky"))
+        top_k = int(item.get("top_k", 8))
+        sticky_minutes = int(item.get("sticky_minutes", 15))
+        enable_cn_probe = bool(item.get("enable_cn_probe", True))
 
         node = nodes.get(node_id)
         if not node:
@@ -424,12 +559,18 @@ def perform_db_sync(
         host_header = node.get("host_header", "")
         ws_path = node.get("ws_path", "/ws?ed=2048")
 
-        strat_desc = "全表隨機抽取 (random_all)" if "random_all" in strategy or strategy == "all" else ("前列隨機" if "random" in strategy else f"第 {rank} 名")
+        strat_desc = (
+            f"前 {top_k} 名黏性駐留 ({sticky_minutes}m)" if "sticky" in strategy
+            else (f"前 {top_k} 名隨機輪替 (top_k_random)" if "top_k" in strategy
+            else ("全表隨機抽取 (random_all)" if "random_all" in strategy or strategy == "all"
+            else ("前列隨機" if "random" in strategy else f"第 {rank} 名")))
+        )
         print(f"[*] 節點 ID: {node_id} 【{name}】")
         print(f"    - 原入口地址 (host)  : {curr_host}:{port}")
         print(f"    - 握手目標 (SNI/Host): {sni} / {host_header}")
         print(f"    - WebSocket 握手路徑 : {ws_path}")
         print(f"    - 綁定來源表         : {t_name.upper()} 表 | 偏好落地國: {pref_country or '不限'} | 模式: {strat_desc}")
+        print(f"    - 大陸真機探測 (GFW) : {'已啟用 (Globalping CN TCP)' if enable_cn_probe else '未啟用'}")
 
         ip_pool = table_cache.get(t_name, [])
         best_choice = select_best_verified_ip(
@@ -441,16 +582,26 @@ def perform_db_sync(
             sni=sni,
             host_header=host_header,
             ws_path=ws_path,
-            port=port
+            port=port,
+            node_id=node_id,
+            top_k=top_k,
+            sticky_minutes=sticky_minutes,
+            enable_cn_probe=enable_cn_probe,
+            state_mgr=state_mgr,
+            used_ips_in_run=used_ips_in_run
         )
         if not best_choice:
-            print(f"    - ❌ [安全警報] 表 [{t_name.upper()}] 中所有候選 IP 經真實回源測活均未通過！")
+            print(f"    - ❌ [安全警報] 表 [{t_name.upper()}] 中所有候選 IP 經測活均未通過！")
             print(f"    - 🛡️ [零中斷保護] 嚴格拒絕寫入不可用 IP，安全保留現有 host: {curr_host}")
             print("----------------------------------------------------------------------")
             continue
 
         new_ip, tag, reason, rtt_ms = best_choice
         print(f"    - 🎯 [最終選定] 經端到端測活確認，選定 IP: {new_ip} (#{tag}) ➡️ {reason} ({rtt_ms}ms)")
+
+        # 記錄狀態至本地記憶庫
+        if state_mgr:
+            state_mgr.set_node_state(node_id, new_ip, tag)
 
         if curr_host == new_ip:
             print(f"    - 執行結果           : ⚡ 目前資料庫已是選定 IP ({new_ip})，無需變更！")
@@ -486,18 +637,28 @@ def perform_db_sync(
     if has_modified:
         print("[*] 提示：MySQL 節點已即時生效（V2Board 直讀 MySQL，無需清除 Laravel 快取，保障 Session 與登入 100% 穩定）")
 
+    # 持久化記憶庫存檔
+    if state_mgr:
+        state_mgr.save()
+        b_cnt = len(state_mgr.data.get("error_1034_blacklist", {}))
+        c_cnt = len(state_mgr.data.get("timeout_cooldown", {}))
+        print(f"[*] 本地記憶庫更新 (state_cache.json): 1034 黑名單 {b_cnt} 筆 (24h)，超時/被牆冷卻 {c_cnt} 筆 (2h)")
+
     print(f"🎉 執行完畢！成功處理 {success_count}/{len(nodes_to_update)} 個節點。")
     print("======================================================================")
     return True
 
 
 def main():
-    parser = argparse.ArgumentParser(description="V2Board (Xiao 版) MySQL 直接極速入口純 IP 替換工具")
+    parser = argparse.ArgumentParser(description="V2Board (Xiao 版) MySQL 直接極速入口純 IP 替換工具 (v3.2.0)")
     parser.add_argument("--config", "-c", default=str(DEFAULT_CONFIG), help="設定檔路徑")
     parser.add_argument("--node", "-n", type=int, help="指定替換的單一節點 ID (例如: 7)")
     parser.add_argument("--table", "-t", choices=["ct", "cu", "cm"], help="指定使用的表 (ct/cu/cm)")
     parser.add_argument("--country", help="指定偏好落地國 (JP/HK/SG/US)")
-    parser.add_argument("--strategy", choices=["top", "random", "random_top3", "random_top5", "random_all"], default="top", help="IP 選取策略")
+    parser.add_argument("--strategy", choices=["top_k_sticky", "top_k_random", "top", "random", "random_top3", "random_top5", "random_all"], default="top_k_sticky", help="IP 選取策略")
+    parser.add_argument("--top-k", type=int, default=8, help="Top-K 菁英池數量 (預設: 8)")
+    parser.add_argument("--sticky-minutes", type=int, default=15, help="黏性駐留保持時間 (分鐘，預設: 15)")
+    parser.add_argument("--no-cn-probe", action="store_true", help="停用 Globalping 大陸境內真機探針驗證")
     parser.add_argument("--daemon", action="store_true", help="啟用常駐守護模式 (背景持續循環執行)")
     parser.add_argument("--interval", type=int, default=1800, help="常駐循環時間間隔，單位秒 (預設: 1800 秒 / 30 分鐘)")
     parser.add_argument("--dry-run", action="store_true", help="模擬執行 (不實際寫入資料庫)")
@@ -529,9 +690,14 @@ def main():
     if args.node is not None:
         nodes = [{
             "id": args.node,
+            "node_id": args.node,
             "table": args.table or "ct",
             "country": args.country or "",
-            "strategy": args.strategy or "top",
+            "prefer_country": args.country or "",
+            "strategy": args.strategy or "top_k_sticky",
+            "top_k": args.top_k,
+            "sticky_minutes": args.sticky_minutes,
+            "enable_cn_probe": not args.no_cn_probe,
             "rank": 1
         }]
     else:

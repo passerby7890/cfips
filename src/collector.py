@@ -16,10 +16,10 @@ from src.dns_extractor import exhaustive_resolve_domain_for_carrier
 from src.region_mapper import lookup_carrier_landing_country
 
 
-def collect_carrier_candidates(
+def collect_carrier_candidates_with_domain_map(
     pool_path: str = "data/cname_pool.json",
     matrix_path: str = "data/cn_ecs_matrix.json"
-) -> Dict[str, List[Dict]]:
+) -> Tuple[Dict[str, List[Dict]], Dict[str, Dict[str, Any]]]:
     with open(pool_path, "r", encoding="utf-8") as f:
         pool_cfg = json.load(f)
     with open(matrix_path, "r", encoding="utf-8") as f:
@@ -37,6 +37,7 @@ def collect_carrier_candidates(
 
     carriers_cfg = pool_cfg.get("carriers", {})
     carrier_results: Dict[str, List[Dict]] = {"ct": [], "cu": [], "cm": []}
+    domain_map: Dict[str, Dict[str, Any]] = {}
 
     for c_code in ["ct", "cu", "cm"]:
         c_domains = carriers_cfg.get(c_code, [])
@@ -47,12 +48,20 @@ def collect_carrier_candidates(
 
         for d_info in c_domains:
             domain = d_info["domain"]
+            if domain not in domain_map:
+                domain_map[domain] = {
+                    "carrier": c_code,
+                    "ips": set(),
+                    "cn_latency_ms": float(d_info.get("cn_latency_ms", 999.0))
+                }
             extracted = exhaustive_resolve_domain_for_carrier(domain, c_anchors, rounds=2)
             ip_summary = ", ".join([f"{x['ip']}({x['hit_ratio']}%)" for x in extracted[:6]])
             print(f"    -> [{c_code.upper()}] {domain} 榨出 {len(extracted)} 個唯一 IP: {ip_summary}")
 
             for item in extracted:
                 ip = item["ip"]
+                domain_map[domain]["ips"].add(ip)
+
                 # 電信 (CT) 嚴格遵循落地規則：僅收錄落地為新加坡 (SG) 與日本 (JP) 之節點
                 if c_code == "ct":
                     landing = lookup_carrier_landing_country(ip, c_code)
@@ -86,4 +95,12 @@ def collect_carrier_candidates(
         # 依用戶指示：只針對 DNS 萃取出來的優選 IP 做紀錄並排序，不做任何延伸 (不補鄰居、不補外部矩陣)
         carrier_results[c_code] = direct_list
 
-    return carrier_results
+    return carrier_results, domain_map
+
+
+def collect_carrier_candidates(
+    pool_path: str = "data/cname_pool.json",
+    matrix_path: str = "data/cn_ecs_matrix.json"
+) -> Dict[str, List[Dict]]:
+    results, _ = collect_carrier_candidates_with_domain_map(pool_path, matrix_path)
+    return results

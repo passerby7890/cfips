@@ -19,13 +19,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from src import __version__
-from src.collector import collect_carrier_candidates
+from src.collector import collect_carrier_candidates_with_domain_map
 from src.region_mapper import (
     init_carrier_landing_matrix,
     init_subnet_country_map,
     resolve_country_tag,
 )
-from src.verifier import batch_verify_unblocked
+from src.verifier import batch_verify_with_health_stats
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 
@@ -46,9 +46,9 @@ async def run_pipeline():
     init_carrier_landing_matrix(PROJECT_ROOT / "data" / "carrier_landing_matrix.json")
     init_subnet_country_map(PROJECT_ROOT / "data")
 
-    # 1. 依照三網省級 DNS ECS 解析黃金 CNAME 網域
+    # 1. 依照三網省級 DNS ECS 解析黃金 CNAME 網域 (同步取得網域解析 IP 關聯表)
     pool_path = str(PROJECT_ROOT / "data" / "cname_pool.json")
-    carrier_pools = collect_carrier_candidates(pool_path)
+    carrier_pools, domain_map = collect_carrier_candidates_with_domain_map(pool_path)
 
     unique_candidates = {}
     for c_code, items in carrier_pools.items():
@@ -58,12 +58,67 @@ async def run_pipeline():
                 unique_candidates[ip] = item
 
     print(f"[*] 共萃取 {len(unique_candidates)} 個唯一候選 IP，開始執行防牆阻斷與邊緣連通性測活...")
-    alive_list = await batch_verify_unblocked(list(unique_candidates.values()), concurrency=35)
+    alive_list, all_results = await batch_verify_with_health_stats(list(unique_candidates.values()), concurrency=35)
     alive_map = {item["ip"]: item for item in alive_list}
+    ip_status_map = {item["ip"]: item.get("status", "TIMEOUT_OR_BLOCKED") for item in all_results}
     print(f"[+] 測活完成！健康未被牆 IP 共 {len(alive_map)} 個（死 IP / GFW 阻斷 IP 已全數拋棄）")
 
     out_dir = PROJECT_ROOT / "output"
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    # 產生 CNAME 域名健康度計分板 (output/cname_health.json)
+    cname_health = {
+        "version": f"v{__version__}",
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "summary": {"total_domains": len(domain_map), "healthy": 0, "degraded": 0, "dead_or_1034": 0},
+        "domains": {}
+    }
+    for domain, info in domain_map.items():
+        d_ips = info.get("ips", set())
+        tot = len(d_ips)
+        alive_cnt = sum(1 for ip in d_ips if ip_status_map.get(ip) == "ALIVE")
+        err_1034_cnt = sum(1 for ip in d_ips if ip_status_map.get(ip) == "ERROR_1034")
+        timeout_cnt = sum(1 for ip in d_ips if ip_status_map.get(ip) == "TIMEOUT_OR_BLOCKED")
+
+        if tot == 0:
+            status = "DEAD_OR_1034"
+            alive_rate = 0.0
+            err_1034_rate = 0.0
+        else:
+            alive_rate = round((alive_cnt / tot) * 100, 1)
+            err_1034_rate = round((err_1034_cnt / tot) * 100, 1)
+            if err_1034_rate >= 100.0 or alive_cnt == 0:
+                status = "DEAD_OR_1034"
+            elif alive_rate >= 50.0:
+                status = "HEALTHY"
+            else:
+                status = "DEGRADED"
+
+        if status == "HEALTHY":
+            cname_health["summary"]["healthy"] += 1
+        elif status == "DEGRADED":
+            cname_health["summary"]["degraded"] += 1
+        else:
+            cname_health["summary"]["dead_or_1034"] += 1
+
+        cname_health["domains"][domain] = {
+            "carrier": info.get("carrier", ""),
+            "total_ips": tot,
+            "alive_ips": alive_cnt,
+            "error_1034_ips": err_1034_cnt,
+            "timeout_ips": timeout_cnt,
+            "alive_rate": f"{alive_rate}%",
+            "error_1034_rate": f"{err_1034_rate}%",
+            "status": status
+        }
+
+    health_json_path = out_dir / "cname_health.json"
+    with open(health_json_path, "w", encoding="utf-8") as f:
+        json.dump(cname_health, f, ensure_ascii=False, indent=2)
+    print(
+        f"✅ CNAME 域名健康度計分板已寫入 {health_json_path.name} "
+        f"(健康: {cname_health['summary']['healthy']}, 降級: {cname_health['summary']['degraded']}, 阻斷/失效: {cname_health['summary']['dead_or_1034']})"
+    )
 
     summary_json = {
         "version": f"v{__version__}",

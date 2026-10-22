@@ -1,26 +1,27 @@
-# V2Board (Xiao 版) 節點入口純 IP 替換引擎（事前回源測活認證版）
+# V2Board (Xiao 版) 節點入口純 IP 替換引擎（v3.2.0 實戰自癒版）
 
 本工具包專為 **V2Board / Xboard (Xiao 版)** 打造，部署於伺服器 `/www/wwwroot/0n21.com/v2board_syncer`。  
-採用純 Python 3 原生標準庫實現，具備 **「原子級直連 MySQL」** 與 **「事前端到端真實回源測活（Pre-Flight Origin Verification）」** 機制，嚴格落實**零中斷（Zero Downtime）**高可用保障！
+採用純 Python 3 原生標準庫實現，具備 **「原子級直連 MySQL」**、**「Top-K 黏性調度」**、**「1034/GFW 記憶冷卻庫」** 與 **「Globalping 大陸境內真機探測」** 機制，嚴格落實**零中斷（Zero Downtime）**高可用保障！
 
 ---
 
-## 🌟 核心特色與防護架構
+## 🌟 核心特色與五大自癒架構 (v3.2.0)
 
-1. **【事前端到端真實回源測活】（核心安全性）**：
-   - 在決定將任何 IP 寫入資料庫前，依節點的真實配置（連接埠、SNI、Host 標頭、WebSocket 路徑）建立真實 TCP + TLS 握手與 HTTP/1.1 WebSocket 升級請求。
-   - **只有拿到 `101 Switching Protocols`（或原點伺服器正常握手）才視為合格 IP！**
-2. **【防 Cloudflare Error 1034 邊緣阻斷機制】**：
-   - 解決 Cloudflare Pages / Workers 專用段（如 `162.159.*`, `108.162.*`）被官方啟用 Edge IP Validation (EIV) 導致自訂 SNI 回源出現 1034 阻斷的問題。
-   - 測活模組若檢測到 `1034` 或 `403`，立即將該 IP 淘汰 (`[✖ 測活淘汰]`)。
-3. **【智能跨區健康備援池】**：
-   - 若某節點偏好國別（如 `JP`）候選 IP 全數受限或失效，系統自動在同營運商表中啟用其他通過驗證的健康備援 IP（如 `SG`/`HK` 等 Anycast 節點）。
-4. **【嚴格零中斷保護（Zero-Downtime Guarantee）】**：
-   - **絕不盲選、絕不寫入未經認證的 IP！** 若表內候選 IP 全數未能通過回源測活，系統立即觸發保護機制，**安全保留當前正常運行的 host，不對 MySQL 做任何破壞性變更**。
-5. **【0 延遲直連資料庫】**：
-   - 免 Token、免登入、無過期風險，只修改 `v2_server_vless` 的 `host` 欄位，保留 port、tls、network、flow 等所有參數。
-6. **【零快取干擾保障 Session 穩定】**：
-   - 經源碼審查，V2Board 的客戶端訂閱與節點服務（`ServerService.php`）直接查詢 MySQL 資料庫，不快取 VLESS 節點清單。因此 MySQL 寫入後立即生效，完全無需執行 `php artisan cache:clear`，徹底杜絕 Redis Session 丟失或面板用戶登入被踢出的風險！
+1. **【Top-K 黏性優選調度 (top_k_sticky)】（解決盲選洗牌問題）**：
+   - 每次執行時，先對「目前 MySQL 節點正在使用的現任 IP」進行 `verify_node_origin_handshake()` 與境內探針檢測。
+   - 若現任 IP 依然通過 `HTTP 101` 握手、境內暢通且在當期優選清單的前 15 名內，在黏性保持期（如 15 分鐘）內**優先保持現任 IP 不動**！
+   - 徹底杜絕過去 `random_all` 每 5 分鐘把 40ms 冠軍 IP 隨機換成次級 IP 的抽盲盒慘況。
+2. **【本地持久化黑名單與冷卻記憶庫 (`state_cache.json`)】**：
+   - **`error_1034_blacklist` (封禁 24 小時)**：凡觸發 Cloudflare `1034` / `403` 的 IP，24 小時內跳過不測，0ms 快速放行。
+   - **`timeout_cooldown` (冷卻 2 小時)**：凡握手超時或被大陸 GFW 阻斷的 IP，冷卻 2 小時，避免同週期內無謂重複測死 IP。
+   - **`node_state` (節點狀態追蹤)**：記錄每個 `node_id` 目前綁定的 `current_ip` 與 `assigned_at`。
+3. **【大陸境內真機防牆驗證 (`cn_probe.py`)】（防海外 101 假活盲區）**：
+   - 透過 Globalping 公開 REST API，指定中國大陸境內實體探針（`locations: [{"country": "CN"}]`）對候選 IP 進行真機 TCP 探測。
+   - 若境內探針 100% 丟包阻斷，判定為「國內被牆假活 IP」，立刻打入冷卻池並換血；API 忙碌時支援 Fail-open 保障主流程。
+4. **【跨節點防撞車互斥鎖 (`used_ips_in_run`)】**：
+   - 同一次同步中，已經分配給 Node 7（電信）的 IP，自動從 Node 6（移動）的候選池排除，防止流量集中單點觸發省牆 QoS。
+5. **【0 延遲直連資料庫與零快取干擾】**：
+   - 直讀直寫 `v2_server_vless` 的 `host` 欄位。經審計 V2Board 直讀 MySQL，無需清除 Laravel 快取，保障 Session 與登入 100% 穩定！
 
 ---
 
@@ -28,7 +29,10 @@
 
 ```text
 /www/wwwroot/0n21.com/v2board_syncer/
-├── v2board_db_sync.py     # 【核心】MySQL 資料庫直連替換引擎 (含回源測活)
+├── v2board_db_sync.py     # 【核心】MySQL 資料庫直連替換引擎 (含 Top-K 黏性自癒)
+├── state_manager.py       # 【狀態】1034/GFW 黑名單與節點黏性狀態管理器
+├── cn_probe.py            # 【探針】Globalping 大陸境內真機 TCP 防牆驗證模組
+├── state_cache.json       # 【快取】本地持久化記憶庫 (自動產生與輪替)
 ├── config.json            # 節點設定檔 (節點 ID、三網表、落地國、策略)
 ├── README.md              # 系統技術手冊與操作筆記
 ├── cache/                 # 離線容災快取目錄
@@ -55,30 +59,40 @@
   },
   "nodes": [
     {
+      "node_id": 7,
       "id": 7,
-      "protocol": "vless",
+      "name": "JP 电信专用-日本(3倍)",
+      "carrier": "ct",
       "table": "ct",
+      "prefer_country": "JP",
       "country": "JP",
-      "strategy": "random_all",
-      "comment": "JP 电信专用-日本(3倍)"
+      "strategy": "top_k_sticky",
+      "top_k": 8,
+      "sticky_minutes": 15,
+      "enable_cn_probe": true
     },
     {
+      "node_id": 6,
       "id": 6,
-      "protocol": "vless",
+      "name": "HK 移动专用-香港(3倍)",
+      "carrier": "cm",
       "table": "cm",
+      "prefer_country": "HK",
       "country": "HK",
-      "strategy": "random_all",
-      "comment": "HK 移动专用-香港(3倍)"
+      "strategy": "top_k_sticky",
+      "top_k": 8,
+      "sticky_minutes": 15,
+      "enable_cn_probe": true
     }
   ]
 }
 ```
 
 ### 選取策略 (`strategy`)
-- `"random_all"`：**（強烈推薦）全池隨機抽取**。自動將目前使用中的 IP 排至最後，每次執行都能輪替到不同且通過測活的優質 IP，大幅提升防阻斷與負載均衡效果。
-- `"random_top3"`：從前 3 名候選中隨機挑選 1 個並測活。
-- `"random_top5"`：從前 5 名候選中隨機挑選 1 個並測活。
-- `"top"`：優先選取第 1 名，若未通過測活則依序遞補。
+- `"top_k_sticky"`：**（預設強烈推薦）前段班黏性調度**。現任 IP 若健康且在前 15 名內，保持不動；到期或失效時僅從前 8 名 (Top 8) 挑選新血。
+- `"top_k_random"`：每次從通過 101 與國內探針驗證的前 8 名 (Top 8) 中隨機輪替。
+- `"random_all"`：相容舊版全池隨機。
+- `"top"`：優先選取第 1 名，未通過時依序遞補。
 
 ---
 

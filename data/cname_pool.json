@@ -78,7 +78,10 @@
       { "domain": "www.asda.com", "cn_latency_ms": 115, "loss": 0.0, "speed_mbs": 14.5, "score": 96 },
       { "domain": "openai.com", "cn_latency_ms": 118, "loss": 0.0, "speed_mbs": 14.0, "score": 96 },
       { "domain": "www.zendesk.com", "cn_latency_ms": 120, "loss": 0.0, "speed_mbs": 13.5, "score": 95 },
-      { "domain": "investor.apple.com", "cn_latency_ms": 125, "loss": 0.0, "speed_mbs": 13.0, "score": 94 }
+      { "domain": "investor.apple.com", "cn_latency_ms": 125, "loss": 0.0, "speed_mbs": 13.0, "score": 94 },
+      { "domain": "cf.godns.cc", "cn_latency_ms": 128, "loss": 0.0, "speed_mbs": 13.0, "score": 94 },
+      { "domain": "eteaf.cf.3666888.xyz", "cn_latency_ms": 132, "loss": 0.0, "speed_mbs": 12.8, "score": 92 },
+      { "domain": "cfsaas.080112.xyz", "cn_latency_ms": 135, "loss": 0.0, "speed_mbs": 12.5, "score": 91 }
     ]
   }
 }

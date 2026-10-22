@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""[@QA_RedTeam] VPS789 v3.1.0 ITDog 同款三網 ECS 深度解析與防牆連通性深度驗收腳本。"""
+"""[@QA_RedTeam] VPS789 v3.2.0 ITDog 同款三網 ECS 深度解析與防牆連通性深度驗收腳本。"""
 
 from __future__ import annotations
 
@@ -52,7 +52,7 @@ def check_ip_unblocked_tls(ip: str, port: int = 443, sni: str = "cdnjs.cloudflar
 
 def run_redteam_audit() -> bool:
     print("==========================================================")
-    print("🔍 [@QA_RedTeam] 啟動 VPS789 v3.1.0 三網深度解析與防牆驗收審計...")
+    print("🔍 [@QA_RedTeam] 啟動 VPS789 v3.2.0 三網深度解析與防牆驗收審計...")
     print("==========================================================")
     errors = []
 
@@ -87,7 +87,7 @@ def run_redteam_audit() -> bool:
         else:
             print(f"✅ [設定檔案] {f_rel} 存在且結構完整")
 
-    # 3. 檢查 output/best_ips.json
+    # 3. 檢查 output/best_ips.json 與 output/cname_health.json
     json_path = PROJECT_ROOT / "output" / "best_ips.json"
     if not json_path.is_file() or json_path.stat().st_size == 0:
         errors.append(f"[致命] {json_path} 不存在或為空檔案！")
@@ -99,6 +99,19 @@ def run_redteam_audit() -> bool:
             print(f"✅ [JSON] 結構化總表 {json_path.name} 審計通過 (涵蓋 {carriers_cnt} 大運營商數據)")
         except Exception as e:
             errors.append(f"[致命] {json_path} JSON 解析失敗: {e}")
+
+    health_path = PROJECT_ROOT / "output" / "cname_health.json"
+    if not health_path.is_file() or health_path.stat().st_size == 0:
+        errors.append(f"[致命] {health_path} 不存在或為空檔案！")
+    else:
+        try:
+            with open(health_path, "r", encoding="utf-8") as f:
+                hdata = json.load(f)
+            d_cnt = len(hdata.get("domains", {}))
+            summary = hdata.get("summary", {})
+            print(f"✅ [健康計分板] {health_path.name} 審計通過 (涵蓋 {d_cnt} 個來源網域: 健康 {summary.get('healthy')}, 阻斷/失效 {summary.get('dead_or_1034')})")
+        except Exception as e:
+            errors.append(f"[致命] {health_path} JSON 解析失敗: {e}")
 
     # 4. 針對 ct.txt, cu.txt, cm.txt 逐行審查與防牆連通性抽檢
     for carrier in ["ct", "cu", "cm"]:
@@ -188,7 +201,7 @@ def run_redteam_audit() -> bool:
             print(f"   - {err}")
         return False
 
-    print("\n🎉 [@DecisionMaker] 全部審計通過！v3.1.0 三網深度解析清單 100% 通過驗收，准許發布！")
+    print("\n🎉 [@DecisionMaker] 全部審計通過！v3.2.0 三網深度解析清單 100% 通過驗收，准許發布！")
     return True
 
 

@@ -1,5 +1,5 @@
 {
-  "_comment": "V2Board (Xiao 版) 節點入口純 IP 替換設定檔",
+  "_comment": "V2Board (Xiao 版) 節點入口純 IP 替換設定檔 (v3.2.0 實戰自癒版)",
   "database": {
     "host": "127.0.0.1",
     "port": 3306,
@@ -14,20 +14,30 @@
   },
   "nodes": [
     {
+      "node_id": 7,
       "id": 7,
-      "protocol": "vless",
+      "name": "JP 电信专用-日本(3倍)",
+      "carrier": "ct",
       "table": "ct",
+      "prefer_country": "JP",
       "country": "JP",
-      "strategy": "random_all",
-      "comment": "JP 电信专用-日本(3倍)"
+      "strategy": "top_k_sticky",
+      "top_k": 8,
+      "sticky_minutes": 15,
+      "enable_cn_probe": true
     },
     {
+      "node_id": 6,
       "id": 6,
-      "protocol": "vless",
+      "name": "HK 移动专用-香港(3倍)",
+      "carrier": "cm",
       "table": "cm",
+      "prefer_country": "HK",
       "country": "HK",
-      "strategy": "random_all",
-      "comment": "HK 移动专用-香港(3倍)"
+      "strategy": "top_k_sticky",
+      "top_k": 8,
+      "sticky_minutes": 15,
+      "enable_cn_probe": true
     }
   ]
 }

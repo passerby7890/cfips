@@ -22,29 +22,28 @@ from src.region_mapper import (
 )
 
 
-async def verify_single_ip(
+async def verify_single_ip_detailed(
     item: Dict[str, Any],
     semaphore: asyncio.Semaphore,
     sni: str = "",
     primary_port: int = 443,
     fallback_port: int = 2053,
-) -> Optional[Dict[str, Any]]:
-    """測活單一 IP：檢查是否被 GFW 牆阻斷 (TCP/TLS)，若活著則獲取機房代碼與國家標籤"""
+) -> Dict[str, Any]:
+    """測活單一 IP：檢查是否被 GFW 牆阻斷 (TCP/TLS)，詳細回傳狀態 (ALIVE / ERROR_1034 / TIMEOUT_OR_BLOCKED)"""
     ip = item["ip"]
     target_sni = sni or item.get("domain") or "cdnjs.cloudflare.com"
     ssl_ctx = ssl.create_default_context()
     ssl_ctx.check_hostname = False
     ssl_ctx.verify_mode = ssl.CERT_NONE
 
+    hit_1034 = False
     async with semaphore:
         for cur_sni in ([target_sni] if target_sni == "cdnjs.cloudflare.com" else [target_sni, "cdnjs.cloudflare.com"]):
             for port in [primary_port, fallback_port]:
                 try:
-                    # 1. 檢測 TCP 連線與 TLS 握手 (若被 GFW 牆攔截會觸發 Connection Reset 或 Timeout)
                     conn = asyncio.open_connection(ip, port, ssl=ssl_ctx, server_hostname=cur_sni)
                     r, w = await asyncio.wait_for(conn, timeout=2.5)
 
-                    # 2. 發送 /cdn-cgi/trace 請求
                     req = (
                         f"GET /cdn-cgi/trace HTTP/1.1\r\n"
                         f"Host: {cur_sni}\r\n"
@@ -62,15 +61,13 @@ async def verify_single_ip(
                         pass
 
                     text_resp = raw_resp.decode(errors="ignore")
-                    # 篩除 Cloudflare Error 1034 (Edge IP Restricted) 受限邊緣 IP，確保可供自定義域名代理
                     if "1034" in text_resp or "error code: 1034" in text_resp:
+                        hit_1034 = True
                         continue
 
-                    # 只要收到 Cloudflare 正常邊緣回應 (帶 CF-RAY/Server: cloudflare 且非 1034)，代表該 IP 活躍且未被牆阻斷
                     if not text_resp or ("cloudflare" not in text_resp.lower() and "http/" not in text_resp.lower()):
                         continue
 
-                    # 3. 提取機房代碼 (colo)
                     colo = ""
                     for line in text_resp.splitlines():
                         if line.startswith("colo="):
@@ -81,7 +78,6 @@ async def verify_single_ip(
                             if len(parts) >= 2:
                                 colo = parts[-1].strip().upper()
 
-                    # 4. 國家標籤解析 (依運營商路由特性精確解析，嚴禁輸出 #CF)
                     c_carrier = str(item.get("carrier") or item.get("target_carrier") or "").lower()
                     country = resolve_country_tag(item, runner_trace_colo=colo, carrier=c_carrier)
                     if not country or country in ("CF", "UNKNOWN", "NONE"):
@@ -89,23 +85,48 @@ async def verify_single_ip(
 
                     verified = dict(item)
                     verified["is_alive"] = True
+                    verified["status"] = "ALIVE"
                     verified["colo"] = colo or "CF"
                     verified["country"] = country
                     return verified
 
                 except Exception:
-                    # 該埠超時或重置，嘗試備用埠 (2053)
                     continue
 
-    return None
+    result = dict(item)
+    result["is_alive"] = False
+    result["status"] = "ERROR_1034" if hit_1034 else "TIMEOUT_OR_BLOCKED"
+    return result
+
+
+async def verify_single_ip(
+    item: Dict[str, Any],
+    semaphore: asyncio.Semaphore,
+    sni: str = "",
+    primary_port: int = 443,
+    fallback_port: int = 2053,
+) -> Optional[Dict[str, Any]]:
+    """相容舊版單一 IP 驗證，僅回傳成功者"""
+    res = await verify_single_ip_detailed(item, semaphore, sni=sni, primary_port=primary_port, fallback_port=fallback_port)
+    return res if res.get("is_alive") else None
+
+
+async def batch_verify_with_health_stats(
+    candidates: List[Dict[str, Any]],
+    concurrency: int = 35
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """並發批量測活所有候選 IP，同時回傳 (健康清單, 全體狀態清單)"""
+    sem = asyncio.Semaphore(concurrency)
+    tasks = [verify_single_ip_detailed(item, sem) for item in candidates]
+    all_results = await asyncio.gather(*tasks)
+    alive_list = [r for r in all_results if r.get("is_alive")]
+    return alive_list, all_results
 
 
 async def batch_verify_unblocked(candidates: List[Dict[str, Any]], concurrency: int = 35) -> List[Dict[str, Any]]:
     """並發批量測活所有候選 IP，篩除被牆與死亡 IP"""
-    sem = asyncio.Semaphore(concurrency)
-    tasks = [verify_single_ip(item, sem) for item in candidates]
-    results = await asyncio.gather(*tasks)
-    return [r for r in results if r is not None]
+    alive_list, _ = await batch_verify_with_health_stats(candidates, concurrency=concurrency)
+    return alive_list
 
 
 # 相容舊版名稱
