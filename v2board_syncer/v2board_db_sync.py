@@ -226,6 +226,8 @@ def verify_node_origin_handshake(
 def select_best_verified_ip(
     ip_list: List[Tuple[str, str]],
     preferred_country: str = "",
+    prefer_countries: Optional[List[str]] = None,
+    reject_countries: Optional[List[str]] = None,
     rank: int = 1,
     strategy: str = "top_k_sticky",
     current_ip: str = "",
@@ -241,17 +243,24 @@ def select_best_verified_ip(
     state_mgr: Optional[StateManager] = None,
     used_ips_in_run: Optional[set] = None
 ) -> Optional[Tuple[str, str, str, float]]:
-    """全方位實戰自癒回源測活篩選 (v3.2.0)：
-      1. 【Top-K 黏性調度 (top_k_sticky)】：若現任 IP 仍健康 (101 通過且在 Top 15 內)，黏性保持，杜絕盲選洗牌。
-      2. 【0ms 記憶庫跳過 (state_cache)】：自動過濾 24h 1034 黑名單與 2h 超時/被牆冷卻 IP。
-      3. 【跨節點防撞車鎖 (used_ips_in_run)】：跳過本輪已分配給其他節點的 IP，防止集中被省牆 QoS。
-      4. 【雙重真・測活防線】：海外 101 WebSocket 回源握手 ＋ Globalping 大陸境內真機 TCP 探測。
+    """全方位實戰自癒回源測活篩選 (v4.0.0 防繞美西與亞太優先版)：
+      1. 【防繞美西與拒絕國別立即換血】：凡現任為 104.18~26.*、172.67.* 或 #US，無條件強制換血！
+      2. 【Top-K 黏性調度 (top_k_sticky)】：若現任 IP 仍健康且符合亞太偏好國別，維持不動。
+      3. 【0ms 記憶庫跳過 (state_cache)】：自動過濾 24h 1034 黑名單與 2h 超時/被牆冷卻 IP。
+      4. 【跨節點防撞車鎖 (used_ips_in_run)】：跳過本輪已分配給其他節點的 IP。
+      5. 【雙重真・測活防線】：海外 101 WebSocket 回源握手 ＋ Globalping 大陸境內真機 TCP 探測。
       回傳: (ip, country_tag, reason, rtt_ms) 或 None
     """
     if not ip_list:
         return None
 
     strat = str(strategy).lower().strip()
+    us_blacklist_prefixes = (
+        "104.18.", "104.19.", "104.20.", "104.21.", "104.22.",
+        "104.24.", "104.25.", "104.26.", "172.66.", "172.67."
+    )
+    target_prefer_list = [c.upper() for c in (prefer_countries or ([preferred_country] if preferred_country else []))]
+    target_reject_list = [c.upper() for c in (reject_countries or ["US"])]
 
     # -------------------------------------------------------------------------
     # 階段 1：【Top-K 黏性審計 (Sticky Retention)】
@@ -272,12 +281,18 @@ def select_best_verified_ip(
                 current_country = tag
                 break
 
-        # [Country Mismatch Guard 國別嚴格比對 (v3.3.0)]
-        # 若現任 IP 處於跨區降級狀態 (例如現任為 #SG 但目標要求 #JP)，拒絕黏性鎖定，強制重新選拔正牌目標國別！
-        if current_ip and preferred_country and current_country and current_country.upper() != preferred_country.upper():
+        is_us_detour_ip = current_ip.startswith(us_blacklist_prefixes)
+
+        # [Country Mismatch Guard & US Detour Guard (v4.0.0)]
+        if is_us_detour_ip or (current_country and current_country.upper() in target_reject_list):
+            print(
+                f"    🚫 [繞美黑名單/拒絕國別] Node {node_id} 現任 IP {current_ip} 屬於繞美西網段或 #{current_country}，"
+                f"無條件強制解除黏性並立刻換血為亞太低延遲 IP！"
+            )
+        elif target_prefer_list and current_country and current_country.upper() not in target_prefer_list:
             print(
                 f"    ⚠️ [國別不符降級態] Node {node_id} 現任 IP {current_ip} 國別為 #{current_country} "
-                f"(目標要求 #{preferred_country})，拒絕黏性保持，強制重新選拔正牌 #{preferred_country}！"
+                f"(目標偏好要求 {target_prefer_list})，拒絕黏性保持，強制重新選拔！"
             )
         elif not is_banned and elapsed_min < sticky_minutes and current_rank <= 15:
             print(f"    [*] [Top-K 黏性審計] 現任 IP {current_ip} (排名 #{current_rank}, 已服役 {elapsed_min:.1f}/{sticky_minutes} 分鐘) 執行健康複檢...")
@@ -318,18 +333,29 @@ def select_best_verified_ip(
     # -------------------------------------------------------------------------
     # 階段 2：【新血候選池過濾與選拔】
     # -------------------------------------------------------------------------
-    # (A) 黑名單與撞車前置過濾：在切分 prefer_country 候選池與截取測活名額「之前」，先剔除黑名單與已分配 IP
+    # (A) 黑名單、撞車與繞美前置過濾
     healthy_candidates = [
         item for item in ip_list
-        if not (state_mgr and state_mgr.is_blacklisted(item[0]))
+        if not item[0].startswith(us_blacklist_prefixes)
+        and item[1].upper() not in target_reject_list
+        and not (state_mgr and state_mgr.is_blacklisted(item[0]))
         and (used_ips_in_run is None or item[0] not in used_ips_in_run)
     ]
     if len(healthy_candidates) < len(ip_list):
         diff = len(ip_list) - len(healthy_candidates)
-        print(f"    [*] [前置過濾] 已自候選清單預先剔除 {diff} 顆黑名單/冷卻/已佔用 IP (剩餘 {len(healthy_candidates)} 顆可用)")
+        print(f"    [*] [前置過濾] 已自候選清單預先剔除 {diff} 顆黑名單/冷卻/已佔用/繞美 IP (剩餘 {len(healthy_candidates)} 顆可用)")
 
-    primary_candidates = [item for item in healthy_candidates if item[1].upper() == preferred_country.upper()] if preferred_country else list(healthy_candidates)
-    fallback_candidates = [item for item in healthy_candidates if item not in primary_candidates]
+    primary_candidates = []
+    if target_prefer_list:
+        for pref in target_prefer_list:
+            matched = [item for item in healthy_candidates if item[1].upper() == pref]
+            for m_item in matched:
+                if m_item not in primary_candidates:
+                    primary_candidates.append(m_item)
+        fallback_candidates = [item for item in healthy_candidates if item not in primary_candidates]
+    else:
+        primary_candidates = list(healthy_candidates)
+        fallback_candidates = []
 
     def verify_pool(pool: List[Tuple[str, str]], pool_desc: str) -> Optional[Tuple[str, str, str, float]]:
         if not pool:
@@ -600,6 +626,8 @@ def perform_db_sync(
         best_choice = select_best_verified_ip(
             ip_pool,
             preferred_country=pref_country,
+            prefer_countries=item.get("prefer_countries"),
+            reject_countries=item.get("reject_countries", ["US"]),
             rank=rank,
             strategy=strategy,
             current_ip=curr_host,

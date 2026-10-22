@@ -1,5 +1,5 @@
 {
-  "_comment": "V2Board (Xiao 版) 節點入口純 IP 替換設定檔 (v3.2.0 實戰自癒版)",
+  "_comment": "V2Board (Xiao 版) 節點入口純 IP 替換設定檔 (v4.0.0 實戰自癒與防繞美版)",
   "database": {
     "host": "127.0.0.1",
     "port": 3306,
@@ -20,7 +20,8 @@
       "carrier": "ct",
       "table": "ct",
       "prefer_country": "JP",
-      "country": "JP",
+      "prefer_countries": ["JP", "HK", "SG"],
+      "reject_countries": ["US"],
       "strategy": "top_k_sticky",
       "top_k": 8,
       "sticky_minutes": 15,
@@ -33,7 +34,8 @@
       "carrier": "cm",
       "table": "cm",
       "prefer_country": "HK",
-      "country": "HK",
+      "prefer_countries": ["HK", "SG", "JP"],
+      "reject_countries": ["US"],
       "strategy": "top_k_sticky",
       "top_k": 8,
       "sticky_minutes": 15,

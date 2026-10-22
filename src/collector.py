@@ -64,19 +64,19 @@ def collect_carrier_candidates_with_domain_map(
                 ip = item["ip"]
                 domain_map[domain]["ips"].add(ip)
 
-                # 電信 (CT) 嚴格遵循落地規則：僅收錄落地為新加坡 (SG) 與日本 (JP) 之節點
-                if c_code == "ct":
-                    landing = lookup_carrier_landing_country(ip, c_code)
-                    if landing not in ("JP", "SG") and prefer_reg not in ("JP", "SG"):
-                        continue
+                # 焊死電信/聯通/移動繞美黑名單 (104.18~26.*, 172.67.* 等)
+                from src.cn_real_tester import is_blacklisted_us_range
+                if is_blacklisted_us_range(ip, c_code):
+                    continue
 
+                lat_val = float(d_info.get("cn_latency_ms", 999.0))
                 if ip not in direct_map:
                     direct_map[ip] = {
                         "ip": ip,
                         "domain": domain,
                         "carrier": c_code,
                         "target_carrier": c_code,
-                        "cn_latency_ms": float(d_info["cn_latency_ms"]),
+                        "cn_latency_ms": lat_val,
                         "speed_mbs": float(d_info.get("speed_mbs", 12.0)),
                         "score": float(d_info.get("score", 90.0)),
                         "hit_ratio": item["hit_ratio"],
@@ -86,8 +86,8 @@ def collect_carrier_candidates_with_domain_map(
                 else:
                     # 若多個優選網域都指向同一顆好 IP，累加其命中權重並取最低延遲
                     direct_map[ip]["hit_ratio"] = round(direct_map[ip]["hit_ratio"] + item["hit_ratio"], 2)
-                    if float(d_info["cn_latency_ms"]) < direct_map[ip]["cn_latency_ms"]:
-                        direct_map[ip]["cn_latency_ms"] = float(d_info["cn_latency_ms"])
+                    if lat_val < direct_map[ip]["cn_latency_ms"]:
+                        direct_map[ip]["cn_latency_ms"] = lat_val
                     if prefer_reg and not direct_map[ip].get("prefer_region"):
                         direct_map[ip]["prefer_region"] = prefer_reg
 

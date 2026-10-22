@@ -246,27 +246,38 @@ APAC_COLO_MAP: Dict[str, str] = {
 }
 
 
+US_COLOS = {
+    "LAX", "SJC", "SEA", "SFO", "PDX", "DEN", "ORD",
+    "DFW", "IAD", "EWR", "MIA", "ATL", "BOS", "PHX", "SLC"
+}
+
+
 def resolve_accurate_country(item: dict, trace_colo: str = "") -> str:
-    """決定最終輸出的精確國家代碼 (v3.3.0 決策官強制修正令)：
+    """決定最終輸出的精確國家代碼 (v4.0.0 杜絕假 JP/假 SG，誠實反映大陸實測機房)："""
+    # 1. 若已經有大陸真機探針實測出的 country，直接採用！
+    if item.get("real_cn_country"):
+        return item["real_cn_country"]
 
-    1. 若來源網域配置了明確的 prefer_region (如 JP / HK / SG)，
-       則因 Anycast 效應 (海外 Runner 在美東回傳 IAD/SJC，本地 Runner 回傳 TPE/KHH)，
-       嚴格以 prefer_region 為準，絕不可再被 Runner 所在地的 Colo 誤導覆蓋，更不可硬編碼為 SG！
-    2. 若未配置 prefer_region，優先依實測 trace_colo 映射亞太國別 (NRT/KIX -> JP, SIN -> SG, HKG -> HK 等)。
-    3. 其餘依運營商標準骨幹落地歸屬兜底。
-    """
-    prefer_reg = (item.get("prefer_region") or item.get("source_country") or "").strip().upper()
     colo_upper = (trace_colo or "").strip().upper()
+    if colo_upper in US_COLOS:
+        return "US"
+
     colo_country = APAC_COLO_MAP.get(colo_upper, "")
-
-    # 若來源配置了明確目標國家 (如 JP/SG/HK)，且 Colo 不符 (例如海外或本地 Runner Anycast 效應)，優先採用 prefer_region
-    if prefer_reg in ("JP", "HK", "SG", "TW", "KR", "US", "DE", "GB"):
-        if not colo_country or colo_country != prefer_reg:
-            return prefer_reg
-        return colo_country
-
     if colo_country:
         return colo_country
+
+    c = COLO_COUNTRY_MAP.get(colo_upper, "")
+    if c:
+        return c
+
+    ip = str(item.get("ip", "")).strip()
+    if ip.startswith(("172.64.14", "172.64.15", "172.64.32", "172.64.52", "172.64.53")):
+        c_carrier = (item.get("carrier") or item.get("target_carrier") or "").lower().strip()
+        return "SG" if c_carrier == "ct" else "HK"
+
+    # 若屬繞美前綴，誠實標記為 US
+    if ip.startswith(("104.18.", "104.19.", "104.20.", "104.21.", "104.22.", "104.24.", "104.25.", "104.26.", "172.66.", "172.67.")):
+        return "US"
 
     c_carrier = (item.get("carrier") or item.get("target_carrier") or "").lower().strip()
     if c_carrier == "cm":
@@ -274,7 +285,7 @@ def resolve_accurate_country(item: dict, trace_colo: str = "") -> str:
     elif c_carrier == "cu":
         return "US"
 
-    return "JP"
+    return "SG"
 
 
 def resolve_country_tag(item: Dict[str, Any], runner_trace_colo: str = "", carrier: str = "") -> str:

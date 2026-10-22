@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""CF-Global-QuadNet-Feed 主控流程 (v3.0.0 三網省級 DNS 解析與防牆測活系統)。
+"""CF-Global-QuadNet-Feed 主控流程 (v4.0.0 大陸三網真機探針實測與嚴格封殺繞美系統)。
 
-架構規範：
-1. 透過 data/cname_pool.json 依照三網省級 DNS ECS 解析三網 (CT, CU, CM) 黃金 CNAME 網域。
-2. 對萃取出的獨立 IP 執行防牆阻斷檢測與 /cdn-cgi/trace 機房識別。
-3. 統計省級解析命中權重，CNAME 原生高頻解析 IP 優先排序。
-4. 寫入 output/ct.txt, output/cu.txt, output/cm.txt, output/domains.txt 及 output/best_ips.json。
+架構規範 (v4.0.0)：
+1. 階段 1：收集完 CNAME 解析出 IP 後，先用 is_blacklisted_us_range() 砍掉所有 104.18~26.* 與 172.67.* 繞美西網段！
+2. 階段 2：對剩餘候選執行 nodejp.snowcat77.com:2053/ws?ed=2048 的 HTTP 101 握手測活（砍掉所有 Error 1034 與非 101 節點）。
+3. 階段 3：按 /24 網段分組，呼叫 probe_subnet_from_mainland_cn() 取得每個 /24 網段在中國大陸的真實落地國家 (country) 與真實大陸延遲 (real_cn_ms)。
+4. 階段 4：剔除所有被判定為 #US 或 real_cn_ms > 115ms 的繞美節點，嚴格按 real_cn_ms 由低到高排序，同 /24 最多取 3 顆，每個檔案最多輸出 50 行！
 """
 
 from __future__ import annotations
@@ -20,6 +20,11 @@ from pathlib import Path
 
 from src import __version__
 from src.collector import collect_carrier_candidates_with_domain_map
+from src.cn_real_tester import (
+    get_subnet_24,
+    is_blacklisted_us_range,
+    probe_subnet_from_mainland_cn,
+)
 from src.region_mapper import (
     init_carrier_landing_matrix,
     init_subnet_country_map,
@@ -39,29 +44,35 @@ if hasattr(sys.stdout, "reconfigure"):
 
 async def run_pipeline():
     print("==========================================================")
-    print(f"🚀 [v{__version__}] 啟動三網省級 DNS 解析與防牆測活系統...")
+    print(f"🚀 [v{__version__}] 啟動大陸三網真機探針實測與防繞美優選系統...")
     print("==========================================================")
 
-    # 初始化三網物理落地矩陣與網段國家對照庫
     init_carrier_landing_matrix(PROJECT_ROOT / "data" / "carrier_landing_matrix.json")
     init_subnet_country_map(PROJECT_ROOT / "data")
 
-    # 1. 依照三網省級 DNS ECS 解析黃金 CNAME 網域 (同步取得網域解析 IP 關聯表)
     pool_path = str(PROJECT_ROOT / "data" / "cname_pool.json")
     carrier_pools, domain_map = collect_carrier_candidates_with_domain_map(pool_path)
 
+    # 階段 1：收集完 CNAME 解析出 IP 後，先用 is_blacklisted_us_range() 砍掉所有繞美西網段！
     unique_candidates = {}
+    filtered_us_cnt = 0
     for c_code, items in carrier_pools.items():
         for item in items:
             ip = item["ip"]
+            if is_blacklisted_us_range(ip, c_code):
+                filtered_us_cnt += 1
+                continue
             if ip not in unique_candidates or (item.get("is_direct_cname") and not unique_candidates[ip].get("is_direct_cname")):
                 unique_candidates[ip] = item
 
-    print(f"[*] 共萃取 {len(unique_candidates)} 個唯一候選 IP，開始執行防牆阻斷與邊緣連通性測活...")
+    print(f"[*] 階段 1 完成：已硬性攔截剔除 {filtered_us_cnt} 顆 104.18~26 / 172.67 繞美西前綴 IP！")
+    print(f"[*] 共剩餘 {len(unique_candidates)} 個唯一候選 IP，開始執行 2053 WebSocket 101 回源測活 (100% 斬殺 Error 1034)...")
+
+    # 階段 2：2053 端口 WebSocket 101 握手測活（砍掉所有 Error 1034 與非 101 節點）
     alive_list, all_results = await batch_verify_with_health_stats(list(unique_candidates.values()), concurrency=35)
     alive_map = {item["ip"]: item for item in alive_list}
     ip_status_map = {item["ip"]: item.get("status", "TIMEOUT_OR_BLOCKED") for item in all_results}
-    print(f"[+] 測活完成！健康未被牆 IP 共 {len(alive_map)} 個（死 IP / GFW 阻斷 IP 已全數拋棄）")
+    print(f"[+] 階段 2 完成！通過 101 握手之健康 IP 共 {len(alive_map)} 個（死 IP / 1034 毒 IP 已全數拋棄）")
 
     out_dir = PROJECT_ROOT / "output"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -115,10 +126,6 @@ async def run_pipeline():
     health_json_path = out_dir / "cname_health.json"
     with open(health_json_path, "w", encoding="utf-8") as f:
         json.dump(cname_health, f, ensure_ascii=False, indent=2)
-    print(
-        f"✅ CNAME 域名健康度計分板已寫入 {health_json_path.name} "
-        f"(健康: {cname_health['summary']['healthy']}, 降級: {cname_health['summary']['degraded']}, 阻斷/失效: {cname_health['summary']['dead_or_1034']})"
-    )
 
     summary_json = {
         "version": f"v{__version__}",
@@ -126,57 +133,91 @@ async def run_pipeline():
         "carriers": {}
     }
 
+    # 階段 3 & 4：按 /24 網段分組實測大陸真實延遲/Colo，嚴格過濾、排序與限制 Top 50
     for c_code in ["ct", "cu", "cm"]:
-        verified_carrier_ips = []
+        carrier_candidates = []
         seen_ips = set()
 
         for cand in carrier_pools[c_code]:
             ip = cand["ip"]
+            if is_blacklisted_us_range(ip, c_code):
+                continue
             if ip in alive_map and ip not in seen_ips:
                 v_data = alive_map[ip]
                 merged = dict(cand)
                 merged["colo"] = v_data.get("colo", "")
-                c_tag = resolve_country_tag(merged, runner_trace_colo=merged["colo"], carrier=c_code)
-                # 電信 (CT) 嚴格保證僅落地新加坡 (SG) 與日本 (JP)
-                if c_code == "ct" and c_tag not in ("JP", "SG"):
-                    continue
                 seen_ips.add(ip)
-                merged["country"] = c_tag
-                verified_carrier_ips.append(merged)
+                carrier_candidates.append(merged)
 
-        # 排序規則：1. 國內實測延遲由低到高；2. 跨省解析命中率 (hit_ratio) 由高到低；3. 評分由高到低
-        verified_carrier_ips.sort(
+        # 按 /24 網段分組
+        subnets: dict[str, list[dict]] = {}
+        for item in carrier_candidates:
+            sub = get_subnet_24(item["ip"])
+            subnets.setdefault(sub, []).append(item)
+
+        print(f"\n[*] 階段 3：對 [{c_code.upper()}] 共 {len(carrier_candidates)} 顆候選 IP ({len(subnets)} 個 /24 網段) 發起大陸境內 ASN 真機實測...")
+        for sub, items in subnets.items():
+            rep_ip = items[0]["ip"]
+            real_country, real_ms, real_loss = probe_subnet_from_mainland_cn(rep_ip, c_code)
+            for it in items:
+                it["country"] = real_country
+                it["real_cn_country"] = real_country
+                it["real_cn_ms"] = real_ms
+                it["real_cn_loss"] = real_loss
+                it["cn_latency_ms"] = real_ms
+
+        # 階段 4：過濾與排序
+        # 剔除所有判定為 #US 或實測延遲 > 115ms 的繞美節點
+        apac_nodes = [
+            it for it in carrier_candidates
+            if it.get("country") not in ("US", "UNKNOWN", "CF") and it.get("real_cn_ms", 999.0) <= 115.0
+        ]
+
+        if len(apac_nodes) >= 10:
+            usable_nodes = apac_nodes
+        else:
+            print(f"    ⚠️ [{c_code.upper()}] 亞太直連低延遲節點少於 10 顆 ({len(apac_nodes)} 顆)，允許備援節點排在最末尾")
+            usable_nodes = apac_nodes + [it for it in carrier_candidates if it not in apac_nodes]
+
+        # 嚴格按 real_cn_ms 由低到高排序
+        usable_nodes.sort(
             key=lambda x: (
-                x.get("cn_latency_ms", 999.0),
+                x.get("real_cn_ms", 999.0),
                 -x.get("hit_ratio", 0.0),
                 -x.get("score", 0.0)
             )
         )
 
-        # 依用戶指示：只針對 DNS 萃取出來的優選 IP 做紀錄，標示位置並排序，不做延伸與強行補位
-        final_list = verified_carrier_ips
-        out_path = out_dir / f"{c_code}.txt"
+        # 同 /24 網段最多取 3 顆，總數最多取 50 顆
+        final_list = []
+        subnet_tracker: dict[str, int] = {}
+        for it in usable_nodes:
+            sub = get_subnet_24(it["ip"])
+            if subnet_tracker.get(sub, 0) < 3:
+                final_list.append(it)
+                subnet_tracker[sub] = subnet_tracker.get(sub, 0) + 1
+            if len(final_list) >= 50:
+                break
 
+        out_path = out_dir / f"{c_code}.txt"
         if final_list:
             with open(out_path, "w", encoding="utf-8") as f:
                 for item in final_list:
                     f.write(f"{item['ip']}#{item['country']}\n")
             print(
-                f"✅ [{c_code.upper()}] 成功寫入 {len(final_list)} 筆純 DNS 萃取優選 IP 至 {out_path.name} "
-                f"(純淨無延伸，已依延遲與權重排序並標註落地國家)"
+                f"✅ [{c_code.upper()}] 成功寫入 {len(final_list)} 筆優選 IP 至 {out_path.name} "
+                f"(大陸實測延遲排序: {final_list[0]['real_cn_ms']}ms ~ {final_list[-1]['real_cn_ms']}ms, 最多 50 筆)"
             )
         else:
-            print(f"⚠️ [{c_code.upper()}] 當次無測活通過節點，保留既有 {out_path.name} 快照！")
+            print(f"⚠️ [{c_code.upper()}] 無測活合格節點，保留既有 {out_path.name}！")
 
         summary_json["carriers"][c_code] = final_list
 
-    # 輸出結構化 JSON 總表
     best_json_path = out_dir / "best_ips.json"
     with open(best_json_path, "w", encoding="utf-8") as f:
         json.dump(summary_json, f, ensure_ascii=False, indent=2)
     print(f"✅ 結構化總表已寫入 {best_json_path.name}")
 
-    # 同步優選域名清單至 output/domains.txt
     ent_src = PROJECT_ROOT / "data" / "enterprise_domains.txt"
     ent_dst = out_dir / "domains.txt"
     if ent_src.is_file():

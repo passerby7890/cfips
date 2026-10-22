@@ -1,17 +1,19 @@
 # =====================================================================
-# 中國電信 (CT) 專屬優選 CNAME 域名清單
+# 中國電信 (CT) 專屬優選 CNAME 域名清單 (v4.0.0 純淨版)
 # =====================================================================
-www.visa.co.jp
-japan.com
-cf.090227.xyz
+cfyx.aliyun.20237737.xyz
+ctsg.cfyx.aliyun.20237737.xyz
+eteaf.cf.3666888.xyz
 cfsaas.080112.xyz
 224322.xyz
 www.090902.xyz
-eteaf.cf.3666888.xyz
+cf.090227.xyz
 cloudflare.19931110.xyz
+yg12.ygkkk.dpdns.org
+yg8.ygkkk.dpdns.org
+yg6.ygkkk.dpdns.org
+prompt.gzcrtw.com
+666.cf.cname.vvhan.com
 bestcf.top
-www.asda.com
-www.shopify.com
-openai.com
-www.broadcom.com
-
+cf.877774.xyz
+freeyx.cloudflare88.eu.org
