@@ -2,45 +2,55 @@
 # 三網專屬優選 CNAME 域名清單 (24H 實時監控榜單)
 # =====================================================================
 
-# --- 中國電信 (CT) 專屬優選域名 (企業大廠高權重版) ---
-www.chrono24.com:443#電信優選 | Chrono24
-www.aesop.com:443#電信優選 | Aesop
-www.casetify.com:443#電信優選 | CASETiFY
-www.3cecosmetics.com:443#電信優選 | 3CE
-www.buy123.com.tw:443#電信優選 | 生活市集 (TW)
-www.algolia.com:443#電信優選 | Algolia
-www.propertyguru.com.sg:443#電信優選 | PropertyGuru (SG)
-www.pedroshoes.com:443#電信優選 | Pedro (SG)
-www.highsnobiety.com:443#電信優選 | Highsnobiety
-makerworld.com:443#電信優選 | MakerWorld
-www.hydroflask.com:443#電信優選 | Hydro Flask
-www.liberty.co.uk:443#電信優選 | Liberty London
-www.shopify.com:443#電信優選 | Shopify
-www.rhbgroup.com:443#電信優選 | RHB Bank (SG)
-kinsta.com:443#電信優選 | Kinsta
-theordinary.com:443#電信優選 | The Ordinary
-www.macpaw.com:443#電信優選 | MacPaw
-www.garmin.co.jp:443#電信優選 | Garmin (JP)
-www.garmin.co.kr:443#電信優選 | Garmin (KR)
+# --- 中國電信 (CT) 專屬優選域名 (企業大廠精選版) ---
+www.on.com:443#電信優選 | On Running
+www.getapp.com:443#電信優選 | GetApp
+www.airasia.com:443#電信優選 | AirAsia
+www.hostgator.com:443#電信優選 | HostGator
+stoplight.io:443#電信優選 | Stoplight
+www.make.com:443#電信優選 | Make
+www.thesaurus.com:443#電信優選 | Thesaurus
+www.carousell.com.my:443#電信優選 | Carousell (MY)
 store.ubi.com:443#電信優選 | Ubisoft
+www.casetify.com:443#電信優選 | CASETiFY
+www.kiehls.com:443#電信優選 | Kiehl's
+www.supabase.com:443#電信優選 | Supabase
+www.byredo.com:443#電信優選 | Byredo
+www.tourneau.com:443#電信優選 | Tourneau
 www.alchemy.com:443#電信優選 | Alchemy
-www.amiami.jp:443#電信優選 | AmiAmi (JP)
-www.foodpanda.sg:443#電信優選 | Foodpanda (SG)
-www.garmin.com.sg:443#電信優選 | Garmin (SG)
-mailersend.com:443#電信優選 | MailerSend
+telnyx.com:443#電信優選 | Telnyx
+www.crocs.com:443#電信優選 | Crocs
+www.posb.com.sg:443#電信優選 | POSB Bank (SG)
+www.merrell.com:443#電信優選 | Merrell
 
 
-# --- 中國移動 (CM) 專屬優選域名 ---
-www.asda.com:443#移動優選 | ASDA (55ms/1.2%丟包)
-www.shopify.com:443#移動優選 | Shopify (58ms/1.5%丟包)
-openai.com:443#移動優選 | OpenAI (60ms/1.5%丟包)
-yg8.ygkkk.dpdns.org:443#移動優選 | 甬哥分線8 (64ms/2.0%丟包)
-www.udacity.com:443#移動優選 | Udacity (65ms/1.8%丟包)
-7.cf.3666888.xyz:443#移動優選 | 3666888 分線7 (68ms/2.1%丟包)
-cf.legspcpd.top:443#移動優選 | legspcpd (70ms/2.2%丟包)
-www.carousell.sg:443#移動優選 | 旋轉拍賣 (72ms/2.0%丟包)
-cfvip.cf.3666888.xyz:443#移動優選 | 3666888 VIP (75ms/2.3%丟包)
-cf.92555.xyz:443#移動優選 | 92555 (78ms/2.5%丟包)
+# --- 中國移動 (CM) 專屬優選域名 (企業大廠高權重版) ---
+www.chrono24.com:443#移動優選 | Chrono24
+www.aesop.com:443#移動優選 | Aesop
+www.casetify.com:443#移動優選 | CASETiFY
+www.3cecosmetics.com:443#移動優選 | 3CE
+www.buy123.com.tw:443#移動優選 | 生活市集 (TW)
+www.algolia.com:443#移動優選 | Algolia
+www.propertyguru.com.sg:443#移動優選 | PropertyGuru (SG)
+www.pedroshoes.com:443#移動優選 | Pedro (SG)
+www.highsnobiety.com:443#移動優選 | Highsnobiety
+makerworld.com:443#移動優選 | MakerWorld
+www.hydroflask.com:443#移動優選 | Hydro Flask
+www.liberty.co.uk:443#移動優選 | Liberty London
+www.shopify.com:443#移動優選 | Shopify
+www.rhbgroup.com:443#移動優選 | RHB Bank (SG)
+kinsta.com:443#移動優選 | Kinsta
+theordinary.com:443#移動優選 | The Ordinary
+www.macpaw.com:443#移動優選 | MacPaw
+www.garmin.co.jp:443#移動優選 | Garmin (JP)
+www.garmin.co.kr:443#移動優選 | Garmin (KR)
+store.ubi.com:443#移動優選 | Ubisoft
+www.alchemy.com:443#移動優選 | Alchemy
+www.amiami.jp:443#移動優選 | AmiAmi (JP)
+www.foodpanda.sg:443#移動優選 | Foodpanda (SG)
+www.garmin.com.sg:443#移動優選 | Garmin (SG)
+mailersend.com:443#移動優選 | MailerSend
+
 
 # --- 中國聯通 (CU) 專屬優選域名 ---
 www.shopify.com:443#聯通優選 | Shopify (110ms/0%丟包)

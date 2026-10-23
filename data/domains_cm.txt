@@ -1,14 +1,28 @@
 # =====================================================================
-# 中國移動 (CM) 專屬優選 CNAME 域名清單
+# 中國移動 (CM) 專屬優選 CNAME 域名清單 (v4.4.1 亞太直連大廠版)
 # =====================================================================
-www.asda.com
+www.chrono24.com
+www.aesop.com
+www.casetify.com
+www.3cecosmetics.com
+www.buy123.com.tw
+www.algolia.com
+www.propertyguru.com.sg
+www.pedroshoes.com
+www.highsnobiety.com
+makerworld.com
+www.hydroflask.com
+www.liberty.co.uk
 www.shopify.com
-openai.com
-yg8.ygkkk.dpdns.org
-www.udacity.com
-7.cf.3666888.xyz
-cf.legspcpd.top
-www.carousell.sg
-cfvip.cf.3666888.xyz
-cf.92555.xyz
-cdn.aneko.ink
+www.rhbgroup.com
+kinsta.com
+theordinary.com
+www.macpaw.com
+www.garmin.co.jp
+www.garmin.co.kr
+store.ubi.com
+www.alchemy.com
+www.amiami.jp
+www.foodpanda.sg
+www.garmin.com.sg
+mailersend.com

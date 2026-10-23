@@ -52,6 +52,27 @@
   },
   "carriers": {
     "ct": [
+      { "domain": "www.on.com" },
+      { "domain": "www.getapp.com" },
+      { "domain": "www.airasia.com" },
+      { "domain": "www.hostgator.com" },
+      { "domain": "stoplight.io" },
+      { "domain": "www.make.com" },
+      { "domain": "www.thesaurus.com" },
+      { "domain": "www.carousell.com.my" },
+      { "domain": "store.ubi.com" },
+      { "domain": "www.casetify.com" },
+      { "domain": "www.kiehls.com" },
+      { "domain": "www.supabase.com" },
+      { "domain": "www.byredo.com" },
+      { "domain": "www.tourneau.com" },
+      { "domain": "www.alchemy.com" },
+      { "domain": "telnyx.com" },
+      { "domain": "www.crocs.com" },
+      { "domain": "www.posb.com.sg" },
+      { "domain": "www.merrell.com" }
+    ],
+    "cm": [
       { "domain": "www.chrono24.com" },
       { "domain": "www.aesop.com" },
       { "domain": "www.casetify.com" },
@@ -77,21 +98,6 @@
       { "domain": "www.foodpanda.sg" },
       { "domain": "www.garmin.com.sg" },
       { "domain": "mailersend.com" }
-    ],
-    "cm": [
-      { "domain": "cf.godns.cc" },
-      { "domain": "ctsg.cfyx.aliyun.20237737.xyz" },
-      { "domain": "cfyx.aliyun.20237737.xyz" },
-      { "domain": "yg12.ygkkk.dpdns.org" },
-      { "domain": "prompt.gzcrtw.com" },
-      { "domain": "youxuan.cf.636949.xyz" },
-      { "domain": "eteaf.cf.3666888.xyz" },
-      { "domain": "yg8.ygkkk.dpdns.org" },
-      { "domain": "666.cf.cname.vvhan.com" },
-      { "domain": "cf.090227.xyz" },
-      { "domain": "bestcf.top" },
-      { "domain": "cf.877774.xyz" },
-      { "domain": "cdn.aneko.ink" }
     ],
     "cu": [
       { "domain": "www.090902.xyz" },
