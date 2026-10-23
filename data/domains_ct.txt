@@ -1,22 +1,28 @@
 # =====================================================================
-# 中國電信 (CT) 專屬優選 CNAME 域名清單 (v4.0.0 純淨版)
+# 中國電信 (CT) 專屬優選 CNAME 域名清單 (v4.4.0 企業大廠高權重版)
 # =====================================================================
-cfyx.aliyun.20237737.xyz
-ctsg.cfyx.aliyun.20237737.xyz
-eteaf.cf.3666888.xyz
-cfsaas.080112.xyz
-224322.xyz
-www.090902.xyz
-cf.090227.xyz
-cloudflare.19931110.xyz
-yg12.ygkkk.dpdns.org
-yg8.ygkkk.dpdns.org
-yg6.ygkkk.dpdns.org
-prompt.gzcrtw.com
-666.cf.cname.vvhan.com
-bestcf.top
-cf.877774.xyz
-freeyx.cloudflare88.eu.org
-www.ntu.edu.sg
-ip.skk.moe
-cdn.aneko.ink
+www.chrono24.com
+www.aesop.com
+www.casetify.com
+www.3cecosmetics.com
+www.buy123.com.tw
+www.algolia.com
+www.propertyguru.com.sg
+www.pedroshoes.com
+www.highsnobiety.com
+makerworld.com
+www.hydroflask.com
+www.liberty.co.uk
+www.shopify.com
+www.rhbgroup.com
+kinsta.com
+theordinary.com
+www.macpaw.com
+www.garmin.co.jp
+www.garmin.co.kr
+store.ubi.com
+www.alchemy.com
+www.amiami.jp
+www.foodpanda.sg
+www.garmin.com.sg
+mailersend.com
