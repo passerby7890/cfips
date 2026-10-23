@@ -3,25 +3,48 @@
 # =====================================================================
 
 # --- 中國電信 (CT) 專屬優選域名 (企業大廠精選版) ---
-www.on.com:443#電信優選 | On Running
-www.getapp.com:443#電信優選 | GetApp
-www.airasia.com:443#電信優選 | AirAsia
-www.hostgator.com:443#電信優選 | HostGator
-stoplight.io:443#電信優選 | Stoplight
-www.make.com:443#電信優選 | Make
-www.thesaurus.com:443#電信優選 | Thesaurus
-www.carousell.com.my:443#電信優選 | Carousell (MY)
-store.ubi.com:443#電信優選 | Ubisoft
-www.casetify.com:443#電信優選 | CASETiFY
-www.kiehls.com:443#電信優選 | Kiehl's
-www.supabase.com:443#電信優選 | Supabase
-www.byredo.com:443#電信優選 | Byredo
-www.tourneau.com:443#電信優選 | Tourneau
-www.alchemy.com:443#電信優選 | Alchemy
-telnyx.com:443#電信優選 | Telnyx
-www.crocs.com:443#電信優選 | Crocs
-www.posb.com.sg:443#電信優選 | POSB Bank (SG)
-www.merrell.com:443#電信優選 | Merrell
+wpengine.com:443#電信優選
+console.groq.com:443#電信優選
+www.liberty.co.uk:443#電信優選
+www.pedroshoes.com:443#電信優選
+www.goat.com:443#電信優選
+www.specialized.com:443#電信優選
+www.umbraco.com:443#電信優選
+www.zwilling.com:443#電信優選
+www.domain.com:443#電信優選
+www.cannondale.com:443#電信優選
+www.aweber.com:443#電信優選
+www.jago.com:443#電信優選
+www.saucony.com:443#電信優選
+www.bluehost.com:443#電信優選
+www.lululemon.com.hk:443#電信優選
+www.on-running.com:443#電信優選
+www.propertyguru.com.my:443#電信優選
+mailerlite.com:443#電信優選
+www.charleskeith.com:443#電信優選
+www.selfridges.com:443#電信優選
+www.foodpanda.my:443#電信優選
+www.lululemon.co.kr:443#電信優選
+www.petzl.com:443#電信優選
+www.topping.audio:443#電信優選
+auth0.com:443#電信優選
+steelseries.com:443#電信優選
+www.aesop.com:443#電信優選
+www.akg.com:443#電信優選
+linear.app:443#電信優選
+www.casetify.com:443#電信優選
+codecanyon.net:443#電信優選
+makerworld.com:443#電信優選
+elements.envato.com:443#電信優選
+www.yslbeauty.com:443#電信優選
+www.foodpanda.com.tw:443#電信優選
+www.shopify.com:443#電信優選
+www.lululemon.co.jp:443#電信優選
+placeit.net:443#電信優選
+www.zendesk.com:443#電信優選
+www.glassdoor.com:443#電信優選
+www.omnisend.com:443#電信優選
+
 
 
 # --- 中國移動 (CM) 專屬優選域名 (企業大廠高權重版) ---

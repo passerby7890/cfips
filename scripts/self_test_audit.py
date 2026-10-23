@@ -96,7 +96,7 @@ def run_redteam_audit() -> bool:
         with open(matrix_path, "r", encoding="utf-8") as f:
             ecs_matrix = json.load(f)
         ct_anchors = ecs_matrix.get("ct", [])
-        test_domain = "www.on.com"
+        test_domain = "wpengine.com"
         print(f"[*] 正在驗證單網域多 IP 榨取率 ({test_domain} + CT 12 省 ECS)...")
         sample_res = exhaustive_resolve_domain_for_carrier(test_domain, ct_anchors, rounds=1)
         extracted_ips = [x["ip"] for x in sample_res]
