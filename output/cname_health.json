@@ -1,194 +1,84 @@
 {
   "version": "v4.2.0",
-  "updated_at": "2026-10-23T03:40:26.794852+00:00",
+  "updated_at": "2026-10-23T05:10:11.077970+00:00",
   "summary": {
-    "total_domains": 42,
-    "healthy": 18,
-    "degraded": 3,
-    "dead_or_1034": 21
+    "total_domains": 50,
+    "healthy": 47,
+    "degraded": 2,
+    "dead_or_1034": 1
   },
   "domains": {
-    "www.chrono24.com": {
+    "www.on.com": {
       "carrier": "ct",
       "total_ips": 2,
-      "alive_ips": 0,
+      "alive_ips": 2,
       "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "www.aesop.com": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "www.casetify.com": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "www.3cecosmetics.com": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "www.buy123.com.tw": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "www.algolia.com": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "www.propertyguru.com.sg": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "www.pedroshoes.com": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "www.highsnobiety.com": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "makerworld.com": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "www.hydroflask.com": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "www.liberty.co.uk": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "www.shopify.com": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "www.rhbgroup.com": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "kinsta.com": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "theordinary.com": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "www.macpaw.com": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "www.garmin.co.jp": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 1,
-      "error_1034_ips": 0,
-      "timeout_ips": 1,
-      "alive_rate": "50.0%",
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
-    "www.garmin.co.kr": {
+    "www.getapp.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.airasia.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.hostgator.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "stoplight.io": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.make.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.thesaurus.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.carousell.com.my": {
       "carrier": "ct",
       "total_ips": 2,
       "alive_ips": 2,
@@ -208,6 +98,56 @@
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
+    "www.casetify.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.kiehls.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.supabase.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.byredo.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.tourneau.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
     "www.alchemy.com": {
       "carrier": "ct",
       "total_ips": 2,
@@ -218,7 +158,7 @@
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
-    "www.amiami.jp": {
+    "telnyx.com": {
       "carrier": "ct",
       "total_ips": 2,
       "alive_ips": 2,
@@ -228,17 +168,7 @@
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
-    "www.foodpanda.sg": {
-      "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "www.garmin.com.sg": {
+    "www.crocs.com": {
       "carrier": "ct",
       "total_ips": 2,
       "alive_ips": 2,
@@ -248,7 +178,17 @@
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
-    "mailersend.com": {
+    "www.posb.com.sg": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.merrell.com": {
       "carrier": "ct",
       "total_ips": 2,
       "alive_ips": 2,
@@ -280,11 +220,11 @@
     },
     "cf.877771.xyz": {
       "carrier": "cu",
-      "total_ips": 15,
-      "alive_ips": 7,
+      "total_ips": 13,
+      "alive_ips": 3,
       "error_1034_ips": 0,
-      "timeout_ips": 8,
-      "alive_rate": "46.7%",
+      "timeout_ips": 10,
+      "alive_rate": "23.1%",
       "error_1034_rate": "0.0%",
       "status": "DEGRADED"
     },
@@ -300,28 +240,28 @@
     },
     "cfyx.aliyun.20237737.xyz": {
       "carrier": "cu",
-      "total_ips": 18,
-      "alive_ips": 8,
-      "error_1034_ips": 8,
+      "total_ips": 11,
+      "alive_ips": 6,
+      "error_1034_ips": 3,
       "timeout_ips": 2,
-      "alive_rate": "44.4%",
-      "error_1034_rate": "44.4%",
-      "status": "DEGRADED"
+      "alive_rate": "54.5%",
+      "error_1034_rate": "27.3%",
+      "status": "HEALTHY"
     },
     "eteaf.cf.3666888.xyz": {
       "carrier": "cu",
-      "total_ips": 38,
-      "alive_ips": 36,
+      "total_ips": 5,
+      "alive_ips": 3,
       "error_1034_ips": 2,
       "timeout_ips": 0,
-      "alive_rate": "94.7%",
-      "error_1034_rate": "5.3%",
+      "alive_rate": "60.0%",
+      "error_1034_rate": "40.0%",
       "status": "HEALTHY"
     },
     "cf.090227.xyz": {
       "carrier": "cu",
-      "total_ips": 66,
-      "alive_ips": 66,
+      "total_ips": 19,
+      "alive_ips": 19,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
@@ -330,66 +270,16 @@
     },
     "bestcf.top": {
       "carrier": "cu",
-      "total_ips": 6,
-      "alive_ips": 5,
+      "total_ips": 4,
+      "alive_ips": 3,
       "error_1034_ips": 0,
       "timeout_ips": 1,
-      "alive_rate": "83.3%",
+      "alive_rate": "75.0%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
     "cf.877774.xyz": {
       "carrier": "cu",
-      "total_ips": 38,
-      "alive_ips": 38,
-      "error_1034_ips": 0,
-      "timeout_ips": 0,
-      "alive_rate": "100.0%",
-      "error_1034_rate": "0.0%",
-      "status": "HEALTHY"
-    },
-    "cf.godns.cc": {
-      "carrier": "cm",
-      "total_ips": 2,
-      "alive_ips": 2,
-      "error_1034_ips": 0,
-      "timeout_ips": 0,
-      "alive_rate": "100.0%",
-      "error_1034_rate": "0.0%",
-      "status": "HEALTHY"
-    },
-    "ctsg.cfyx.aliyun.20237737.xyz": {
-      "carrier": "cm",
-      "total_ips": 2,
-      "alive_ips": 2,
-      "error_1034_ips": 0,
-      "timeout_ips": 0,
-      "alive_rate": "100.0%",
-      "error_1034_rate": "0.0%",
-      "status": "HEALTHY"
-    },
-    "yg12.ygkkk.dpdns.org": {
-      "carrier": "cm",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "prompt.gzcrtw.com": {
-      "carrier": "cm",
-      "total_ips": 2,
-      "alive_ips": 0,
-      "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
-      "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
-    },
-    "youxuan.cf.636949.xyz": {
-      "carrier": "cm",
       "total_ips": 10,
       "alive_ips": 10,
       "error_1034_ips": 0,
@@ -398,30 +288,220 @@
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
-    "yg8.ygkkk.dpdns.org": {
+    "www.chrono24.com": {
       "carrier": "cm",
-      "total_ips": 45,
-      "alive_ips": 45,
+      "total_ips": 2,
+      "alive_ips": 2,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
-    "666.cf.cname.vvhan.com": {
+    "www.aesop.com": {
       "carrier": "cm",
-      "total_ips": 45,
-      "alive_ips": 45,
+      "total_ips": 2,
+      "alive_ips": 2,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
-    "cdn.aneko.ink": {
+    "www.3cecosmetics.com": {
       "carrier": "cm",
-      "total_ips": 1,
-      "alive_ips": 1,
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.buy123.com.tw": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.algolia.com": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.propertyguru.com.sg": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.pedroshoes.com": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.highsnobiety.com": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "makerworld.com": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.hydroflask.com": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.liberty.co.uk": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.shopify.com": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.rhbgroup.com": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "kinsta.com": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "theordinary.com": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.macpaw.com": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.garmin.co.jp": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.garmin.co.kr": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.amiami.jp": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.foodpanda.sg": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.garmin.com.sg": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "mailersend.com": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
