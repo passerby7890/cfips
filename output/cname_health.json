@@ -1,11 +1,11 @@
 {
   "version": "v4.2.0",
-  "updated_at": "2026-10-28T03:28:20.727218+00:00",
+  "updated_at": "2026-10-28T10:09:52.352206+00:00",
   "summary": {
     "total_domains": 79,
-    "healthy": 58,
-    "degraded": 1,
-    "dead_or_1034": 20
+    "healthy": 57,
+    "degraded": 3,
+    "dead_or_1034": 19
   },
   "domains": {
     "wpengine.com": {
@@ -141,12 +141,12 @@
     "www.bluehost.com": {
       "carrier": "ct",
       "total_ips": 2,
-      "alive_ips": 0,
+      "alive_ips": 2,
       "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
       "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
+      "status": "HEALTHY"
     },
     "www.lululemon.com.hk": {
       "carrier": "ct",
@@ -420,11 +420,11 @@
     },
     "www.090902.xyz": {
       "carrier": "cu",
-      "total_ips": 7,
-      "alive_ips": 2,
+      "total_ips": 9,
+      "alive_ips": 4,
       "error_1034_ips": 0,
       "timeout_ips": 5,
-      "alive_rate": "28.6%",
+      "alive_rate": "44.4%",
       "error_1034_rate": "0.0%",
       "status": "DEGRADED"
     },
@@ -440,13 +440,13 @@
     },
     "cf.877771.xyz": {
       "carrier": "cu",
-      "total_ips": 13,
-      "alive_ips": 7,
+      "total_ips": 11,
+      "alive_ips": 3,
       "error_1034_ips": 0,
-      "timeout_ips": 6,
-      "alive_rate": "53.8%",
+      "timeout_ips": 8,
+      "alive_rate": "27.3%",
       "error_1034_rate": "0.0%",
-      "status": "HEALTHY"
+      "status": "DEGRADED"
     },
     "cfsaas.080112.xyz": {
       "carrier": "cu",
@@ -460,13 +460,13 @@
     },
     "cfyx.aliyun.20237737.xyz": {
       "carrier": "cu",
-      "total_ips": 15,
+      "total_ips": 18,
       "alive_ips": 8,
-      "error_1034_ips": 5,
+      "error_1034_ips": 8,
       "timeout_ips": 2,
-      "alive_rate": "53.3%",
-      "error_1034_rate": "33.3%",
-      "status": "HEALTHY"
+      "alive_rate": "44.4%",
+      "error_1034_rate": "44.4%",
+      "status": "DEGRADED"
     },
     "eteaf.cf.3666888.xyz": {
       "carrier": "cu",
@@ -480,8 +480,8 @@
     },
     "cf.090227.xyz": {
       "carrier": "cu",
-      "total_ips": 21,
-      "alive_ips": 21,
+      "total_ips": 23,
+      "alive_ips": 23,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
