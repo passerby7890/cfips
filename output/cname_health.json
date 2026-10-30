@@ -1,11 +1,11 @@
 {
   "version": "v4.2.0",
-  "updated_at": "2026-10-30T00:03:09.102605+00:00",
+  "updated_at": "2026-10-30T03:56:18.013270+00:00",
   "summary": {
     "total_domains": 79,
-    "healthy": 63,
-    "degraded": 2,
-    "dead_or_1034": 14
+    "healthy": 57,
+    "degraded": 3,
+    "dead_or_1034": 19
   },
   "domains": {
     "wpengine.com": {
@@ -91,52 +91,52 @@
     "www.domain.com": {
       "carrier": "ct",
       "total_ips": 2,
-      "alive_ips": 1,
+      "alive_ips": 0,
       "error_1034_ips": 0,
-      "timeout_ips": 1,
-      "alive_rate": "50.0%",
+      "timeout_ips": 2,
+      "alive_rate": "0.0%",
       "error_1034_rate": "0.0%",
-      "status": "HEALTHY"
+      "status": "DEAD_OR_1034"
     },
     "www.cannondale.com": {
       "carrier": "ct",
       "total_ips": 2,
-      "alive_ips": 2,
+      "alive_ips": 0,
       "error_1034_ips": 0,
-      "timeout_ips": 0,
-      "alive_rate": "100.0%",
+      "timeout_ips": 2,
+      "alive_rate": "0.0%",
       "error_1034_rate": "0.0%",
-      "status": "HEALTHY"
+      "status": "DEAD_OR_1034"
     },
     "www.aweber.com": {
       "carrier": "ct",
       "total_ips": 2,
-      "alive_ips": 2,
+      "alive_ips": 0,
       "error_1034_ips": 0,
-      "timeout_ips": 0,
-      "alive_rate": "100.0%",
+      "timeout_ips": 2,
+      "alive_rate": "0.0%",
       "error_1034_rate": "0.0%",
-      "status": "HEALTHY"
+      "status": "DEAD_OR_1034"
     },
     "www.jago.com": {
       "carrier": "ct",
       "total_ips": 2,
-      "alive_ips": 2,
+      "alive_ips": 0,
       "error_1034_ips": 0,
-      "timeout_ips": 0,
-      "alive_rate": "100.0%",
+      "timeout_ips": 2,
+      "alive_rate": "0.0%",
       "error_1034_rate": "0.0%",
-      "status": "HEALTHY"
+      "status": "DEAD_OR_1034"
     },
     "www.saucony.com": {
       "carrier": "ct",
       "total_ips": 2,
-      "alive_ips": 2,
+      "alive_ips": 0,
       "error_1034_ips": 0,
-      "timeout_ips": 0,
-      "alive_rate": "100.0%",
+      "timeout_ips": 2,
+      "alive_rate": "0.0%",
       "error_1034_rate": "0.0%",
-      "status": "HEALTHY"
+      "status": "DEAD_OR_1034"
     },
     "www.bluehost.com": {
       "carrier": "ct",
@@ -420,13 +420,13 @@
     },
     "www.090902.xyz": {
       "carrier": "cu",
-      "total_ips": 5,
-      "alive_ips": 0,
+      "total_ips": 7,
+      "alive_ips": 2,
       "error_1034_ips": 0,
       "timeout_ips": 5,
-      "alive_rate": "0.0%",
+      "alive_rate": "28.6%",
       "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
+      "status": "DEGRADED"
     },
     "224322.xyz": {
       "carrier": "cu",
@@ -440,11 +440,11 @@
     },
     "cf.877771.xyz": {
       "carrier": "cu",
-      "total_ips": 15,
+      "total_ips": 12,
       "alive_ips": 3,
       "error_1034_ips": 0,
-      "timeout_ips": 12,
-      "alive_rate": "20.0%",
+      "timeout_ips": 9,
+      "alive_rate": "25.0%",
       "error_1034_rate": "0.0%",
       "status": "DEGRADED"
     },
@@ -460,12 +460,12 @@
     },
     "cfyx.aliyun.20237737.xyz": {
       "carrier": "cu",
-      "total_ips": 13,
-      "alive_ips": 6,
-      "error_1034_ips": 5,
+      "total_ips": 15,
+      "alive_ips": 7,
+      "error_1034_ips": 6,
       "timeout_ips": 2,
-      "alive_rate": "46.2%",
-      "error_1034_rate": "38.5%",
+      "alive_rate": "46.7%",
+      "error_1034_rate": "40.0%",
       "status": "DEGRADED"
     },
     "eteaf.cf.3666888.xyz": {
@@ -480,8 +480,8 @@
     },
     "cf.090227.xyz": {
       "carrier": "cu",
-      "total_ips": 21,
-      "alive_ips": 21,
+      "total_ips": 23,
+      "alive_ips": 23,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
@@ -500,8 +500,8 @@
     },
     "cf.877774.xyz": {
       "carrier": "cu",
-      "total_ips": 10,
-      "alive_ips": 10,
+      "total_ips": 12,
+      "alive_ips": 12,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
@@ -721,12 +721,12 @@
     "www.humblebundle.com": {
       "carrier": "cm",
       "total_ips": 2,
-      "alive_ips": 2,
+      "alive_ips": 0,
       "error_1034_ips": 0,
-      "timeout_ips": 0,
-      "alive_rate": "100.0%",
+      "timeout_ips": 2,
+      "alive_rate": "0.0%",
       "error_1034_rate": "0.0%",
-      "status": "HEALTHY"
+      "status": "DEAD_OR_1034"
     },
     "www.foodpanda.sg": {
       "carrier": "cm",
