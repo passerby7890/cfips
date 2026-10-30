@@ -1,6 +1,6 @@
 {
   "version": "v4.2.0",
-  "updated_at": "2026-10-29T20:12:51.700221+00:00",
+  "updated_at": "2026-10-30T00:03:09.102605+00:00",
   "summary": {
     "total_domains": 79,
     "healthy": 63,
@@ -91,10 +91,10 @@
     "www.domain.com": {
       "carrier": "ct",
       "total_ips": 2,
-      "alive_ips": 2,
+      "alive_ips": 1,
       "error_1034_ips": 0,
-      "timeout_ips": 0,
-      "alive_rate": "100.0%",
+      "timeout_ips": 1,
+      "alive_rate": "50.0%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
@@ -440,11 +440,11 @@
     },
     "cf.877771.xyz": {
       "carrier": "cu",
-      "total_ips": 12,
+      "total_ips": 15,
       "alive_ips": 3,
       "error_1034_ips": 0,
-      "timeout_ips": 9,
-      "alive_rate": "25.0%",
+      "timeout_ips": 12,
+      "alive_rate": "20.0%",
       "error_1034_rate": "0.0%",
       "status": "DEGRADED"
     },
@@ -480,8 +480,8 @@
     },
     "cf.090227.xyz": {
       "carrier": "cu",
-      "total_ips": 19,
-      "alive_ips": 19,
+      "total_ips": 21,
+      "alive_ips": 21,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
