@@ -1,6 +1,6 @@
 {
   "version": "v4.2.0",
-  "updated_at": "2026-10-30T10:44:30.120561+00:00",
+  "updated_at": "2026-10-30T17:00:46.510373+00:00",
   "summary": {
     "total_domains": 79,
     "healthy": 73,
@@ -440,11 +440,11 @@
     },
     "cf.877771.xyz": {
       "carrier": "cu",
-      "total_ips": 21,
+      "total_ips": 18,
       "alive_ips": 7,
       "error_1034_ips": 0,
-      "timeout_ips": 14,
-      "alive_rate": "33.3%",
+      "timeout_ips": 11,
+      "alive_rate": "38.9%",
       "error_1034_rate": "0.0%",
       "status": "DEGRADED"
     },
@@ -460,12 +460,12 @@
     },
     "cfyx.aliyun.20237737.xyz": {
       "carrier": "cu",
-      "total_ips": 18,
+      "total_ips": 17,
       "alive_ips": 8,
-      "error_1034_ips": 8,
+      "error_1034_ips": 7,
       "timeout_ips": 2,
-      "alive_rate": "44.4%",
-      "error_1034_rate": "44.4%",
+      "alive_rate": "47.1%",
+      "error_1034_rate": "41.2%",
       "status": "DEGRADED"
     },
     "eteaf.cf.3666888.xyz": {
