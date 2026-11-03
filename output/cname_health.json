@@ -1,11 +1,11 @@
 {
   "version": "v4.2.0",
-  "updated_at": "2026-11-02T16:59:26.061740+00:00",
+  "updated_at": "2026-11-03T00:01:23.315019+00:00",
   "summary": {
     "total_domains": 79,
-    "healthy": 61,
-    "degraded": 3,
-    "dead_or_1034": 15
+    "healthy": 63,
+    "degraded": 2,
+    "dead_or_1034": 14
   },
   "domains": {
     "wpengine.com": {
@@ -101,12 +101,12 @@
     "www.cannondale.com": {
       "carrier": "ct",
       "total_ips": 2,
-      "alive_ips": 0,
+      "alive_ips": 1,
       "error_1034_ips": 0,
-      "timeout_ips": 2,
-      "alive_rate": "0.0%",
+      "timeout_ips": 1,
+      "alive_rate": "50.0%",
       "error_1034_rate": "0.0%",
-      "status": "DEAD_OR_1034"
+      "status": "HEALTHY"
     },
     "www.aweber.com": {
       "carrier": "ct",
@@ -420,11 +420,11 @@
     },
     "www.090902.xyz": {
       "carrier": "cu",
-      "total_ips": 9,
-      "alive_ips": 4,
+      "total_ips": 7,
+      "alive_ips": 2,
       "error_1034_ips": 0,
       "timeout_ips": 5,
-      "alive_rate": "44.4%",
+      "alive_rate": "28.6%",
       "error_1034_rate": "0.0%",
       "status": "DEGRADED"
     },
@@ -440,11 +440,11 @@
     },
     "cf.877771.xyz": {
       "carrier": "cu",
-      "total_ips": 13,
+      "total_ips": 12,
       "alive_ips": 3,
       "error_1034_ips": 0,
-      "timeout_ips": 10,
-      "alive_rate": "23.1%",
+      "timeout_ips": 9,
+      "alive_rate": "25.0%",
       "error_1034_rate": "0.0%",
       "status": "DEGRADED"
     },
@@ -460,13 +460,13 @@
     },
     "cfyx.aliyun.20237737.xyz": {
       "carrier": "cu",
-      "total_ips": 13,
+      "total_ips": 12,
       "alive_ips": 6,
-      "error_1034_ips": 5,
+      "error_1034_ips": 4,
       "timeout_ips": 2,
-      "alive_rate": "46.2%",
-      "error_1034_rate": "38.5%",
-      "status": "DEGRADED"
+      "alive_rate": "50.0%",
+      "error_1034_rate": "33.3%",
+      "status": "HEALTHY"
     },
     "eteaf.cf.3666888.xyz": {
       "carrier": "cu",
@@ -480,8 +480,8 @@
     },
     "cf.090227.xyz": {
       "carrier": "cu",
-      "total_ips": 19,
-      "alive_ips": 19,
+      "total_ips": 21,
+      "alive_ips": 21,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
