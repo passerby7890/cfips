@@ -1,10 +1,10 @@
 {
   "version": "v4.2.0",
-  "updated_at": "2026-11-06T10:35:47.421980+00:00",
+  "updated_at": "2026-11-06T17:45:59.911514+00:00",
   "summary": {
     "total_domains": 79,
-    "healthy": 74,
-    "degraded": 2,
+    "healthy": 75,
+    "degraded": 1,
     "dead_or_1034": 3
   },
   "domains": {
@@ -420,13 +420,13 @@
     },
     "www.090902.xyz": {
       "carrier": "cu",
-      "total_ips": 9,
+      "total_ips": 7,
       "alive_ips": 4,
       "error_1034_ips": 0,
-      "timeout_ips": 5,
-      "alive_rate": "44.4%",
+      "timeout_ips": 3,
+      "alive_rate": "57.1%",
       "error_1034_rate": "0.0%",
-      "status": "DEGRADED"
+      "status": "HEALTHY"
     },
     "224322.xyz": {
       "carrier": "cu",
@@ -480,8 +480,8 @@
     },
     "cf.090227.xyz": {
       "carrier": "cu",
-      "total_ips": 19,
-      "alive_ips": 19,
+      "total_ips": 17,
+      "alive_ips": 17,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
