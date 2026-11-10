@@ -1,10 +1,10 @@
 {
   "version": "v4.2.0",
-  "updated_at": "2026-11-10T00:53:02.675055+00:00",
+  "updated_at": "2026-11-10T08:02:16.357426+00:00",
   "summary": {
     "total_domains": 79,
-    "healthy": 72,
-    "degraded": 3,
+    "healthy": 73,
+    "degraded": 2,
     "dead_or_1034": 4
   },
   "domains": {
@@ -440,13 +440,13 @@
     },
     "cf.877771.xyz": {
       "carrier": "cu",
-      "total_ips": 17,
+      "total_ips": 14,
       "alive_ips": 7,
       "error_1034_ips": 0,
-      "timeout_ips": 10,
-      "alive_rate": "41.2%",
+      "timeout_ips": 7,
+      "alive_rate": "50.0%",
       "error_1034_rate": "0.0%",
-      "status": "DEGRADED"
+      "status": "HEALTHY"
     },
     "cfsaas.080112.xyz": {
       "carrier": "cu",
@@ -460,12 +460,12 @@
     },
     "cfyx.aliyun.20237737.xyz": {
       "carrier": "cu",
-      "total_ips": 16,
-      "alive_ips": 6,
-      "error_1034_ips": 8,
+      "total_ips": 17,
+      "alive_ips": 8,
+      "error_1034_ips": 7,
       "timeout_ips": 2,
-      "alive_rate": "37.5%",
-      "error_1034_rate": "50.0%",
+      "alive_rate": "47.1%",
+      "error_1034_rate": "41.2%",
       "status": "DEGRADED"
     },
     "eteaf.cf.3666888.xyz": {
@@ -480,8 +480,8 @@
     },
     "cf.090227.xyz": {
       "carrier": "cu",
-      "total_ips": 19,
-      "alive_ips": 19,
+      "total_ips": 21,
+      "alive_ips": 21,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
@@ -690,10 +690,10 @@
     },
     "www.garmin.com.cn": {
       "carrier": "cm",
-      "total_ips": 7,
+      "total_ips": 6,
       "alive_ips": 0,
       "error_1034_ips": 0,
-      "timeout_ips": 7,
+      "timeout_ips": 6,
       "alive_rate": "0.0%",
       "error_1034_rate": "0.0%",
       "status": "DEAD_OR_1034"
