@@ -1,6 +1,6 @@
 {
   "version": "v4.2.0",
-  "updated_at": "2026-11-09T17:17:03.260869+00:00",
+  "updated_at": "2026-11-10T00:53:02.675055+00:00",
   "summary": {
     "total_domains": 79,
     "healthy": 72,
@@ -480,8 +480,8 @@
     },
     "cf.090227.xyz": {
       "carrier": "cu",
-      "total_ips": 21,
-      "alive_ips": 21,
+      "total_ips": 19,
+      "alive_ips": 19,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
@@ -550,10 +550,10 @@
     },
     "wiki.bambulab.com": {
       "carrier": "cm",
-      "total_ips": 7,
+      "total_ips": 5,
       "alive_ips": 0,
       "error_1034_ips": 0,
-      "timeout_ips": 7,
+      "timeout_ips": 5,
       "alive_rate": "0.0%",
       "error_1034_rate": "0.0%",
       "status": "DEAD_OR_1034"
