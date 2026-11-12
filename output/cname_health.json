@@ -1,11 +1,11 @@
 {
   "version": "v4.5.0",
-  "updated_at": "2026-11-12T09:12:28.493733+00:00",
+  "updated_at": "2026-11-12T12:21:34.903803+00:00",
   "summary": {
     "total_domains": 75,
-    "healthy": 75,
+    "healthy": 74,
     "degraded": 0,
-    "dead_or_1034": 0
+    "dead_or_1034": 1
   },
   "domains": {
     "wpengine.com": {
@@ -280,13 +280,13 @@
     },
     "www.akg.com": {
       "carrier": "ct",
-      "total_ips": 2,
-      "alive_ips": 2,
+      "total_ips": 0,
+      "alive_ips": 0,
       "error_1034_ips": 0,
       "timeout_ips": 0,
-      "alive_rate": "100.0%",
+      "alive_rate": "0.0%",
       "error_1034_rate": "0.0%",
-      "status": "HEALTHY"
+      "status": "DEAD_OR_1034"
     },
     "linear.app": {
       "carrier": "ct",
@@ -440,11 +440,11 @@
     },
     "cdn.discordapp.com": {
       "carrier": "cu",
-      "total_ips": 5,
+      "total_ips": 6,
       "alive_ips": 5,
       "error_1034_ips": 0,
-      "timeout_ips": 0,
-      "alive_rate": "100.0%",
+      "timeout_ips": 1,
+      "alive_rate": "83.3%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
