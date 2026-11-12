@@ -93,7 +93,15 @@
       { "domain": "www.zendesk.com" },
       { "domain": "www.glassdoor.com" },
       { "domain": "www.omnisend.com" },
-      { "domain": "cf.877774.xyz", "prefer_region": "JP" }
+      { "domain": "cf.877774.xyz", "prefer_region": "JP" },
+      { "domain": "www.coinbase.com" },
+      { "domain": "www.crunchyroll.com" },
+      { "domain": "developers.cloudflare.com" },
+      { "domain": "community.cloudflare.com" },
+      { "domain": "www.digitalocean.com" },
+      { "domain": "www.canva.com" },
+      { "domain": "www.notion.so" },
+      { "domain": "www.box.com" }
     ],
     "cm": [
       { "domain": "ridibooks.com" },
@@ -129,7 +137,13 @@
       { "domain": "www.garmin.co.kr" },
       { "domain": "www.dynadot.com" },
       { "domain": "www.ssense.com" },
-      { "domain": "www.algolia.com" }
+      { "domain": "www.algolia.com" },
+      { "domain": "developers.cloudflare.com" },
+      { "domain": "www.canva.com" },
+      { "domain": "www.notion.so" },
+      { "domain": "www.coinbase.com" },
+      { "domain": "www.digitalocean.com" },
+      { "domain": "www.box.com" }
     ],
     "cu": [
       { "domain": "discord.com" },
@@ -143,7 +157,16 @@
       { "domain": "linear.app" },
       { "domain": "auth0.com" },
       { "domain": "makerworld.com" },
-      { "domain": "elements.envato.com" }
+      { "domain": "elements.envato.com" },
+      { "domain": "www.postman.com" },
+      { "domain": "www.canva.com" },
+      { "domain": "www.udemy.com" },
+      { "domain": "www.kraken.com" },
+      { "domain": "developers.cloudflare.com" },
+      { "domain": "www.notion.so" },
+      { "domain": "www.digitalocean.com" },
+      { "domain": "www.coinbase.com" },
+      { "domain": "www.box.com" }
     ]
   }
 }

@@ -42,3 +42,12 @@ placeit.net
 www.zendesk.com
 www.glassdoor.com
 www.omnisend.com
+# --- 新增實測通過之頂級大廠 Enterprise 站點 (v4.6.2) ---
+www.coinbase.com
+www.crunchyroll.com
+developers.cloudflare.com
+community.cloudflare.com
+www.digitalocean.com
+www.canva.com
+www.notion.so
+www.box.com

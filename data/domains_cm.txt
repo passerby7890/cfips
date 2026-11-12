@@ -37,3 +37,10 @@ www.garmin.co.kr
 www.dynadot.com
 www.ssense.com
 www.algolia.com
+# --- 實測回源 100% 通過之頂級大廠 Enterprise 網域 (v4.6.2) ---
+developers.cloudflare.com
+www.canva.com
+www.notion.so
+www.coinbase.com
+www.digitalocean.com
+www.box.com

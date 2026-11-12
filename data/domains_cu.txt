@@ -1,11 +1,25 @@
 # =====================================================================
-# 中國聯通 (CU) 專屬優選 CNAME 域名清單
+# 中國聯通 (CU) 專屬優選 CNAME 域名清單 (頂級大廠 Enterprise 全自動輪迴版)
 # =====================================================================
+discord.com
+cdn.discordapp.com
+discord.gg
+status.discord.com
+medium.com
 www.shopify.com
+linear.app
+auth0.com
+makerworld.com
+elements.envato.com
+# --- 實測回源 100% 通過之頂級大廠 Enterprise 網域 (v4.6.2) ---
+www.postman.com
+www.canva.com
+www.udemy.com
+www.kraken.com
+developers.cloudflare.com
+www.notion.so
+www.digitalocean.com
+www.coinbase.com
+www.box.com
 www.asda.com
-openai.com
 www.zendesk.com
-investor.apple.com
-cf.godns.cc
-eteaf.cf.3666888.xyz
-cfsaas.080112.xyz
