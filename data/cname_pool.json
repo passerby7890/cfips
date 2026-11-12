@@ -92,7 +92,8 @@
       { "domain": "placeit.net" },
       { "domain": "www.zendesk.com" },
       { "domain": "www.glassdoor.com" },
-      { "domain": "www.omnisend.com" }
+      { "domain": "www.omnisend.com" },
+      { "domain": "cf.877774.xyz", "prefer_region": "JP" }
     ],
     "cm": [
       { "domain": "ridibooks.com" },
@@ -133,15 +134,14 @@
       { "domain": "www.algolia.com" }
     ],
     "cu": [
-      { "domain": "www.090902.xyz" },
-      { "domain": "224322.xyz" },
-      { "domain": "cf.877771.xyz" },
-      { "domain": "cfsaas.080112.xyz" },
-      { "domain": "cfyx.aliyun.20237737.xyz" },
-      { "domain": "eteaf.cf.3666888.xyz" },
-      { "domain": "cf.090227.xyz" },
-      { "domain": "bestcf.top" },
-      { "domain": "cf.877774.xyz" }
+      { "domain": "cf.877774.xyz", "prefer_region": "JP" },
+      { "domain": "cf.877771.xyz", "prefer_region": "HK" },
+      { "domain": "www.shopify.com" },
+      { "domain": "linear.app" },
+      { "domain": "auth0.com" },
+      { "domain": "makerworld.com" },
+      { "domain": "elements.envato.com" },
+      { "domain": "dash.cloudflare.com" }
     ]
   }
 }

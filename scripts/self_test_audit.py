@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""[@QA_RedTeam] VPS789 v4.0.0 大陸三網真機探針實測、零 1034 毒性與防繞美硬性審計腳本。"""
+"""[@QA_RedTeam] VPS789 v4.5.0 大陸三網真機探針實測、零 1034 毒性與防繞美硬性審計腳本。"""
 
 from __future__ import annotations
 
@@ -85,7 +85,7 @@ def verify_origin_ws_101(ip: str, port: int = 2053, sni: str = "nodejp.snowcat77
 
 def run_redteam_audit() -> bool:
     print("==========================================================")
-    print("🔍 [@QA_RedTeam] 啟動 VPS789 v4.0.0 大陸三網真機探針與防繞美審計...")
+    print("🔍 [@QA_RedTeam] 啟動 VPS789 v4.5.0 大陸三網真機探針與防繞美審計...")
     print("==========================================================")
     errors = []
 
@@ -163,6 +163,7 @@ def run_redteam_audit() -> bool:
             print(f"✅ [斷言 3 通過] {carrier.upper()} 輸出總行數合規 ({len(lines)} <= 50 行)")
 
         country_counts: dict[str, int] = {}
+        subnet_counts: dict[str, int] = {}
         for idx, line in enumerate(lines, 1):
             m = LINE_PATTERN.match(line)
             if not m:
@@ -171,34 +172,58 @@ def run_redteam_audit() -> bool:
 
             ip, country = m.group(1), m.group(2)
             country_counts[country] = country_counts.get(country, 0) + 1
+            parts = ip.split(".")
+            sub_24 = f"{parts[0]}.{parts[1]}.{parts[2]}.0/24"
+            subnet_counts[sub_24] = subnet_counts.get(sub_24, 0) + 1
 
             if len(country) != 2:
                 errors.append(f"[{carrier.upper()}] 第 {idx} 行國家標籤長度異常: {country}")
 
-            # 嚴格禁止 #CF 兜底標籤
-            if country == "CF":
-                errors.append(f"[{carrier.upper()}] 致命錯誤！第 {idx} 行出現 #CF 未識別兜底標籤: {line}")
+            # 嚴格禁止 #CF 與 #US 標籤流入清單
+            if country in ("CF", "US"):
+                errors.append(f"[{carrier.upper()}] 致命錯誤！第 {idx} 行出現不合規標籤 #{country}: {line}")
 
             # 斷言 1（真實落地校驗）：172.64.229.* 在電信/聯通下經東京 NTT 互聯，必須精準標註為 #JP，嚴禁誤標為 #SG
             if ip.startswith("172.64.229.") and carrier in ("ct", "cu"):
                 if country != "JP":
                     errors.append(f"[斷言 1 失敗] {carrier.upper()} 第 {idx} 行 {ip} 落地東京 NTT，但被誤標為 #{country} (應為 #JP)！")
 
-        # 斷言 2（拒絕單一假國別刷屏）
+        # 斷言 5（/24 子網分散上限 <= 3 顆）
+        over_subnets = {s: c for s, c in subnet_counts.items() if c > 3}
+        if over_subnets:
+            errors.append(f"[斷言 5 失敗] {carrier.upper()} 違反同 /24 子網 <= 3 顆限制: {over_subnets}")
+        else:
+            print(f"✅ [斷言 5 通過] {carrier.upper()} 子網均勻分散 (共 {len(subnet_counts)} 個 /24 網段，單網段最多 {max(subnet_counts.values(), default=0)} 顆 <= 3)")
+
+        # 斷言 2（拒絕單一假國別刷屏，且電信必須同時涵蓋 JP 與 SG/亞太）
         if carrier == "ct":
-            if len(country_counts) == 1 and "JP" in country_counts and len(lines) > 20:
-                errors.append(f"[斷言 2 失敗] ct.txt 100% 全部都是同一個 #JP 標籤刷屏，判定標籤器故障！")
+            jp_cnt = country_counts.get("JP", 0)
+            if len(country_counts) == 1 and len(lines) > 10:
+                errors.append(f"[斷言 2 失敗] ct.txt 100% 全部都是同一個標籤 {list(country_counts.keys())} 刷屏，缺乏地域容災！")
+            elif jp_cnt < 3:
+                errors.append(f"[斷言 2 失敗] ct.txt 中 #JP 節點僅 {jp_cnt} 顆 (< 3 顆)，日本電信節點將被迫降級！")
             else:
                 dist_str = ", ".join([f"#{k}: {v}顆" for k, v in country_counts.items()])
                 print(f"✅ [斷言 2 通過] CT 國別標籤實測分佈真實多元 ({dist_str})")
 
-        # 斷言 4（實機抽檢 CT 與 CM 榜首大陸延遲與真實亞太落地檢查）
-        if carrier in ("ct", "cm"):
-            try:
-                with open(json_path, "r", encoding="utf-8") as f:
-                    jdata = json.load(f)
-                c_list = jdata.get("carriers", {}).get(carrier, [])
-                if c_list:
+        # 斷言 4 & 6（Top 10 零丟包與榜首大陸延遲檢查）
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                jdata = json.load(f)
+            c_list = jdata.get("carriers", {}).get(carrier, [])
+            if c_list:
+                top10 = c_list[:10]
+                high_loss_top10 = [
+                    f"{n.get('ip')}({n.get('real_cn_loss')}%)"
+                    for n in top10
+                    if float(n.get("real_cn_loss", 100.0)) > 0.0
+                ]
+                if high_loss_top10:
+                    errors.append(f"[斷言 6 失敗] {carrier.upper()} Top 10 存在非零丟包節點: {', '.join(high_loss_top10)}")
+                else:
+                    print(f"✅ [斷言 6 通過] {carrier.upper()} Top {len(top10)} 全數保持 0.0% 丟包率")
+
+                if carrier in ("ct", "cm"):
                     top_node = c_list[0]
                     top_ms = top_node.get("real_cn_ms", 999.0)
                     top_country = top_node.get("country", "")
@@ -209,8 +234,8 @@ def run_redteam_audit() -> bool:
                         errors.append(f"[斷言 4 失敗] {carrier.upper()} 榜首節點 {top_node['ip']} 為 #US 繞美節點！")
                     else:
                         print(f"✅ [斷言 4 通過] {carrier.upper()} 榜首節點 {top_node['ip']} 大陸延遲頂級 ({top_ms}ms <= {max_ms}ms, #{top_country})")
-            except Exception as e:
-                errors.append(f"[斷言 4 失敗] {carrier.upper()} 榜首延遲讀取異常: {e}")
+        except Exception as e:
+            errors.append(f"[斷言 4/6 失敗] {carrier.upper()} JSON 質量讀取異常: {e}")
 
         # 抽檢前 3 名節點之防牆連通性
         sample_ips = [line.split("#")[0] for line in lines[:3] if "#" in line]
@@ -231,7 +256,7 @@ def run_redteam_audit() -> bool:
             print(f"   - {err}")
         return False
 
-    print("\n🎉 [@DecisionMaker] 全部審計通過！v4.0.0 三網深度解析清單 100% 通過驗收，准許發布！")
+    print("\n🎉 [@DecisionMaker] 全部審計通過！v4.5.0 三網深度解析清單 100% 通過驗收，准許發布！")
     return True
 
 

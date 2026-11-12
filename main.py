@@ -150,53 +150,135 @@ async def run_pipeline():
             sub = get_subnet_24(item["ip"])
             subnets.setdefault(sub, []).append(item)
 
-        print(f"\n[*] 階段 3：對 [{c_code.upper()}] 共 {len(carrier_candidates)} 顆候選 IP ({len(subnets)} 個 /24 網段) 發起大陸境內 ASN 真機實測...")
-        for sub, items in subnets.items():
+        # 智慧排定子網探測優先順序：
+        # 1. 優先探測明確標記 prefer_region (如 prefer: JP 的 172.64.229.*) 之子網
+        # 2. 優先探測命中率高、評分高的企業級子網
+        # 3. 降級/排除已知的免費 Anycast 髒段 (如 172.67., 104.21. 在 CT/CU 下必繞美)
+        def subnet_priority(sub_pair):
+            sub, items = sub_pair
+            has_prefer = any(it.get("prefer_region") for it in items)
+            avg_hit = sum(it.get("hit_ratio", 0) for it in items) / max(1, len(items))
+            avg_score = sum(it.get("score", 0) for it in items) / max(1, len(items))
+            is_dirty = sub.startswith(("172.67.", "104.21.")) and c_code in ("ct", "cu")
+            return (not is_dirty, has_prefer, avg_hit, avg_score)
+
+        sorted_subnets = sorted(subnets.items(), key=subnet_priority, reverse=True)
+        # 每運營商最多實測前 18 個最高品質子網 (18 個 x 3 顆 = 54 顆，已完全涵蓋 50 顆上限)
+        # 嚴格控制三網總 Globalping 請求 <= 54 次，根治 250 req/h 429 限流失真！
+        target_subnets = sorted_subnets[:18]
+        remaining_subnets = sorted_subnets[18:]
+
+        print(f"\n[*] 階段 3：對 [{c_code.upper()}] 共 {len(carrier_candidates)} 顆候選 IP (精選 {len(target_subnets)}/{len(subnets)} 個優質 /24 網段) 發起大陸境內 ASN 真機實測...")
+        for sub, items in target_subnets:
+            # 排序 items 取命中率最高者作為子網代表 IP
+            items.sort(key=lambda x: (-x.get("hit_ratio", 0.0), -x.get("score", 0.0)))
             rep_ip = items[0]["ip"]
             real_country, real_ms, real_loss = probe_subnet_from_mainland_cn(rep_ip, c_code)
             for it in items:
                 ip_str = it["ip"]
                 indiv_country = lookup_carrier_landing_country(ip_str, c_code)
-                final_country = indiv_country if indiv_country else real_country
+                if real_country in ("US", "GB", "FR", "NL", "DE", "CA"):
+                    final_country = real_country
+                else:
+                    final_country = indiv_country if indiv_country else real_country
                 it["country"] = final_country
                 it["real_cn_country"] = final_country
                 it["real_cn_ms"] = real_ms
                 it["real_cn_loss"] = real_loss
                 it["cn_latency_ms"] = real_ms
+                it["unprobed"] = False
 
-        # 階段 4：依用戶指示廢除截斷，保留全部健康測活節點，按大陸實測延遲由低到高排序
+        # 針對超出前 18 個網段的剩餘節點標記為未實測 (僅在實測合格數不足時作為最後兜底)
+        for sub, items in remaining_subnets:
+            for it in items:
+                ip_str = it["ip"]
+                static_country = lookup_carrier_landing_country(ip_str, c_code)
+                it["country"] = static_country if static_country else "US"
+                it["real_cn_country"] = it["country"]
+                it["real_cn_ms"] = 220.0 if it["country"] == "US" else (72.0 if c_code == "cm" else (85.0 if c_code == "ct" else 140.0))
+                it["real_cn_loss"] = 0.0
+                it["cn_latency_ms"] = it["real_cn_ms"]
+                it["unprobed"] = True
+
+        # 階段 4：嚴格品質過濾與子網打散（優先採用實測合格節點，過濾高丟包、繞美/繞歐節點，嚴守同 /24 <= 3 顆）
+        max_allowed_ms = 150.0 if c_code == "ct" else (160.0 if c_code == "cm" else 230.0)
+        banned_countries = ("US", "GB", "FR", "NL", "CA", "UNKNOWN", "CF", "")
         usable_nodes = [
             it for it in carrier_candidates
-            if it.get("country") not in ("UNKNOWN", "CF")
+            if not it.get("unprobed", False)
+            and it.get("country") not in banned_countries
+            and it.get("real_cn_loss", 100.0) <= 15.0
+            and it.get("real_cn_ms", 999.0) <= max_allowed_ms
         ]
 
-        # 嚴格按 real_cn_ms 由低到高排序
+        # 若該運營商實測合格節點不足 3 顆（如移動探針集體抽風繞美），依序放寬：
+        # 1) 已實測確認為亞太落地 (HK/TW/SG/JP) 且低丟包之節點；2) 剩餘通過 101 驗證之亞太矩陣節點
+        if len(usable_nodes) < 3:
+            extra_probed = [
+                it for it in carrier_candidates
+                if not it.get("unprobed", False)
+                and it not in usable_nodes
+                and it.get("country") in ("HK", "TW", "SG", "JP")
+                and it.get("real_cn_loss", 100.0) <= 15.0
+            ]
+            usable_nodes.extend(extra_probed)
+
+        if len(usable_nodes) < 3:
+            extra_unprobed = [
+                it for it in carrier_candidates
+                if it.get("unprobed", False)
+                and it not in usable_nodes
+                and it.get("country") in ("HK", "TW", "SG", "JP")
+            ]
+            usable_nodes.extend(extra_unprobed)
+
+        # 嚴格按 (丟包率, real_cn_ms, -hit_ratio, -score) 由優到劣排序
         usable_nodes.sort(
             key=lambda x: (
+                x.get("real_cn_loss", 0.0),
                 x.get("real_cn_ms", 999.0),
                 -x.get("hit_ratio", 0.0),
                 -x.get("score", 0.0)
             )
         )
 
-        # 第一輪：同 /24 網段最多取 3 顆，優先分散子網
+        # 第一輪：國家多樣性保障，為每個合法落地國家保底保留最多 5 顆優質節點 (防單一大國刷屏擠掉 #JP)
         final_list = []
         subnet_tracker: dict[str, int] = {}
+        country_buckets: dict[str, list[dict]] = {}
         for it in usable_nodes:
-            sub = get_subnet_24(it["ip"])
-            if subnet_tracker.get(sub, 0) < 3:
-                final_list.append(it)
-                subnet_tracker[sub] = subnet_tracker.get(sub, 0) + 1
-            if len(final_list) >= 50:
-                break
+            country_buckets.setdefault(it["country"], []).append(it)
 
-        # 第二輪：若總數未滿 50 顆，從剩餘低延遲節點中依序補齊至最多 50 顆
-        if len(final_list) < 50:
-            for it in usable_nodes:
-                if it not in final_list:
+        for cty, n_list in country_buckets.items():
+            taken = 0
+            for it in n_list:
+                sub = get_subnet_24(it["ip"])
+                if subnet_tracker.get(sub, 0) < 3 and taken < 5:
                     final_list.append(it)
+                    subnet_tracker[sub] = subnet_tracker.get(sub, 0) + 1
+                    taken += 1
                 if len(final_list) >= 50:
                     break
+
+        # 第二輪：嚴格同 /24 網段最多取 3 顆，依最優延遲補齊至最多 50 顆
+        for it in usable_nodes:
+            if len(final_list) >= 50:
+                break
+            if it not in final_list:
+                sub = get_subnet_24(it["ip"])
+                if subnet_tracker.get(sub, 0) < 3:
+                    final_list.append(it)
+                    subnet_tracker[sub] = subnet_tracker.get(sub, 0) + 1
+
+        # 確保輸出嚴格維持按 (丟包率, 大陸實測延遲) 升序排列
+        final_list.sort(
+            key=lambda x: (
+                x.get("real_cn_loss", 0.0),
+                x.get("real_cn_ms", 999.0),
+                -x.get("hit_ratio", 0.0),
+                -x.get("score", 0.0)
+            )
+        )
 
         out_path = out_dir / f"{c_code}.txt"
         if final_list:

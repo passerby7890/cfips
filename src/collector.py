@@ -10,7 +10,7 @@ import ipaddress
 import json
 import random
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List, Tuple
 
 from src.dns_extractor import exhaustive_resolve_domain_for_carrier
 from src.region_mapper import lookup_carrier_landing_country
@@ -20,9 +20,13 @@ def collect_carrier_candidates_with_domain_map(
     pool_path: str = "data/cname_pool.json",
     matrix_path: str = "data/cn_ecs_matrix.json"
 ) -> Tuple[Dict[str, List[Dict]], Dict[str, Dict[str, Any]]]:
-    with open(pool_path, "r", encoding="utf-8") as f:
+    pool_file = Path(pool_path).resolve()
+    with open(pool_file, "r", encoding="utf-8") as f:
         pool_cfg = json.load(f)
-    with open(matrix_path, "r", encoding="utf-8") as f:
+    matrix_file_ecs = Path(matrix_path)
+    if not matrix_file_ecs.is_file():
+        matrix_file_ecs = pool_file.parent / matrix_file_ecs.name
+    with open(matrix_file_ecs, "r", encoding="utf-8") as f:
         ecs_matrix = json.load(f)
 
     # 讀取 carrier_landing_matrix 作為亞太直連擴充庫

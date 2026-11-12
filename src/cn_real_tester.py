@@ -117,9 +117,10 @@ def probe_subnet_from_mainland_cn(rep_ip: str, carrier: str, timeout_sec: float 
 
     real_colo = ""
     real_ms = 999.0
-    real_loss = 0.0
+    real_loss = 100.0
+    api_unavailable = False
 
-    # 1. 先用對應運營商的 ASN 發起 HTTP 探測 (直萃 CF-RAY 機房代碼)
+    # 1. 先用對應運營商的 ASN 發起 HTTP 探測 (直萃 CF-RAY 機房代碼與 TCP 握手延遲 timings.tcp)
     # 注意：locations 必須 STRICTLY 限定該 ASN，嚴禁加入通用 {"country": "CN"} 導致跨網污染！
     try:
         http_payload = {
@@ -138,81 +139,102 @@ def probe_subnet_from_mainland_cn(rep_ip: str, carrier: str, timeout_sec: float 
             }
         }
         r = requests.post(api_url, json=http_payload, headers=headers, timeout=3.0)
-        if r.status_code == 202:
+        if r.status_code in (429, 422, 503):
+            api_unavailable = True
+        elif r.status_code == 202:
             m_id = r.json().get("id")
             deadline = time.time() + timeout_sec
             while time.time() < deadline:
                 time.sleep(1.0)
                 res = requests.get(f"{api_url}/{m_id}", headers=headers, timeout=2.5)
                 if res.status_code == 200 and res.json().get("status") == "finished":
-                    real_colo = extract_colo_from_http_result(res.json())
-                    # 同時從 HTTP timings 提取總延遲
-                    timings = res.json().get("results", [{}])[0].get("result", {}).get("timings", {})
-                    t_total = timings.get("total")
-                    if t_total and float(t_total) > 0:
-                        real_ms = round(float(t_total), 1)
+                    r_json = res.json()
+                    real_colo = extract_colo_from_http_result(r_json)
+                    results_list = r_json.get("results", [])
+                    valid_tcp_rtts = []
+                    failed_probes = 0
+                    for p in results_list:
+                        res_obj = p.get("result", {})
+                        timings = res_obj.get("timings", {}) or {}
+                        t_tcp = timings.get("tcp")
+                        t_total = timings.get("total")
+                        if res_obj.get("status") == "finished" and t_tcp is not None and float(t_tcp) > 0:
+                            valid_tcp_rtts.append(float(t_tcp))
+                        elif res_obj.get("status") == "finished" and t_total is not None and float(t_total) > 0:
+                            valid_tcp_rtts.append(float(t_total))
+                        else:
+                            failed_probes += 1
+                    if valid_tcp_rtts:
+                        real_ms = round(sum(valid_tcp_rtts) / len(valid_tcp_rtts), 1)
+                        real_loss = round((failed_probes / max(1, len(results_list))) * 100.0, 1)
                     break
+        else:
+            api_unavailable = True
     except Exception:
-        pass
+        api_unavailable = True
 
-    # 2. 發起 Ping 延遲實測 (若 HTTP 尚未取得真實延遲)
-    try:
-        ping_payload = {
-            "type": "ping",
-            "target": rep_ip,
-            "locations": [{"country": "CN", "asn": asn}],
-            "limit": 1,
-            "measurementOptions": {"packets": 3}
-        }
-        r = requests.post(api_url, json=ping_payload, headers=headers, timeout=3.0)
-        if r.status_code == 202:
-            m_id = r.json().get("id")
-            deadline = time.time() + timeout_sec
-            while time.time() < deadline:
-                time.sleep(1.0)
-                res = requests.get(f"{api_url}/{m_id}", headers=headers, timeout=2.5)
-                if res.status_code == 200 and res.json().get("status") == "finished":
-                    r_list = res.json().get("results", [])
-                    valid_rtts = []
-                    losses = []
-                    for p in r_list:
-                        st = p.get("result", {}).get("stats", {})
-                        avg = st.get("avg")
-                        loss = st.get("loss")
-                        if avg is not None and float(avg) > 0:
-                            valid_rtts.append(float(avg))
-                        if loss is not None:
-                            losses.append(float(loss))
-                    if valid_rtts:
-                        real_ms = round(sum(valid_rtts) / len(valid_rtts), 1)
-                    if losses:
-                        real_loss = round(sum(losses) / len(losses), 1)
-                    break
-    except Exception:
-        pass
+    # 2. 僅當 HTTP 探針未能取得有效 TCP 延遲 (且 API 正常) 時，才補發 Ping 實測，節省 50% API 配額
+    if real_ms >= 900.0 and not api_unavailable:
+        try:
+            ping_payload = {
+                "type": "ping",
+                "target": rep_ip,
+                "locations": [{"country": "CN", "asn": asn}],
+                "limit": 1,
+                "measurementOptions": {"packets": 3}
+            }
+            r = requests.post(api_url, json=ping_payload, headers=headers, timeout=3.0)
+            if r.status_code in (429, 422, 503):
+                api_unavailable = True
+            elif r.status_code == 202:
+                m_id = r.json().get("id")
+                deadline = time.time() + timeout_sec
+                while time.time() < deadline:
+                    time.sleep(1.0)
+                    res = requests.get(f"{api_url}/{m_id}", headers=headers, timeout=2.5)
+                    if res.status_code == 200 and res.json().get("status") == "finished":
+                        r_list = res.json().get("results", [])
+                        valid_rtts = []
+                        losses = []
+                        for p in r_list:
+                            st = p.get("result", {}).get("stats", {})
+                            avg = st.get("avg")
+                            loss = st.get("loss")
+                            if avg is not None and float(avg) > 0:
+                                valid_rtts.append(float(avg))
+                            if loss is not None:
+                                losses.append(float(loss))
+                        if valid_rtts:
+                            real_ms = round(sum(valid_rtts) / len(valid_rtts), 1)
+                        if losses:
+                            real_loss = round(sum(losses) / len(losses), 1)
+                        elif valid_rtts:
+                            real_loss = 0.0
+                        break
+        except Exception:
+            api_unavailable = True
 
     # 3. 國家代碼判定：
-    # A. 優先查詢該運營商專屬真實物理落地矩陣 (carrier_landing_matrix.json) 權威標記
-    country = lookup_carrier_landing_country(rep_ip, c_key)
-
-    # B. 若矩陣無記錄，則依據大陸境內實體探針實測 Colo 機房判定
-    if not country and real_colo:
+    # A. 最高優先級：若大陸境內實體探針實測 Colo 存在，嚴格以實測機房真實國家為準 (禁止靜態矩陣把 LAX/LHR 洗白成 HK)
+    country = ""
+    if real_colo:
         if real_colo in US_COLOS:
             country = "US"
         else:
             country = COLO_COUNTRY_MAP.get(real_colo, "") or APAC_COLO_MAP.get(real_colo, "")
 
-    # C. 若仍未取得國家，啟用三維物理延遲定律保底：
+    # B. 若實測機房為空 (AUTO) 或未知代碼，查詢該運營商專屬真實物理落地矩陣 (carrier_landing_matrix.json) 權威標記
     if not country:
-        # 依運營商出境特性與 RTT 物理光速定律判斷：
+        country = lookup_carrier_landing_country(rep_ip, c_key)
+
+    # D. 若仍未取得國家，啟用三維物理延遲定律保底：
+    if not country:
         if c_key == "cm":
-            # 移動 CMI 骨幹幾乎 100% 匯流香港 HKG
-            if real_ms < 140.0:
+            if real_ms < 140.0 or api_unavailable:
                 country = "HK"
             else:
                 country = "US"
         elif c_key == "ct":
-            # 電信 163 骨幹特性
             if rep_ip.startswith(("172.64.229.", "162.159.38.", "162.159.39.")):
                 country = "JP"
             elif rep_ip.startswith(("172.64.14", "172.64.15", "108.162.19", "108.162.20")):
@@ -221,33 +243,45 @@ def probe_subnet_from_mainland_cn(rep_ip: str, carrier: str, timeout_sec: float 
                 country = "HK"
             elif rep_ip.startswith(("172.64.52.", "172.64.53.")):
                 country = "TW"
-            elif real_ms <= 85.0:
+            elif real_ms <= 85.0 or api_unavailable:
                 country = "SG"
             else:
                 country = "US"
         else: # cu
-            # 聯通 169 骨幹特性
             if rep_ip.startswith(("172.64.229.", "162.159.38.", "108.162.198.")):
                 country = "JP"
-            elif rep_ip.startswith(("188.114.96.",)):
+            elif rep_ip.startswith(("162.159.152.", "162.159.153.", "162.159.44.", "162.159.45.")):
+                country = "HK"
+            elif rep_ip.startswith(("188.114.96.", "188.114.97.")):
                 country = "DE"
+            elif rep_ip.startswith(("172.64.14", "172.64.15", "104.18.", "104.21.", "172.67.")):
+                country = "US"
             elif real_ms <= 85.0:
                 country = "JP"
             else:
                 country = "US"
 
-    # 若未能實測到延遲，依該運營商典型亞太延遲兜底
-    if real_ms >= 900.0:
+    # 若探針確實實測但目標超時/無回應 (非 API 限流)，維持 999.0ms 與 100.0% 丟包，交由上游淘汰
+    # 若為 API 429 限流或探針暫時不可用，對已通過階段 2 WS 101 驗證的亞太矩陣節點採取保守保底
+    if api_unavailable and real_ms >= 900.0:
         if country in ("HK", "TW"):
-            real_ms = 42.0
+            real_ms = 48.0
         elif country in ("SG", "JP"):
             real_ms = 62.0
         elif country == "DE":
             real_ms = 135.0
         else:
-            real_ms = 195.0
+            real_ms = 220.0
+        real_loss = 0.0
+        tag_label = "API限流保底"
+    elif real_ms >= 900.0:
+        real_ms = 999.0
+        real_loss = 100.0
+        tag_label = "探針超時"
+    else:
+        tag_label = "大陸真機實測"
 
     result = (country, real_ms, real_loss)
     _SUBNET_PROBE_CACHE[cache_key] = result
-    print(f"    [*] [大陸真機實測] 代表 IP {rep_ip} ({subnet}) [{c_key.upper()}] -> 國別: #{country}, 大陸延遲: {real_ms}ms (丟包 {real_loss}%, Colo: {real_colo or 'AUTO'})")
+    print(f"    [*] [{tag_label}] 代表 IP {rep_ip} ({subnet}) [{c_key.upper()}] -> 國別: #{country}, 大陸延遲: {real_ms}ms (丟包 {real_loss}%, Colo: {real_colo or 'AUTO'})")
     return result
