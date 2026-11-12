@@ -12,3 +12,4 @@ venv/
 MAINTAINER_GUIDE.md
 output_dryrun/
 scratch/
+data/probe_cache.json

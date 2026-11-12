@@ -1,6 +1,6 @@
 {
-  "version": "v4.5.0",
-  "updated_at": "2026-11-12T12:21:34.903803+00:00",
+  "version": "v4.6.0",
+  "updated_at": "2026-11-12T15:19:47.718187+00:00",
   "summary": {
     "total_domains": 75,
     "healthy": 74,
@@ -440,11 +440,11 @@
     },
     "cdn.discordapp.com": {
       "carrier": "cu",
-      "total_ips": 6,
+      "total_ips": 5,
       "alive_ips": 5,
       "error_1034_ips": 0,
-      "timeout_ips": 1,
-      "alive_rate": "83.3%",
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
