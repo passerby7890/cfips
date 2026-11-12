@@ -1,6 +1,6 @@
 {
   "version": "v4.6.0",
-  "updated_at": "2026-11-12T15:19:47.718187+00:00",
+  "updated_at": "2026-11-12T15:50:53.226061+00:00",
   "summary": {
     "total_domains": 75,
     "healthy": 74,
@@ -480,8 +480,8 @@
     },
     "cf.877771.xyz": {
       "carrier": "cu",
-      "total_ips": 6,
-      "alive_ips": 6,
+      "total_ips": 2,
+      "alive_ips": 2,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
