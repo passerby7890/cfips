@@ -1,7 +1,7 @@
 # Cloudflare 三網優選與 V2Board 直寫架構全景手冊 (SOP)
 
-> **版本**：v4.5.0 (純 IP 面板直通版)  
-> **更新時間**：2026-10-23  
+> **版本**：v4.5.1 (三網深度解析與聯通物理路由校正版)  
+> **更新時間**：2026-11-12  
 > **核心宗旨**：徹底廢除 Cloudflare DNS 綁定模式，改採 **「GitHub Actions 雲端造水 + v2board_syncer 資料庫直寫純 IP」** 雙段閉環架構，實現 0 DNS 延遲、0 污染、真亞太直連。
 
 ---
@@ -20,21 +20,21 @@
 ```mermaid
 flowchart TD
     subgraph S1["第一段：雲端造水廠 (passerby7890/cfips)"]
-        D["data/cname_pool.json<br/>(電信 41 + 移動 36 + 聯通 9)"] --> P1["1. 全國 12 省真實 ECS 深度挖掘解析"]
+        D["data/cname_pool.json<br/>(三網獨立企業級網域池)"] --> P1["1. 全國 12 省真實 ECS 深度挖掘 + Stage 1 CF 官方 CIDR 白名單過濾"]
         P1 --> P2["2. 2053 端口 WebSocket 101 端到端測活<br/>(100% 斬殺 Error 1034 與假死)"]
-        P2 --> P3["3. 大陸境內真機探針實測 RTT 延遲"]
-        P3 --> P4["4. /24 C 段離散打散 + Top 50 排序"]
+        P2 --> P3["3. 大陸境內三網獨立 ASN 探針實測 RTT (CU 優先鎖定 162.159.* #HK)"]
+        P3 --> P4["4. /24 C 段離散打散 + 國家多樣性保障 + Top 50 排序"]
         P4 --> OUT["輸出至 GitHub Raw：<br/>output/ct.txt | cu.txt | cm.txt"]
     end
 
     subgraph S2["第二段：水庫分發中樞 (v2board_syncer 部署於面板伺服器)"]
-        OUT --"定時拉取"--> RAW["拉取最新 Top 50 清單"]
-        RAW --> G1["閘門 1：記憶庫攔截 1034 + 剔除 104.18/172.67 必繞美段"]
-        G1 --> G2["閘門 2：跨節點防撞鎖 (Node 8 / 7 / 6 嚴格不共用 IP)"]
+        OUT --"定時拉取"--> RAW["拉取最新清單"]
+        RAW --> G1["閘門 1：記憶庫攔截 1034 + 僅底線剔除 104.21./172.67. 免費髒段"]
+        G1 --> G2["閘門 2：跨節點防撞鎖 (各節點嚴格不共用 IP)"]
         G2 --> G3["閘門 3：事前真實 V2bX:2053 101 端到端握手驗證"]
-        G3 --> G4["閘門 4：Globalping 大陸三網 ASN 探針 (RTT <= 115ms)"]
+        G3 --> G4["閘門 4：Globalping 大陸三網 ASN 探針 (CT/CM<=115ms, CU<=230ms)"]
         G4 --> G5["閘門 5：智慧條件式黏性守護 (鎖定 15 分鐘不頻繁切換)"]
-        G5 --> SQL[("直連 MySQL 資料庫寫入<br/>UPDATE v2_node SET server = '純優選IP'")]
+        G5 --> SQL[("直連 MySQL 資料庫寫入<br/>UPDATE v2_server_vless SET host = '純優選IP'")]
     end
 
     subgraph S3["第三段：終端消費體驗"]

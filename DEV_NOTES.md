@@ -1,5 +1,26 @@
 # 開發筆記與架構演化歷程 (Development Notes)
 
+## [v4.5.1] 演化實錄 (2026-11-12)
+### 決策官全鏈路架構校正：聯通 AS4837 真實路由正名 (`162.159.*` HKG 擴容)、Stage 1 官方 CIDR 過濾與下游門檻對齊
+- **核心排查發現與物理真相**：
+  1. **聯通 `172.64.229.0/24` 僅對電信為日本 (`NRT`)，在聯通下實為繞美 (`LAX`)**：
+     - 實地透過 Globalping 大陸聯通 (`AS4837`) 探針測試與 ITDog MTR 路由追蹤（`AS4837 -> AS10099 HK -> AS13335 CF HKG`）證實：電信與移動的頂級段（`104.18.*`、`172.64.144~154.*`、`172.64.229.*`）在聯通 AS4837 下會全部繞行美西 `LAX/SJC`（`240~277ms`）。
+     - 聯通能不繞美、穩定落地香港 (`#HK`) 且全國丟包率僅 `0~3%`（探針實測 `0.0%`、RTT `175~213ms`）的黃金區段，實測鎖定為 **`162.159.128.0/24 ~ 162.159.155.0/24`**（另 `162.159.160.0/24` 為德國 `#DE` `150ms`）。
+  2. **根治 `cu.txt` 僅 2 顆且曾遭限流保底誤排之系統缺陷**：
+     - 在 [data/cname_pool.json](data/cname_pool.json) 與 [data/enterprise_domains.txt](data/enterprise_domains.txt) 為 `cu` 引入通過 2053 WS 101 驗證之 `discord.com`、`cdn.discordapp.com`、`discord.gg`、`status.discord.com`、`medium.com`（並清理無效的 `dash.cloudflare.com` 及 `cm` 中非 CF 國內站點 `wiki.bambulab.com`、`www.garmin.com.cn`）。
+     - 在 [src/collector.py](src/collector.py) Stage 1 引入 `is_cf_official_anycast()`，第一時間擋下企業網域受 GFW DNS 汙染產生之非 Cloudflare IP。
+     - 校正 [data/carrier_landing_matrix.json](data/carrier_landing_matrix.json) 與 [src/cn_real_tester.py](src/cn_real_tester.py)：將聯通 `172.64.229.0/24`、`172.64.144.0/20`、`104.18.32.0/20` 歸入 `US`，納管 `162.159.128.0/20`、`162.159.144.0/21`、`162.159.152.0/22` 為 `#HK`，且聯通限流保底改給保守值 `205.0ms`，杜絕未實測保底搶佔真實實測節點排序。
+     - [main.py](main.py) 實作 `subnet_priority`（`is_cu_gold` 優先、`is_cu_lax` 降權），集中聯通 18 個 Globalping 名額驗證 `162.159.*`。
+  3. **上下游對齊與紅隊審計 (`v2board_db_sync.py` + `self_test_audit.py`)**：
+     - [v2board_syncer/v2board_db_sync.py](v2board_syncer/v2board_db_sync.py) 閘門 4 對 `cu` 預設給予 `230.0ms` 上限（CT/CM 維持 `115.0ms`），避免未來啟用 Node 9 聯通節點時遭 115ms 門檻誤殺。
+     - [scripts/self_test_audit.py](scripts/self_test_audit.py) 斷言 4 新增 `cu` 強制驗收（節點 $\ge 5$ 顆、榜首 $\le 230\text{ms}$、禁 `#US`）。
+- **CI 驗收成果（GitHub Actions Run `43188288340` / `e662bff`）**：
+  - `ct.txt`：50 顆（18 個 `/24` 網段，`#SG`: 47、`#JP`: 3，榜首 `47.0ms`，Top 10 `0.0%` 丟包）。
+  - `cu.txt`：**19 顆**（11 個 `/24` 網段，100% 為 `162.159.*#HK`，榜首 `175.0ms`，Top 10 `0.0%` 丟包）。
+  - `cm.txt`：3 顆（3 個 `/24` 網段，榜首 `46.0ms`，Top 3 `0.0%` 丟包）。
+- **完整全景架構設計筆記**：詳見 [docs/OPTIMIZATION_V4.5.1_MASTER_REPORT.md](docs/OPTIMIZATION_V4.5.1_MASTER_REPORT.md)（含 V2Board 新增 Node 9 聯通入口與協議調優藍圖）。
+
+
 ## [v4.5.0] 演化實錄 (2026-11-12)
 ### 決策官最高戰略優化：根治 Globalping 配額耗盡防線塌陷、破解子網集中刷屏、導入國家多樣性保障與電信日本直連節點
 - **工程盲點與實地排查發現**：
