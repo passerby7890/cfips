@@ -248,13 +248,13 @@ def probe_subnet_from_mainland_cn(rep_ip: str, carrier: str, timeout_sec: float 
             else:
                 country = "US"
         else: # cu
-            if rep_ip.startswith(("172.64.229.", "162.159.38.", "108.162.198.")):
+            if rep_ip.startswith(("162.159.38.", "108.162.198.")):
                 country = "JP"
-            elif rep_ip.startswith(("162.159.152.", "162.159.153.", "162.159.44.", "162.159.45.")):
+            elif rep_ip.startswith(tuple(f"162.159.{i}." for i in range(128, 156)) + ("162.159.44.", "162.159.45.")):
                 country = "HK"
-            elif rep_ip.startswith(("188.114.96.", "188.114.97.")):
+            elif rep_ip.startswith(("162.159.160.", "188.114.96.", "188.114.97.")):
                 country = "DE"
-            elif rep_ip.startswith(("172.64.14", "172.64.15", "104.18.", "104.21.", "172.67.")):
+            elif rep_ip.startswith(("172.64.229.", "172.64.14", "172.64.15", "104.18.", "104.21.", "172.67.")):
                 country = "US"
             elif real_ms <= 85.0:
                 country = "JP"
@@ -265,13 +265,13 @@ def probe_subnet_from_mainland_cn(rep_ip: str, carrier: str, timeout_sec: float 
     # 若為 API 429 限流或探針暫時不可用，對已通過階段 2 WS 101 驗證的亞太矩陣節點採取保守保底
     if api_unavailable and real_ms >= 900.0:
         if country in ("HK", "TW"):
-            real_ms = 48.0
+            real_ms = 205.0 if c_key == "cu" else 48.0
         elif country in ("SG", "JP"):
-            real_ms = 62.0
+            real_ms = 190.0 if c_key == "cu" else 62.0
         elif country == "DE":
-            real_ms = 135.0
+            real_ms = 150.0 if c_key == "cu" else 135.0
         else:
-            real_ms = 220.0
+            real_ms = 240.0 if c_key == "cu" else 220.0
         real_loss = 0.0
         tag_label = "API限流保底"
     elif real_ms >= 900.0:

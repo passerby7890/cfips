@@ -100,7 +100,6 @@
       { "domain": "www.rhbgroup.com" },
       { "domain": "www.alchemy.com" },
       { "domain": "www.rome2rio.com" },
-      { "domain": "wiki.bambulab.com" },
       { "domain": "www.amiami.jp" },
       { "domain": "mailersend.com" },
       { "domain": "www.garmin.com.sg" },
@@ -118,7 +117,6 @@
       { "domain": "www.fragrancenet.com" },
       { "domain": "kinsta.com" },
       { "domain": "www.garmin.co.jp" },
-      { "domain": "www.garmin.com.cn" },
       { "domain": "www.propertyguru.com.sg" },
       { "domain": "www.xendit.co" },
       { "domain": "www.aesop.com" },
@@ -134,14 +132,18 @@
       { "domain": "www.algolia.com" }
     ],
     "cu": [
-      { "domain": "cf.877774.xyz", "prefer_region": "JP" },
+      { "domain": "discord.com" },
+      { "domain": "cdn.discordapp.com" },
+      { "domain": "discord.gg" },
+      { "domain": "status.discord.com" },
+      { "domain": "medium.com" },
       { "domain": "cf.877771.xyz", "prefer_region": "HK" },
+      { "domain": "cf.877774.xyz", "prefer_region": "JP" },
       { "domain": "www.shopify.com" },
       { "domain": "linear.app" },
       { "domain": "auth0.com" },
       { "domain": "makerworld.com" },
-      { "domain": "elements.envato.com" },
-      { "domain": "dash.cloudflare.com" }
+      { "domain": "elements.envato.com" }
     ]
   }
 }

@@ -223,17 +223,19 @@ def run_redteam_audit() -> bool:
                 else:
                     print(f"✅ [斷言 6 通過] {carrier.upper()} Top {len(top10)} 全數保持 0.0% 丟包率")
 
-                if carrier in ("ct", "cm"):
+                if carrier in ("ct", "cm", "cu"):
                     top_node = c_list[0]
                     top_ms = top_node.get("real_cn_ms", 999.0)
                     top_country = top_node.get("country", "")
-                    max_ms = 95.0 if carrier == "ct" else 75.0
-                    if top_ms > max_ms:
+                    max_ms = 95.0 if carrier == "ct" else (75.0 if carrier == "cm" else 230.0)
+                    if carrier == "cu" and len(lines) < 5:
+                        errors.append(f"[斷言 4 失敗] CU 優選節點數量過少 ({len(lines)} < 5 顆)，缺乏容災備援！")
+                    elif top_ms > max_ms:
                         errors.append(f"[斷言 4 失敗] {carrier.upper()} 榜首節點 {top_node['ip']} 大陸實測延遲過高 ({top_ms}ms > {max_ms}ms)！")
                     elif top_country == "US":
                         errors.append(f"[斷言 4 失敗] {carrier.upper()} 榜首節點 {top_node['ip']} 為 #US 繞美節點！")
                     else:
-                        print(f"✅ [斷言 4 通過] {carrier.upper()} 榜首節點 {top_node['ip']} 大陸延遲頂級 ({top_ms}ms <= {max_ms}ms, #{top_country})")
+                        print(f"✅ [斷言 4 通過] {carrier.upper()} 榜首節點 {top_node['ip']} 大陸延遲達標 ({top_ms}ms <= {max_ms}ms, #{top_country})")
         except Exception as e:
             errors.append(f"[斷言 4/6 失敗] {carrier.upper()} JSON 質量讀取異常: {e}")
 

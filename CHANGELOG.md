@@ -1,5 +1,19 @@
 # 更新紀錄 (Changelog)
 
+## [v4.5.1] - 2026-11-12
+### feat & fix!: 聯通 AS4837 真實物理路由校正 (`162.159.128~155.*` HKG 擴容)、Stage 1 Anycast 白名單過濾與全鏈路三網獨立閉環對齊
+- 1. **修正聯通 (`cu`) 誤判 `172.64.229.0/24` 為 `#JP` 之矩陣缺陷 (`carrier_landing_matrix.json`, `src/cn_real_tester.py`)**：
+  - 經 Globalping 大陸聯通 `AS4837` 實測證實，`172.64.229.0/24` 僅對電信 (`ct`) 落地日本 (`NRT`)；對聯通 (`cu`) 與 `104.18.*`/`172.64.14~15.*` 同樣繞行美西 (`LAX` `#US`, ~245ms)。
+  - 將 `172.64.229.0/24`、`172.64.144.0/20`、`104.18.32.0/20` 從聯通 `JP` 修正為 `US` 規則，並將聯通 `API限流保底` 之 `HK`/`JP` 預設值調整為保守 `205.0ms`/`190.0ms`，徹底杜絕保底節點偽裝低延遲搶佔實測節點排序。
+- 2. **擴容聯通 `162.159.*` 香港直連骨幹池與探針優先權 (`data/cname_pool.json`, `data/enterprise_domains.txt`, `main.py`)**：
+  - 納入經 2053 WebSocket 101 驗證且聯通 `AS4837` 穩定直連 `HKG` (`174~213ms`, `0.0%` 丟包) 之企業網域 (`discord.com`, `cdn.discordapp.com`, `discord.gg`, `status.discord.com`, `medium.com`)，移除失效的 `dash.cloudflare.com`，並清除 `cm` 中非 CF 的國內域名 (`wiki.bambulab.com`, `www.garmin.com.cn`)。
+  - 在 `carrier_landing_matrix.json` 與 `cn_real_tester.py` 精準納管 `162.159.128.0/20`、`162.159.144.0/21`、`162.159.152.0/22` 為聯通 `#HK` 黃金區段，並透過 `subnet_priority` (`is_cu_gold` vs `is_cu_lax`) 確保聯通 18 個探測名額優先壓測 `162.159.*`。
+- 3. **第一階段增加 Cloudflare 官方 Anycast/Enterprise IP 段硬過濾 (`src/collector.py`)**：
+  - 引入 `is_cf_official_anycast()`，在 DNS ECS 解析階段即攔截 GFW 汙染 IP 與非 Cloudflare CDN 雜訊，保障候選池純度。
+- 4. **上下游聯通門檻與紅隊審計雙對齊 (`v2board_syncer/v2board_db_sync.py`, `v2board_syncer/README.md`, `scripts/self_test_audit.py`)**：
+  - 下游 `v2board_db_sync.py` 為 `cu` 設定專屬境內探針門檻 `default_rtt = 230.0ms`（電信/移動維持 `115.0ms`），避免未來新增聯通節點時遭 115ms 全數拉黑。
+  - 紅隊審計 `self_test_audit.py` 斷言 4 納入 `cu` 強制驗收（有效節點 $\ge 5$ 顆、榜首延遲 $\le 230\text{ms}$、非 `#US`）。
+
 ## [v4.5.0] - 2026-11-12
 ### fix!: 解決 Globalping 配額耗盡癱瘓、突破子網集中刷屏、導入國家多樣性保障與電信日本東京 NTT 節點注入
 - 1. **注入電信與聯通東京 NTT 直連節點 (`172.64.229.0/24`)**：

@@ -44,6 +44,7 @@ placeit.net:443#電信優選
 www.zendesk.com:443#電信優選
 www.glassdoor.com:443#電信優選
 www.omnisend.com:443#電信優選
+cf.877774.xyz:443#電信日本NTT優選
 
 
 
@@ -87,9 +88,10 @@ www.algolia.com:443#移動優選
 
 
 
-# --- 中國聯通 (CU) 專屬優選域名 ---
-www.shopify.com:443#聯通優選 | Shopify (110ms/0%丟包)
-www.asda.com:443#聯通優選 | ASDA (115ms/0%丟包)
-openai.com:443#聯通優選 | OpenAI (118ms/0%丟包)
-www.zendesk.com:443#聯通優選 | Zendesk (120ms/0%丟包)
-investor.apple.com:443#聯通優選 | Apple Investor (125ms/0%丟包)
+# --- 中國聯通 (CU) 專屬優選域名 (香港 162.159.* 直連零丟包池) ---
+discord.com:443#聯通優選 | HKG零丟包 (162.159.*)
+cdn.discordapp.com:443#聯通優選 | HKG零丟包 (162.159.*)
+discord.gg:443#聯通優選 | HKG零丟包 (162.159.*)
+status.discord.com:443#聯通優選 | HKG零丟包 (162.159.*)
+medium.com:443#聯通優選 | HKG零丟包 (162.159.152-153.*)
+cf.877771.xyz:443#聯通優選 | HKG直連

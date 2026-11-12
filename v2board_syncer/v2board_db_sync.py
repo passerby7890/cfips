@@ -661,7 +661,8 @@ def perform_db_sync(
             else ("全表隨機抽取 (random_all)" if "random_all" in strategy or strategy == "all"
             else ("前列隨機" if "random" in strategy else f"第 {rank} 名")))
         )
-        max_cn_rtt_ms = float(item.get("max_cn_rtt_ms", 115.0))
+        default_rtt = 230.0 if t_name == "cu" else 115.0
+        max_cn_rtt_ms = float(item.get("max_cn_rtt_ms", default_rtt))
         print(f"[*] 節點 ID: {node_id} 【{name}】")
         print(f"    - 原入口地址 (host)  : {curr_host}:{port}")
         print(f"    - 握手目標 (SNI/Host): {sni} / {host_header}")

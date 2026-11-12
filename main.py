@@ -160,7 +160,9 @@ async def run_pipeline():
             avg_hit = sum(it.get("hit_ratio", 0) for it in items) / max(1, len(items))
             avg_score = sum(it.get("score", 0) for it in items) / max(1, len(items))
             is_dirty = sub.startswith(("172.67.", "104.21.")) and c_code in ("ct", "cu")
-            return (not is_dirty, has_prefer, avg_hit, avg_score)
+            is_cu_gold = c_code == "cu" and sub.startswith("162.159.")
+            is_cu_lax = c_code == "cu" and sub.startswith(("104.18.", "172.64.14", "172.64.15", "172.64.229."))
+            return (not is_dirty, not is_cu_lax, is_cu_gold, has_prefer, avg_hit, avg_score)
 
         sorted_subnets = sorted(subnets.items(), key=subnet_priority, reverse=True)
         # 每運營商最多實測前 18 個最高品質子網 (18 個 x 3 顆 = 54 顆，已完全涵蓋 50 顆上限)
@@ -195,7 +197,7 @@ async def run_pipeline():
                 static_country = lookup_carrier_landing_country(ip_str, c_code)
                 it["country"] = static_country if static_country else "US"
                 it["real_cn_country"] = it["country"]
-                it["real_cn_ms"] = 220.0 if it["country"] == "US" else (72.0 if c_code == "cm" else (85.0 if c_code == "ct" else 140.0))
+                it["real_cn_ms"] = 220.0 if it["country"] == "US" else (72.0 if c_code == "cm" else (85.0 if c_code == "ct" else 205.0))
                 it["real_cn_loss"] = 0.0
                 it["cn_latency_ms"] = it["real_cn_ms"]
                 it["unprobed"] = True

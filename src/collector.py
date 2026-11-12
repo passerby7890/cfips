@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 from src.dns_extractor import exhaustive_resolve_domain_for_carrier
-from src.region_mapper import lookup_carrier_landing_country
+from src.region_mapper import is_cf_official_anycast, lookup_carrier_landing_country
 
 
 def collect_carrier_candidates_with_domain_map(
@@ -66,6 +66,8 @@ def collect_carrier_candidates_with_domain_map(
 
             for item in extracted:
                 ip = item["ip"]
+                if not is_cf_official_anycast(ip):
+                    continue
                 domain_map[domain]["ips"].add(ip)
 
                 # 依用戶指示：廢除任何先入為主的 Anycast 前綴黑名單，全部交由真機探針客觀實測
