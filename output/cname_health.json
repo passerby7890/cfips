@@ -1,11 +1,11 @@
 {
-  "version": "v4.6.1",
-  "updated_at": "2026-11-12T23:26:27.921467+00:00",
+  "version": "v4.6.2",
+  "updated_at": "2026-11-12T23:49:57.003088+00:00",
   "summary": {
-    "total_domains": 75,
-    "healthy": 74,
+    "total_domains": 86,
+    "healthy": 83,
     "degraded": 0,
-    "dead_or_1034": 1
+    "dead_or_1034": 3
   },
   "domains": {
     "wpengine.com": {
@@ -428,6 +428,86 @@
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
+    "www.coinbase.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.crunchyroll.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "developers.cloudflare.com": {
+      "carrier": "ct",
+      "total_ips": 5,
+      "alive_ips": 5,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "community.cloudflare.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.digitalocean.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.canva.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.notion.so": {
+      "carrier": "ct",
+      "total_ips": 0,
+      "alive_ips": 0,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "0.0%",
+      "error_1034_rate": "0.0%",
+      "status": "DEAD_OR_1034"
+    },
+    "www.box.com": {
+      "carrier": "ct",
+      "total_ips": 0,
+      "alive_ips": 0,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "0.0%",
+      "error_1034_rate": "0.0%",
+      "status": "DEAD_OR_1034"
+    },
     "discord.com": {
       "carrier": "cu",
       "total_ips": 5,
@@ -482,6 +562,36 @@
       "carrier": "cu",
       "total_ips": 4,
       "alive_ips": 4,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.postman.com": {
+      "carrier": "cu",
+      "total_ips": 1,
+      "alive_ips": 1,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.udemy.com": {
+      "carrier": "cu",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.kraken.com": {
+      "carrier": "cu",
+      "total_ips": 2,
+      "alive_ips": 2,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
