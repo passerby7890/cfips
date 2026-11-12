@@ -5,7 +5,7 @@ V2Board / Xboard (Xiao 版) MySQL 資料庫直接極速替換引擎 (v4.3.0 五�
 =============================================================================
 特色：
   1. 【0 延遲直連資料庫】：免 Token、免登入、無 Session 過期、無 Web 路由問題！
-  2. 【閘門 1：三網繞美西前綴攔截 + 0ms 記憶庫跳過 (state_cache.json)】：攔截 104.18/172.67 必繞美段，過濾 24h 1034 / 2h 漂移超時！
+  2. 【閘門 1：免費髒段前置攔截 + 0ms 記憶庫跳過 (state_cache.json)】：攔截 104.21/172.67 已知免費髒段，過濾 24h 1034 / 2h 漂移超時！
   3. 【閘門 2：跨節點防撞車鎖 + /24 網段分散】：不同節點禁止共用同 IP，優先打散不同 /24 網段！
   4. 【閘門 3：事前真實 V2bX 端到端 101 握手】：帶真實 SNI/Port/WS Path 握手，非 101 立即淘汰！
   5. 【閘門 4：大陸三網 ASN 對齊 + 延遲防 Anycast 漂移閘門 (cn_probe)】：實測 RTT 必須 <= max_cn_rtt_ms (115ms)，超標即淘！
@@ -247,7 +247,7 @@ def select_best_verified_ip(
     max_cn_rtt_ms: float = 115.0
 ) -> Optional[Tuple[str, str, str, float]]:
     """全方位實戰自癒回源測活篩選 (v4.3.0 五道防護閘門版)：
-      1. 【記憶庫與三網繞美底線攔截】：0ms 剔除 24h/2h 黑名單，電信/聯通強制攔截 104.18./104.20./104.21./104.26./172.67.
+      1. 【記憶庫與三網繞美底線攔截】：0ms 剔除 24h/2h 黑名單，僅攔截已知免費 Anycast 髒段 104.21./172.67. (SaaS/Enterprise 優質 104.18. 等由上游實測與閘門 4 驗證)。
       2. 【跨節點防撞車鎖】：不同節點禁止共用同 IP，優先分散不同 /24 網段。
       3. 【事前真實 V2bX 端到端 101 握手】：帶真實 SNI/Port/WS Path 握手，非 101 立即淘汰。
       4. 【大陸境內三網 ASN 探針雙指標驗證】：按節點 carrier 指定 ASN (CT:4134, CU:4837, CM:9808)，丟包<100% 且 RTT <= max_cn_rtt_ms。
@@ -260,15 +260,9 @@ def select_best_verified_ip(
     strat = str(strategy).lower().strip()
     c_carrier = str(carrier).lower().strip()
 
-    # 閘門 1 底線防禦：三網繞美西前綴攔截
-    if c_carrier in ("ct", "cu"):
-        us_blacklist_prefixes = (
-            "104.18.", "104.19.", "104.20.", "104.21.", "104.22.",
-            "104.24.", "104.25.", "104.26.", "172.66.", "172.67."
-        )
-    else:
-        # 移動 (cm) 僅攔截明確繞美段 (CMI 走香港直連段予以放行)
-        us_blacklist_prefixes = ("104.18.", "104.20.", "104.21.")
+    # 閘門 1 底線防禦：僅保留免費 SaaS 必繞美髒段攔截；上游 v4.5.0 已透過大陸真實探針驗證 104.18.* (SG/HK 43-45ms) 等優質 Enterprise 段
+    # 若發生動態路由漂移至美西，交由 #US 標籤拒絕與閘門 4 (cn_probe.py) 即時 RTT 實測淘汰
+    us_blacklist_prefixes = ("104.21.", "172.67.")
 
     target_prefer_list = [c.upper() for c in (prefer_countries or ([preferred_country] if preferred_country else []))]
     target_reject_list = [c.upper() for c in (reject_countries or ["US"])]
