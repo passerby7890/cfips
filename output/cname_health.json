@@ -1,6 +1,6 @@
 {
-  "version": "v4.6.0",
-  "updated_at": "2026-11-12T20:20:10.017313+00:00",
+  "version": "v4.6.1",
+  "updated_at": "2026-11-12T16:24:18.777840+00:00",
   "summary": {
     "total_domains": 75,
     "healthy": 74,
@@ -420,8 +420,8 @@
     },
     "cf.877774.xyz": {
       "carrier": "ct",
-      "total_ips": 12,
-      "alive_ips": 12,
+      "total_ips": 10,
+      "alive_ips": 10,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
@@ -460,8 +460,8 @@
     },
     "status.discord.com": {
       "carrier": "cu",
-      "total_ips": 6,
-      "alive_ips": 6,
+      "total_ips": 5,
+      "alive_ips": 5,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
@@ -480,8 +480,8 @@
     },
     "cf.877771.xyz": {
       "carrier": "cu",
-      "total_ips": 6,
-      "alive_ips": 6,
+      "total_ips": 4,
+      "alive_ips": 4,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",

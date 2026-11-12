@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import asyncio
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import os
 import shutil
@@ -163,29 +164,41 @@ async def run_pipeline():
             avg_score = sum(it.get("score", 0) for it in items) / max(1, len(items))
 
             is_cm_gold = c_code == "cm" and sub.startswith((
-                "172.66.140.", "172.66.130.", "172.66.143.", "104.21.87.",
-                "172.66.141.", "172.66.142.", "103.21.244.", "103.22.200.",
-                "103.31.4.", "141.101.113.", "172.64.82.", "172.64.229."
+                "172.66.132.", "172.66.134.", "172.66.130.", "172.66.131.",
+                "172.66.129.", "172.66.136.", "172.66.140.", "172.66.141.",
+                "172.66.142.", "172.66.143.", "104.21.81.", "104.21.82.",
+                "104.21.83.", "104.21.85.", "104.21.87.", "104.21.88.",
+                "141.101.113.", "172.64.82.", "172.64.229."
             ))
             is_cm_lax = c_code == "cm" and sub.startswith((
                 "104.18.", "104.19.", "104.20.", "172.64.144.", "172.64.145.",
                 "172.64.146.", "172.64.147.", "172.64.148.", "172.64.149.",
-                "172.64.150.", "172.64.151.", "172.64.152.", "172.64.154.", "172.67."
+                "172.64.150.", "172.64.151.", "172.64.152.", "172.64.154.", "172.67.",
+                "172.66.144.", "172.66.145.", "172.66.146.", "172.66.147.",
+                "172.66.148.", "172.66.149.", "172.66.150.", "103.21.", "103.31."
             ))
 
             is_ct_gold = c_code == "ct" and sub.startswith((
-                "172.64.144.", "172.64.148.", "172.64.150.", "172.64.52.", "172.64.229.",
-                "104.18.42.", "104.18.37.", "104.18.34.", "104.18.35.", "104.18.40.",
-                "108.162.192.", "108.162.198.", "198.41.223."
+                "172.64.154.", "172.64.151.", "104.18.47.", "104.18.46.", "104.18.43.",
+                "172.64.229.", "104.18.42.", "104.18.34.", "104.18.35.",
+                "108.162.192.", "108.162.198.", "198.41.223.", "172.64.52."
             ))
-            is_ct_dirty = c_code == "ct" and sub.startswith(("172.67.", "104.21."))
+            is_ct_dirty = c_code == "ct" and sub.startswith((
+                "172.67.", "104.21.", "172.64.149.", "172.64.150.", "172.64.155.",
+                "172.64.230.", "172.64.231.", "172.64.232.", "104.18.33.", "104.18.44.",
+                "103.21.", "103.31."
+            ))
 
             is_cu_gold = c_code == "cu" and sub.startswith((
-                "162.159.152.", "103.31.4.", "162.159.153.", "108.162.198.",
-                "162.159.128.", "162.159.137.", "162.159.140.", "162.159.149."
+                "162.159.141.", "162.159.133.", "162.159.136.", "162.159.138.",
+                "162.159.130.", "162.159.135.", "162.159.129.", "162.159.134.",
+                "162.159.152.", "162.159.153.", "162.159.128.", "162.159.137.",
+                "162.159.140.", "108.162.198."
             ))
             is_cu_lax = c_code == "cu" and sub.startswith((
-                "104.18.", "104.19.", "172.64.14", "172.64.15", "172.64.229.", "172.67."
+                "104.18.", "104.19.", "172.64.14", "172.64.15", "172.64.229.", "172.67.",
+                "162.159.131.", "162.159.132.", "162.159.139.", "162.159.145.",
+                "162.159.150.", "162.159.151.", "162.159.155.", "103.21.", "103.31."
             ))
 
             is_gold = is_cm_gold or is_ct_gold or is_cu_gold
@@ -193,22 +206,29 @@ async def run_pipeline():
             return (not is_lax, is_gold, has_prefer, avg_hit, avg_score)
 
         sorted_subnets = sorted(subnets.items(), key=subnet_priority, reverse=True)
-        # 精選最高優先級的 15 個子網代表發起大陸多省探測 (15 x 2探針 x 3網 <= 90 點，確保 30 分鐘排程不觸發 429 限流)
-        target_subnets = sorted_subnets[:15]
-        remaining_subnets = sorted_subnets[15:]
+        # 精選最高優先級的 16 個子網代表發起大陸多省探測 (16 x 2探針 x 3網 <= 96 點，並發 max_workers=3 提速 3x，確保 30 分鐘排程不觸發 429 限流)
+        target_subnets = sorted_subnets[:16]
+        remaining_subnets = sorted_subnets[16:]
 
-        print(f"\n[*] 階段 3：對 [{c_code.upper()}] 共 {len(carrier_candidates)} 顆候選 IP (精選 {len(target_subnets)}/{len(subnets)} 個優質 /24 網段) 發起大陸境內 ASN 真機實測...")
-        for sub, items in target_subnets:
+        print(f"\n[*] 階段 3：對 [{c_code.upper()}] 共 {len(carrier_candidates)} 顆候選 IP (精選 {len(target_subnets)}/{len(subnets)} 個優質 /24 網段) 發起大陸境內 ASN 真機實測 (併發=3)...")
+        def _probe_sub(sub_items):
+            sub, items = sub_items
             items.sort(key=lambda x: (-x.get("hit_ratio", 0.0), -x.get("score", 0.0)))
             rep_ip = items[0]["ip"]
             real_country, real_ms, real_loss = probe_subnet_from_mainland_cn(rep_ip, c_code)
-            for it in items:
-                it["country"] = real_country
-                it["real_cn_country"] = real_country
-                it["real_cn_ms"] = real_ms
-                it["real_cn_loss"] = real_loss
-                it["cn_latency_ms"] = real_ms
-                it["unprobed"] = False
+            return items, real_country, real_ms, real_loss
+
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            futs = [executor.submit(_probe_sub, s_item) for s_item in target_subnets]
+            for fut in as_completed(futs):
+                items, real_country, real_ms, real_loss = fut.result()
+                for it in items:
+                    it["country"] = real_country
+                    it["real_cn_country"] = real_country
+                    it["real_cn_ms"] = real_ms
+                    it["real_cn_loss"] = real_loss
+                    it["cn_latency_ms"] = real_ms
+                    it["unprobed"] = False
 
         # 針對超出前 18 個網段的剩餘節點標記為未實測 (嚴格拒絕偽造假延遲)
         for sub, items in remaining_subnets:
@@ -221,7 +241,7 @@ async def run_pipeline():
                 it["cn_latency_ms"] = 999.0
 
         # 階段 4：嚴格品質過濾與子網打散（禁止任何偽造延遲或高丟包繞美節點進入榜單）
-        max_allowed_ms = 120.0 if c_code in ("ct", "cm") else 225.0
+        max_allowed_ms = 120.0 if c_code in ("ct", "cm") else 219.0
         # 允許雙探針實測中最多單包偶發抖動 (1/6 丟包 = 16.7%)，嚴格攔截 >= 20% 持續丟包
         max_allowed_loss = 18.0
         banned_countries = ("US", "GB", "FR", "NL", "CA", "DE", "UNKNOWN", "CF", "")

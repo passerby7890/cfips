@@ -9,7 +9,9 @@
 
 from __future__ import annotations
 
+import functools
 import socket
+import threading
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, List, Set, Tuple
@@ -37,6 +39,15 @@ PUBLIC_ECS_UDP_SERVERS = [
 DOH_JSON_FALLBACK = "https://dns.alidns.com/resolve"
 
 _DOH_SESSION = requests.Session()
+_THREAD_LOCAL = threading.local()
+
+
+def _get_doh_session() -> requests.Session:
+    sess = getattr(_THREAD_LOCAL, "session", None)
+    if sess is None:
+        sess = requests.Session()
+        _THREAD_LOCAL.session = sess
+    return sess
 
 
 def is_valid_public_ipv4(ip: str) -> bool:
@@ -79,10 +90,14 @@ def extract_cname_from_msg(resp_msg: dns.message.Message) -> str:
 
 def discover_target_and_auth_ns(domain: str) -> Tuple[str, List[str]]:
     """追蹤 CNAME 鏈找到最終目標網域，並查出其權威 NS 伺服器 IP，以直接對權威 NS 發送無快取 ECS 輪詢"""
+@functools.lru_cache(maxsize=512)
+def discover_target_and_auth_ns(domain: str) -> Tuple[str, Tuple[str, ...]]:
+    """追蹤 CNAME 鏈找到最終目標網域，並查出其權威 NS 伺服器 IP（帶 LRU 快取避免重複查詢）"""
     current = domain.strip().rstrip(".")
     resolver = dns.resolver.Resolver()
     resolver.nameservers = ["223.5.5.5", "119.29.29.29", "8.8.8.8"]
     resolver.lifetime = 2.5
+    resolver.lifetime = 1.5
 
     # 追蹤最多 3 層 CNAME
     for _ in range(3):
@@ -118,6 +133,7 @@ def discover_target_and_auth_ns(domain: str) -> Tuple[str, List[str]]:
             continue
 
     return current, list(ns_ips)[:4]
+    return current, tuple(list(ns_ips)[:4])
 
 
 def build_ecs_query(qname: str, anchor_ip: str) -> dns.message.Message:
@@ -129,11 +145,15 @@ def build_ecs_query(qname: str, anchor_ip: str) -> dns.message.Message:
 
 def single_ecs_probe(qname: str, anchor_ip: str, auth_ns_ips: List[str]) -> List[str]:
     """對單一省份錨點執行多通道 (權威 NS UDP + 公共 ECS UDP + 二進位 DoH + JSON ECS) 解析"""
+def single_ecs_probe(qname: str, anchor_ip: str, auth_ns_ips: Tuple[str, ...] | List[str]) -> List[str]:
+    """對單一省份錨點執行快速多通道 ECS 解析（優先 DoH，成功即快速返回，僅失敗時才進兜底）"""
     collected: List[str] = []
     msg = build_ecs_query(qname, anchor_ip)
     wire_data = msg.to_wire()
+    sess = _get_doh_session()
 
     # 1. 詢問 RFC 8484 標準二進位 DoH (application/dns-message) - 走 HTTPS 443，雲端 Runner 100% 直通
+    # 1. 詢問 RFC 8484 標準二進位 DoH (成功即返回，避免重複查詢 9 個冗餘上游導致 20 分鐘耗時)
     headers = {
         "Content-Type": "application/dns-message",
         "Accept": "application/dns-message",
@@ -142,20 +162,25 @@ def single_ecs_probe(qname: str, anchor_ip: str, auth_ns_ips: List[str]) -> List
     for doh_url in WIRE_DOH_SERVERS:
         try:
             r = _DOH_SESSION.post(doh_url, data=wire_data, headers=headers, timeout=2.0)
+            r = sess.post(doh_url, data=wire_data, headers=headers, timeout=1.2)
             if r.status_code == 200 and r.content:
                 resp = dns.message.from_wire(r.content)
                 ips = extract_a_records_from_msg(resp)
                 if ips:
                     collected.extend(ips)
+                    return ips
         except Exception:
             pass
 
     # 2. 阿里雲 DoH JSON ECS 深度兜底 (極度穩定命中分省 Anycast)
+    # 2. 阿里雲 DoH JSON ECS 兜底
     try:
         r = _DOH_SESSION.get(
+        r = sess.get(
             DOH_JSON_FALLBACK,
             params={"name": qname, "type": "A", "edns_client_subnet": f"{anchor_ip}/24"},
             timeout=2.0
+            timeout=1.2
         )
         if r.status_code == 200:
             for ans in r.json().get("Answer", []):
@@ -163,26 +188,34 @@ def single_ecs_probe(qname: str, anchor_ip: str, auth_ns_ips: List[str]) -> List
                     ip = ans.get("data", "").strip()
                     if is_valid_public_ipv4(ip):
                         collected.append(ip)
+            if collected:
+                return collected
     except Exception:
         pass
 
     # 3. 直接詢問權威 NS 伺服器 (零快取直擊輪詢池，設定 0.6s 極短超時防止海外雲端 UDP 53 封鎖阻塞)
+    # 3. 權威 NS 伺服器兜底
     for ns_ip in auth_ns_ips:
         try:
             resp = dns.query.udp(msg, ns_ip, timeout=0.6)
+            resp = dns.query.udp(msg, ns_ip, timeout=0.5)
             ips = extract_a_records_from_msg(resp)
             if ips:
                 collected.extend(ips)
+                return ips
         except Exception:
             pass
 
     # 4. 詢問支援 ECS 的公共 UDP 伺服器 (設定 0.6s 極短超時)
+    # 4. 公共 ECS UDP 伺服器兜底
     for pub_dns in PUBLIC_ECS_UDP_SERVERS:
         try:
             resp = dns.query.udp(msg, pub_dns, timeout=0.6)
+            resp = dns.query.udp(msg, pub_dns, timeout=0.5)
             ips = extract_a_records_from_msg(resp)
             if ips:
                 collected.extend(ips)
+                return ips
         except Exception:
             pass
 
@@ -193,6 +226,7 @@ def exhaustive_resolve_domain_for_carrier(
     domain: str,
     carrier_anchors: List[Dict],
     rounds: int = 2
+    rounds: int = 1
 ) -> List[Dict]:
     """模擬 ITDog 全國各省監測點，針對指定網域與指定運營商的 12 個省份錨點進行多輪併發解析，
 

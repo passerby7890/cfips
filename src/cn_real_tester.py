@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+import threading
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -57,38 +58,41 @@ PROBE_CACHE_TTL_SEC = 5400  # 90 分鐘真實探測結果快取 (僅緩存真實
 _DISK_CACHE_LOADED = False
 _DISK_CACHE: Dict[str, dict] = {}
 _GLOBALPING_RATE_LIMITED = False
+_CACHE_LOCK = threading.Lock()
 
 
 def _load_disk_cache() -> None:
     global _DISK_CACHE_LOADED, _DISK_CACHE
-    if _DISK_CACHE_LOADED:
-        return
-    _DISK_CACHE_LOADED = True
-    if PROBE_CACHE_PATH.is_file():
-        try:
-            with open(PROBE_CACHE_PATH, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            if isinstance(data, dict):
-                _DISK_CACHE = data
-        except Exception:
-            _DISK_CACHE = {}
+    with _CACHE_LOCK:
+        if _DISK_CACHE_LOADED:
+            return
+        _DISK_CACHE_LOADED = True
+        if PROBE_CACHE_PATH.is_file():
+            try:
+                with open(PROBE_CACHE_PATH, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                if isinstance(data, dict):
+                    _DISK_CACHE = data
+            except Exception:
+                _DISK_CACHE = {}
 
 
 def save_probe_cache() -> None:
     """將真實探測結果持久化至 data/probe_cache.json（僅保存真實測量值，不存假數據）"""
-    if not _DISK_CACHE:
-        return
-    try:
-        PROBE_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
-        now = time.time()
-        fresh = {
-            k: v for k, v in _DISK_CACHE.items()
-            if isinstance(v, dict) and (now - float(v.get("ts", 0))) <= PROBE_CACHE_TTL_SEC * 2
-        }
-        with open(PROBE_CACHE_PATH, "w", encoding="utf-8") as f:
-            json.dump(fresh, f, ensure_ascii=False, indent=2)
-    except Exception:
-        pass
+    with _CACHE_LOCK:
+        if not _DISK_CACHE:
+            return
+        try:
+            PROBE_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+            now = time.time()
+            fresh = {
+                k: v for k, v in _DISK_CACHE.items()
+                if isinstance(v, dict) and (now - float(v.get("ts", 0))) <= PROBE_CACHE_TTL_SEC * 2
+            }
+            with open(PROBE_CACHE_PATH, "w", encoding="utf-8") as f:
+                json.dump(fresh, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
 
 
 def record_real_probe_observation(
@@ -342,12 +346,12 @@ def probe_subnet_from_mainland_cn(
     c_key = carrier.lower().strip()
     subnet = get_subnet_24(rep_ip)
     cache_key = (subnet, c_key)
-
-    if cache_key in _SUBNET_PROBE_CACHE:
-        return _SUBNET_PROBE_CACHE[cache_key]
-
     disk_key = f"{subnet}|{c_key}"
-    cached = _DISK_CACHE.get(disk_key)
+
+    with _CACHE_LOCK:
+        if cache_key in _SUBNET_PROBE_CACHE:
+            return _SUBNET_PROBE_CACHE[cache_key]
+        cached = _DISK_CACHE.get(disk_key)
     now = time.time()
 
     # 1. 發起真實大陸多省 ASN Ping 實測
@@ -389,18 +393,20 @@ def probe_subnet_from_mainland_cn(
 
     # 3. 寫入磁碟真實量測快取 (僅保留有效測量)
     if real_ms < 900.0:
-        _DISK_CACHE[disk_key] = {
-            "country": country,
-            "ms": real_ms,
-            "loss": real_loss,
-            "ts": now,
-            "source": "globalping",
-            "colo": real_colo
-        }
+        with _CACHE_LOCK:
+            _DISK_CACHE[disk_key] = {
+                "country": country,
+                "ms": real_ms,
+                "loss": real_loss,
+                "ts": now,
+                "source": "globalping",
+                "colo": real_colo
+            }
         save_probe_cache()
 
     result = (country, real_ms, real_loss)
-    _SUBNET_PROBE_CACHE[cache_key] = result
+    with _CACHE_LOCK:
+        _SUBNET_PROBE_CACHE[cache_key] = result
     probe_note = ", ".join(cities) if cities else (real_colo or "AUTO")
     print(f"    [*] [大陸多省實測] 代表 IP {rep_ip} ({subnet}) [{c_key.upper()}] -> 國別: #{country}, 大陸延遲: {real_ms}ms (丟包 {real_loss}%, 探針: {probe_note})")
     return result

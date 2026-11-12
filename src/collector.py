@@ -154,6 +154,7 @@ def collect_carrier_candidates_with_domain_map(
                     "prefer_region": prefer_reg
                 }
             extracted = exhaustive_resolve_domain_for_carrier(domain, c_anchors, rounds=2)
+            extracted = exhaustive_resolve_domain_for_carrier(domain, c_anchors, rounds=1)
             ip_summary = ", ".join([f"{x['ip']}({x['hit_ratio']}%)" for x in extracted[:6]])
             print(f"    -> [{c_code.upper()}] {domain} (prefer: {prefer_reg or 'AUTO'}) 榨出 {len(extracted)} 個唯一 IP: {ip_summary}")
 
