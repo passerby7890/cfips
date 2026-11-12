@@ -1,6 +1,6 @@
 {
   "version": "v4.6.1",
-  "updated_at": "2026-11-12T16:24:18.777840+00:00",
+  "updated_at": "2026-11-12T23:26:27.921467+00:00",
   "summary": {
     "total_domains": 75,
     "healthy": 74,
@@ -420,8 +420,8 @@
     },
     "cf.877774.xyz": {
       "carrier": "ct",
-      "total_ips": 10,
-      "alive_ips": 10,
+      "total_ips": 12,
+      "alive_ips": 12,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
