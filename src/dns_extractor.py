@@ -172,14 +172,11 @@ def single_ecs_probe(qname: str, anchor_ip: str, auth_ns_ips: Tuple[str, ...] | 
         except Exception:
             pass
 
-    # 2. 阿里雲 DoH JSON ECS 深度兜底 (極度穩定命中分省 Anycast)
     # 2. 阿里雲 DoH JSON ECS 兜底
     try:
-        r = _DOH_SESSION.get(
         r = sess.get(
             DOH_JSON_FALLBACK,
             params={"name": qname, "type": "A", "edns_client_subnet": f"{anchor_ip}/24"},
-            timeout=2.0
             timeout=1.2
         )
         if r.status_code == 200:
@@ -225,7 +222,6 @@ def single_ecs_probe(qname: str, anchor_ip: str, auth_ns_ips: Tuple[str, ...] | 
 def exhaustive_resolve_domain_for_carrier(
     domain: str,
     carrier_anchors: List[Dict],
-    rounds: int = 2
     rounds: int = 1
 ) -> List[Dict]:
     """模擬 ITDog 全國各省監測點，針對指定網域與指定運營商的 12 個省份錨點進行多輪併發解析，
