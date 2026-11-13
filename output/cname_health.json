@@ -1,9 +1,9 @@
 {
   "version": "v4.6.4",
-  "updated_at": "2026-11-13T04:22:31.364410+00:00",
+  "updated_at": "2026-11-13T04:42:38.367245+00:00",
   "summary": {
-    "total_domains": 93,
-    "healthy": 90,
+    "total_domains": 95,
+    "healthy": 92,
     "degraded": 0,
     "dead_or_1034": 3
   },
@@ -652,6 +652,26 @@
       "carrier": "cu",
       "total_ips": 2,
       "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "quizlet.com": {
+      "carrier": "cu",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "bitfinex.com": {
+      "carrier": "cu",
+      "total_ips": 5,
+      "alive_ips": 5,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
