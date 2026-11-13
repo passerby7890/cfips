@@ -179,14 +179,15 @@ async def run_pipeline():
             ))
 
             is_ct_gold = c_code == "ct" and sub.startswith((
-                "172.64.154.", "172.64.151.", "104.18.47.", "104.18.46.", "104.18.43.",
-                "172.64.229.", "104.18.42.", "104.18.34.", "104.18.35.",
+                "104.18.34.", "104.18.35.", "104.18.37.", "104.18.39.", "104.18.42.",
+                "172.64.229.", "172.64.148.", "172.64.152.",
                 "108.162.192.", "108.162.198.", "198.41.223.", "172.64.52."
             ))
             is_ct_dirty = c_code == "ct" and sub.startswith((
-                "172.67.", "104.21.", "172.64.149.", "172.64.150.", "172.64.155.",
-                "172.64.230.", "172.64.231.", "172.64.232.", "104.18.33.", "104.18.44.",
-                "103.21.", "103.31."
+                "172.67.", "104.21.", "172.64.144.", "172.64.145.", "172.64.146.",
+                "172.64.147.", "172.64.149.", "172.64.150.", "172.64.151.",
+                "172.64.154.", "172.64.155.", "172.64.230.", "172.64.231.", "172.64.232.",
+                "104.18.33.", "104.18.41.", "104.18.43.", "104.18.44.", "103.21.", "103.31."
             ))
 
             is_cu_gold = c_code == "cu" and sub.startswith((
@@ -206,9 +207,9 @@ async def run_pipeline():
             return (not is_lax, is_gold, has_prefer, avg_hit, avg_score)
 
         sorted_subnets = sorted(subnets.items(), key=subnet_priority, reverse=True)
-        # 精選最高優先級的 16 個子網代表發起大陸多省探測 (16 x 2探針 x 3網 <= 96 點，並發 max_workers=3 提速 3x，確保 30 分鐘排程不觸發 429 限流)
-        target_subnets = sorted_subnets[:16]
-        remaining_subnets = sorted_subnets[16:]
+        # 精選最高優先級的 20 個子網代表發起大陸多省探測 (快取命中率高，實時補充新子網)
+        target_subnets = sorted_subnets[:20]
+        remaining_subnets = sorted_subnets[20:]
 
         print(f"\n[*] 階段 3：對 [{c_code.upper()}] 共 {len(carrier_candidates)} 顆候選 IP (精選 {len(target_subnets)}/{len(subnets)} 個優質 /24 網段) 發起大陸境內 ASN 真機實測 (併發=3)...")
         def _probe_sub(sub_items):

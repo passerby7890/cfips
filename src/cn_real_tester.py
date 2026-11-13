@@ -54,7 +54,7 @@ EU_COLOS = {"LHR", "FRA", "AMS", "CDG", "MAD", "MXP", "ZRH", "ARN"}
 _SUBNET_PROBE_CACHE: Dict[Tuple[str, str], Tuple[str, float, float]] = {}
 
 PROBE_CACHE_PATH = Path(__file__).resolve().parent.parent / "data" / "probe_cache.json"
-PROBE_CACHE_TTL_SEC = 5400  # 90 分鐘真實探測結果快取 (僅緩存真實 Globalping / WeTest 量測數據)
+PROBE_CACHE_TTL_SEC = 86400  # 24 小時真實探測結果快取 (保證 GitHub Actions 在 API 限流時仍有完整真實實測數據)
 _DISK_CACHE_LOADED = False
 _DISK_CACHE: Dict[str, dict] = {}
 _GLOBALPING_RATE_LIMITED = False
@@ -261,13 +261,9 @@ def _probe_ping_multi_asn(rep_ip: str, c_key: str, limit: int = 2, timeout_sec: 
                     asn = probe_info.get("asn", "")
                     st = p.get("result", {}).get("stats", {})
                     avg = st.get("avg")
-                    loss = st.get("loss")
-                    if loss is not None:
-                        losses.append(float(loss))
-                    else:
-                        losses.append(100.0)
                     if avg is not None and float(avg) > 0:
                         valid_rtts.append(float(avg))
+                        losses.append(float(loss) if loss is not None else 0.0)
                         cities.append(f"{city}(AS{asn}:{float(avg):.0f}ms)")
                     else:
                         cities.append(f"{city}(AS{asn}:TIMEOUT)")
@@ -275,7 +271,7 @@ def _probe_ping_multi_asn(rep_ip: str, c_key: str, limit: int = 2, timeout_sec: 
                 if not valid_rtts:
                     return 999.0, 100.0, False, cities
 
-                # 保守真實指標：多省實測取平均 RTT 與平均丟包率 (防止單點包頭 99ms 掩蓋全國 200ms+)
+                # 依真實響應探針取平均 RTT 與真實丟包率 (杜絕單一故障探針超時導致全網段誤判 50% 丟包)
                 avg_ms = round(sum(valid_rtts) / len(valid_rtts), 1)
                 avg_loss = round(sum(losses) / len(losses), 1) if losses else 0.0
                 return avg_ms, avg_loss, False, cities

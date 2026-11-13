@@ -56,9 +56,9 @@ jobs:
             fi
           done
 
-          # 檢查 output 與歷史檔案是否有變更
-          git add -A output/ data/ip_history.json
-          if git status --porcelain | grep -qE '(output/|data/ip_history.json)'; then
+          # 檢查 output 與歷史/快取檔案是否有變更
+          git add -A output/ data/ip_history.json data/probe_cache.json
+          if git status --porcelain | grep -qE '(output/|data/ip_history.json|data/probe_cache.json)'; then
             git commit -m "chore: auto update optimized IPs [skip ci]"
             git pull --rebase origin main || true
             git push origin main
