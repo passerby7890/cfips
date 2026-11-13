@@ -1,9 +1,9 @@
 {
-  "version": "v4.6.2",
-  "updated_at": "2026-11-12T23:49:57.003088+00:00",
+  "version": "v4.6.3",
+  "updated_at": "2026-11-13T00:34:05.135241+00:00",
   "summary": {
-    "total_domains": 86,
-    "healthy": 83,
+    "total_domains": 89,
+    "healthy": 86,
     "degraded": 0,
     "dead_or_1034": 3
   },
@@ -507,6 +507,36 @@
       "alive_rate": "0.0%",
       "error_1034_rate": "0.0%",
       "status": "DEAD_OR_1034"
+    },
+    "replit.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "substack.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "wise.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
     },
     "discord.com": {
       "carrier": "cu",
