@@ -351,6 +351,12 @@
       },
       {
         "domain": "v2ex.com"
+      },
+      {
+        "domain": "www.v2ex.com",
+        "target_carrier": "cm",
+        "prefer_region": "HK",
+        "weight": 95
       }
     ],
     "cu": [
