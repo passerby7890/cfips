@@ -104,7 +104,8 @@
       { "domain": "www.box.com" },
       { "domain": "replit.com" },
       { "domain": "substack.com" },
-      { "domain": "wise.com" }
+      { "domain": "wise.com" },
+      { "domain": "perplexity.ai" }
     ],
     "cm": [
       { "domain": "ridibooks.com" },
@@ -148,7 +149,8 @@
       { "domain": "www.digitalocean.com" },
       { "domain": "www.box.com" },
       { "domain": "replit.com" },
-      { "domain": "wise.com" }
+      { "domain": "wise.com" },
+      { "domain": "v2ex.com" }
     ],
     "cu": [
       { "domain": "discord.com" },

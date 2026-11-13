@@ -54,3 +54,4 @@ www.box.com
 replit.com
 substack.com
 wise.com
+perplexity.ai
