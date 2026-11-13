@@ -1,9 +1,9 @@
 {
   "version": "v4.6.5",
-  "updated_at": "2026-11-13T06:16:15.201635+00:00",
+  "updated_at": "2026-11-13T06:45:32.588931+00:00",
   "summary": {
-    "total_domains": 96,
-    "healthy": 93,
+    "total_domains": 97,
+    "healthy": 94,
     "degraded": 0,
     "dead_or_1034": 3
   },
@@ -672,6 +672,16 @@
       "carrier": "cu",
       "total_ips": 5,
       "alive_ips": 5,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "icanhazip.com": {
+      "carrier": "cu",
+      "total_ips": 2,
+      "alive_ips": 2,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
