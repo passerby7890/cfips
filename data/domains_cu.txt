@@ -23,3 +23,4 @@ www.coinbase.com
 www.box.com
 www.asda.com
 www.zendesk.com
+substack.com

@@ -101,7 +101,10 @@
       { "domain": "www.digitalocean.com" },
       { "domain": "www.canva.com" },
       { "domain": "www.notion.so" },
-      { "domain": "www.box.com" }
+      { "domain": "www.box.com" },
+      { "domain": "replit.com" },
+      { "domain": "substack.com" },
+      { "domain": "wise.com" }
     ],
     "cm": [
       { "domain": "ridibooks.com" },
@@ -143,7 +146,9 @@
       { "domain": "www.notion.so" },
       { "domain": "www.coinbase.com" },
       { "domain": "www.digitalocean.com" },
-      { "domain": "www.box.com" }
+      { "domain": "www.box.com" },
+      { "domain": "replit.com" },
+      { "domain": "wise.com" }
     ],
     "cu": [
       { "domain": "discord.com" },
@@ -166,7 +171,8 @@
       { "domain": "www.notion.so" },
       { "domain": "www.digitalocean.com" },
       { "domain": "www.coinbase.com" },
-      { "domain": "www.box.com" }
+      { "domain": "www.box.com" },
+      { "domain": "substack.com" }
     ]
   }
 }

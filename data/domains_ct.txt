@@ -51,3 +51,6 @@ www.digitalocean.com
 www.canva.com
 www.notion.so
 www.box.com
+replit.com
+substack.com
+wise.com
