@@ -21,6 +21,7 @@
 | **Round 1** | 07:32 | Run `43328260845` (`14db849`) | `33 IPs / 11 /24` (med `58.2ms`, **100% 0% loss**, **33/33 101**) | `41 IPs / 14 /24` (med `189.0ms`, **100% 0% loss**, **41/41 101**) | `27 IPs / 9 /24` (med `44.6ms`, max 16.7%, **27/27 101**) | **Baseline 8h Ignition**: Verified commit `14db849` with 101/101 (100%) 101 pass, 100% 0% loss on CT & CU. Initiated screening of 27 global enterprise Cloudflare domains for pool expansion. |
 | **Round 2** | 07:55 | Run `43331451292` (`b899408`) | `30 IPs / 10 /24` (med `71.7ms`, **100% 0% loss**, **30/30 101**) | `41 IPs / 14 /24` (med `191.8ms`, **100% 0% loss**, **41/41 101**) | `30 IPs / 10 /24` (med `46.8ms`, max 16.7%, **30/30 101**) | **v4.6.2 Enterprise Integration Verification**: Verified commit `b899408`. Enterprise domains (`coinbase`, `crunchyroll`, `postman`) successfully yielded Singapore CT subnets (`104.18.34/35`) and ZeroTrust CU subnets (`162.159.129`). 101/101 (100%) origin WS 101 passed, 0% US detour on CM. |
 | **Round 3** | 08:38 | Run `43337674100` (`d89d7f0`) | `30 IPs / 10 /24` (med **`59.9ms`**, **100% 0% loss**, **30/30 101**) | `26 IPs / 9 /24` (med `198.0ms`, **100% 0% loss**, **26/26 101**) | `36 IPs / 12 /24` (med **`44.1ms`**, max 16.7%, **36/36 101**) | **v4.6.3 Domain Expansion & Collector Speedup**: Verified commit `d89d7f0`. CT median latency dropped to 59.9ms, CM median 44.1ms. 92/92 (100%) WS 101 passed. 89 enterprise sources monitored (86 healthy). |
+| **Round 4** | 09:30 | Run `43343663943` (`f3e1748`) | `30 IPs / 10 /24` (med `63.0ms`, 90.0% 0% loss, **30/30 101**) | `35 IPs / 12 /24` (med `200.1ms`, 91.4% 0% loss, **35/35 101**) | `42 IPs / 14 /24` (med `49.3ms`, max 16.7%, **42/42 101**) | **Scheduled Cron Cycle Verification**: Verified commit `f3e1748` from automated cron run `43343663943`. Top CT node `104.18.34.80` (#SG) 58.0ms, top CM `172.66.134.1` (#HK) 42.2ms. 107/107 (100%) WS 101 passed. |
 
 ---
 
@@ -54,6 +55,17 @@
 - **WebSocket 101 Verification**: Audited all 92 output IPs against `nodejp.snowcat77.com:2053/ws?ed=2048` via `scratch/check_b899408_ws.py` -> **92/92 (100.0%) passed** (`HTTP/1.1 101 Switching Protocols`, 0% Error 1034 / 403).
 - **Collector Optimization Effect**: Eliminating redundant duplicate resolution rounds in `src/collector.py` reduced pipeline duration on GitHub Actions down to ~7 minutes while tracking 89 enterprise domain sources (86 healthy).
 - **Red-Team Self-Test Audit**: Executed `scripts/self_test_audit.py` -> 100% passed all 6 assertions.
+
+### Round 4 — 2026-11-13 09:30+08:00 (Scheduled Cron Run 43343663943 Verification)
+- **GitHub Actions Status**: Scheduled cron workflow `Run 43343663943` completed with `conclusion: success` in ~8 minutes, automatically committing `f3e1748`.
+- **Tri-Net Quality Metrics**:
+  - **China Telecom (CT)**: 30 IPs across 10 distinct `/24` subnets (`104.18.34`, `104.18.35`, `104.18.41`, `104.18.42`, `104.18.43`, `172.64.145`, `172.64.146`, `172.64.151`, `172.64.154`, `172.64.229`). RTT range: `58.0ms ~ 82.2ms` (Median: `63.0ms`). Packet loss: 27/30 (90.0%) zero loss, max loss 16.7%. 0% US detour (21 SG, 9 JP). Top node `104.18.34.80#SG` (58.0ms).
+  - **China Unicom (CU)**: 35 IPs across 12 distinct `/24` subnets (all `162.159.*`). RTT range: `184.7ms ~ 210.7ms` (Median: `200.1ms`). Packet loss: 32/35 (91.4%) zero loss, max loss 16.7%. 0% US detour (35 HK). Top node `162.159.130.1#HK` (184.7ms).
+  - **China Mobile (CM)**: 42 IPs across 14 distinct `/24` subnets (`104.21.81..88`, `172.66.129..143`). RTT range: `38.9ms ~ 72.4ms` (Median: `49.3ms`). Packet loss: 24/42 zero loss, max loss 16.7%. 100% genuine Hong Kong CMI routing (`#HK`), 0% US detour (`172.64.144.*` 0%). Top node `172.66.134.1#HK` (42.2ms).
+- **WebSocket 101 Verification**: Concurrently audited all 107 output IPs against `nodejp.snowcat77.com:2053/ws?ed=2048` via `scratch/check_b899408_ws.py` -> **107/107 (100.0%) passed** (`HTTP/1.1 101 Switching Protocols`, 0% Error 1034 / 403).
+- **Automated Enterprise Pipeline Effect**: GitHub Actions cron ran completely unattended and automatically parsed enterprise domains, seamlessly regenerating candidate pools with 100% zero-loss/sub-18% loss and zero US detours.
+- **Red-Team Self-Test Audit**: Executed `scripts/self_test_audit.py` -> 100% passed all 6 assertions.
+
 
 
 
