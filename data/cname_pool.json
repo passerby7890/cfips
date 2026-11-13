@@ -445,6 +445,12 @@
         "target_carrier": "cu",
         "prefer_region": "HK",
         "weight": 90
+      },
+      {
+        "domain": "icanhazip.com",
+        "target_carrier": "cu",
+        "prefer_region": "HK",
+        "weight": 95
       }
     ]
   }
