@@ -52,129 +52,382 @@
   },
   "carriers": {
     "ct": [
-      { "domain": "wpengine.com" },
-      { "domain": "console.groq.com" },
-      { "domain": "www.liberty.co.uk" },
-      { "domain": "www.pedroshoes.com" },
-      { "domain": "www.goat.com" },
-      { "domain": "www.specialized.com" },
-      { "domain": "www.umbraco.com" },
-      { "domain": "www.zwilling.com" },
-      { "domain": "www.domain.com" },
-      { "domain": "www.cannondale.com" },
-      { "domain": "www.aweber.com" },
-      { "domain": "www.jago.com" },
-      { "domain": "www.saucony.com" },
-      { "domain": "www.bluehost.com" },
-      { "domain": "www.lululemon.com.hk" },
-      { "domain": "www.on-running.com" },
-      { "domain": "www.propertyguru.com.my" },
-      { "domain": "mailerlite.com" },
-      { "domain": "www.charleskeith.com" },
-      { "domain": "www.selfridges.com" },
-      { "domain": "www.foodpanda.my" },
-      { "domain": "www.lululemon.co.kr" },
-      { "domain": "www.petzl.com" },
-      { "domain": "www.topping.audio" },
-      { "domain": "auth0.com" },
-      { "domain": "steelseries.com" },
-      { "domain": "www.aesop.com" },
-      { "domain": "www.akg.com" },
-      { "domain": "linear.app" },
-      { "domain": "www.casetify.com" },
-      { "domain": "codecanyon.net" },
-      { "domain": "makerworld.com" },
-      { "domain": "elements.envato.com" },
-      { "domain": "www.yslbeauty.com" },
-      { "domain": "www.foodpanda.com.tw" },
-      { "domain": "www.shopify.com" },
-      { "domain": "www.lululemon.co.jp" },
-      { "domain": "placeit.net" },
-      { "domain": "www.zendesk.com" },
-      { "domain": "www.glassdoor.com" },
-      { "domain": "www.omnisend.com" },
-      { "domain": "cf.877774.xyz", "prefer_region": "JP" },
-      { "domain": "www.coinbase.com" },
-      { "domain": "www.crunchyroll.com" },
-      { "domain": "developers.cloudflare.com" },
-      { "domain": "community.cloudflare.com" },
-      { "domain": "www.digitalocean.com" },
-      { "domain": "www.canva.com" },
-      { "domain": "www.notion.so" },
-      { "domain": "www.box.com" },
-      { "domain": "replit.com" },
-      { "domain": "substack.com" },
-      { "domain": "wise.com" },
-      { "domain": "perplexity.ai" }
+      {
+        "domain": "wpengine.com"
+      },
+      {
+        "domain": "console.groq.com"
+      },
+      {
+        "domain": "www.liberty.co.uk"
+      },
+      {
+        "domain": "www.pedroshoes.com"
+      },
+      {
+        "domain": "www.goat.com"
+      },
+      {
+        "domain": "www.specialized.com"
+      },
+      {
+        "domain": "www.umbraco.com"
+      },
+      {
+        "domain": "www.zwilling.com"
+      },
+      {
+        "domain": "www.domain.com"
+      },
+      {
+        "domain": "www.cannondale.com"
+      },
+      {
+        "domain": "www.aweber.com"
+      },
+      {
+        "domain": "www.jago.com"
+      },
+      {
+        "domain": "www.saucony.com"
+      },
+      {
+        "domain": "www.bluehost.com"
+      },
+      {
+        "domain": "www.lululemon.com.hk"
+      },
+      {
+        "domain": "www.on-running.com"
+      },
+      {
+        "domain": "www.propertyguru.com.my"
+      },
+      {
+        "domain": "mailerlite.com"
+      },
+      {
+        "domain": "www.charleskeith.com"
+      },
+      {
+        "domain": "www.selfridges.com"
+      },
+      {
+        "domain": "www.foodpanda.my"
+      },
+      {
+        "domain": "www.lululemon.co.kr"
+      },
+      {
+        "domain": "www.petzl.com"
+      },
+      {
+        "domain": "www.topping.audio"
+      },
+      {
+        "domain": "auth0.com"
+      },
+      {
+        "domain": "steelseries.com"
+      },
+      {
+        "domain": "www.aesop.com"
+      },
+      {
+        "domain": "www.akg.com"
+      },
+      {
+        "domain": "linear.app"
+      },
+      {
+        "domain": "www.casetify.com"
+      },
+      {
+        "domain": "codecanyon.net"
+      },
+      {
+        "domain": "makerworld.com"
+      },
+      {
+        "domain": "elements.envato.com"
+      },
+      {
+        "domain": "www.yslbeauty.com"
+      },
+      {
+        "domain": "www.foodpanda.com.tw"
+      },
+      {
+        "domain": "www.shopify.com"
+      },
+      {
+        "domain": "www.lululemon.co.jp"
+      },
+      {
+        "domain": "placeit.net"
+      },
+      {
+        "domain": "www.zendesk.com"
+      },
+      {
+        "domain": "www.glassdoor.com"
+      },
+      {
+        "domain": "www.omnisend.com"
+      },
+      {
+        "domain": "cf.877774.xyz",
+        "prefer_region": "JP"
+      },
+      {
+        "domain": "www.coinbase.com"
+      },
+      {
+        "domain": "www.crunchyroll.com"
+      },
+      {
+        "domain": "developers.cloudflare.com"
+      },
+      {
+        "domain": "community.cloudflare.com"
+      },
+      {
+        "domain": "www.digitalocean.com"
+      },
+      {
+        "domain": "www.canva.com"
+      },
+      {
+        "domain": "www.notion.so"
+      },
+      {
+        "domain": "www.box.com"
+      },
+      {
+        "domain": "replit.com"
+      },
+      {
+        "domain": "substack.com"
+      },
+      {
+        "domain": "wise.com"
+      },
+      {
+        "domain": "perplexity.ai"
+      },
+      {
+        "domain": "openai.com",
+        "target_carrier": "ct",
+        "prefer_region": "SG",
+        "weight": 85
+      }
     ],
     "cm": [
-      { "domain": "ridibooks.com" },
-      { "domain": "www.rhbgroup.com" },
-      { "domain": "www.alchemy.com" },
-      { "domain": "www.rome2rio.com" },
-      { "domain": "www.amiami.jp" },
-      { "domain": "mailersend.com" },
-      { "domain": "www.garmin.com.sg" },
-      { "domain": "www.buy123.com.tw" },
-      { "domain": "www.casetify.com" },
-      { "domain": "store.ubi.com" },
-      { "domain": "www.chrono24.com" },
-      { "domain": "www.liberty.co.uk" },
-      { "domain": "www.highsnobiety.com" },
-      { "domain": "linear.app" },
-      { "domain": "www.3cecosmetics.com" },
-      { "domain": "www.hydroflask.com" },
-      { "domain": "makerworld.com" },
-      { "domain": "theordinary.com" },
-      { "domain": "www.fragrancenet.com" },
-      { "domain": "kinsta.com" },
-      { "domain": "www.garmin.co.jp" },
-      { "domain": "www.propertyguru.com.sg" },
-      { "domain": "www.xendit.co" },
-      { "domain": "www.aesop.com" },
-      { "domain": "www.humblebundle.com" },
-      { "domain": "www.pedroshoes.com" },
-      { "domain": "www.foodpanda.sg" },
-      { "domain": "www.macpaw.com" },
-      { "domain": "www.garmin.com.hk" },
-      { "domain": "www.shopify.com" },
-      { "domain": "www.garmin.co.kr" },
-      { "domain": "www.dynadot.com" },
-      { "domain": "www.ssense.com" },
-      { "domain": "www.algolia.com" },
-      { "domain": "developers.cloudflare.com" },
-      { "domain": "www.canva.com" },
-      { "domain": "www.notion.so" },
-      { "domain": "www.coinbase.com" },
-      { "domain": "www.digitalocean.com" },
-      { "domain": "www.box.com" },
-      { "domain": "replit.com" },
-      { "domain": "wise.com" },
-      { "domain": "v2ex.com" }
+      {
+        "domain": "ridibooks.com"
+      },
+      {
+        "domain": "www.rhbgroup.com"
+      },
+      {
+        "domain": "www.alchemy.com"
+      },
+      {
+        "domain": "www.rome2rio.com"
+      },
+      {
+        "domain": "www.amiami.jp"
+      },
+      {
+        "domain": "mailersend.com"
+      },
+      {
+        "domain": "www.garmin.com.sg"
+      },
+      {
+        "domain": "www.buy123.com.tw"
+      },
+      {
+        "domain": "www.casetify.com"
+      },
+      {
+        "domain": "store.ubi.com"
+      },
+      {
+        "domain": "www.chrono24.com"
+      },
+      {
+        "domain": "www.liberty.co.uk"
+      },
+      {
+        "domain": "www.highsnobiety.com"
+      },
+      {
+        "domain": "linear.app"
+      },
+      {
+        "domain": "www.3cecosmetics.com"
+      },
+      {
+        "domain": "www.hydroflask.com"
+      },
+      {
+        "domain": "makerworld.com"
+      },
+      {
+        "domain": "theordinary.com"
+      },
+      {
+        "domain": "www.fragrancenet.com"
+      },
+      {
+        "domain": "kinsta.com"
+      },
+      {
+        "domain": "www.garmin.co.jp"
+      },
+      {
+        "domain": "www.propertyguru.com.sg"
+      },
+      {
+        "domain": "www.xendit.co"
+      },
+      {
+        "domain": "www.aesop.com"
+      },
+      {
+        "domain": "www.humblebundle.com"
+      },
+      {
+        "domain": "www.pedroshoes.com"
+      },
+      {
+        "domain": "www.foodpanda.sg"
+      },
+      {
+        "domain": "www.macpaw.com"
+      },
+      {
+        "domain": "www.garmin.com.hk"
+      },
+      {
+        "domain": "www.shopify.com"
+      },
+      {
+        "domain": "www.garmin.co.kr"
+      },
+      {
+        "domain": "www.dynadot.com"
+      },
+      {
+        "domain": "www.ssense.com"
+      },
+      {
+        "domain": "www.algolia.com"
+      },
+      {
+        "domain": "developers.cloudflare.com"
+      },
+      {
+        "domain": "www.canva.com"
+      },
+      {
+        "domain": "www.notion.so"
+      },
+      {
+        "domain": "www.coinbase.com"
+      },
+      {
+        "domain": "www.digitalocean.com"
+      },
+      {
+        "domain": "www.box.com"
+      },
+      {
+        "domain": "replit.com"
+      },
+      {
+        "domain": "wise.com"
+      },
+      {
+        "domain": "v2ex.com"
+      }
     ],
     "cu": [
-      { "domain": "discord.com" },
-      { "domain": "cdn.discordapp.com" },
-      { "domain": "discord.gg" },
-      { "domain": "status.discord.com" },
-      { "domain": "medium.com" },
-      { "domain": "cf.877771.xyz", "prefer_region": "HK" },
-      { "domain": "cf.877774.xyz", "prefer_region": "JP" },
-      { "domain": "www.shopify.com" },
-      { "domain": "linear.app" },
-      { "domain": "auth0.com" },
-      { "domain": "makerworld.com" },
-      { "domain": "elements.envato.com" },
-      { "domain": "www.postman.com" },
-      { "domain": "www.canva.com" },
-      { "domain": "www.udemy.com" },
-      { "domain": "www.kraken.com" },
-      { "domain": "developers.cloudflare.com" },
-      { "domain": "www.notion.so" },
-      { "domain": "www.digitalocean.com" },
-      { "domain": "www.coinbase.com" },
-      { "domain": "www.box.com" },
-      { "domain": "substack.com" }
+      {
+        "domain": "discord.com"
+      },
+      {
+        "domain": "cdn.discordapp.com"
+      },
+      {
+        "domain": "discord.gg"
+      },
+      {
+        "domain": "status.discord.com"
+      },
+      {
+        "domain": "medium.com"
+      },
+      {
+        "domain": "cf.877771.xyz",
+        "prefer_region": "HK"
+      },
+      {
+        "domain": "cf.877774.xyz",
+        "prefer_region": "JP"
+      },
+      {
+        "domain": "www.shopify.com"
+      },
+      {
+        "domain": "linear.app"
+      },
+      {
+        "domain": "auth0.com"
+      },
+      {
+        "domain": "makerworld.com"
+      },
+      {
+        "domain": "elements.envato.com"
+      },
+      {
+        "domain": "www.postman.com"
+      },
+      {
+        "domain": "www.canva.com"
+      },
+      {
+        "domain": "www.udemy.com"
+      },
+      {
+        "domain": "www.kraken.com"
+      },
+      {
+        "domain": "developers.cloudflare.com"
+      },
+      {
+        "domain": "www.notion.so"
+      },
+      {
+        "domain": "www.digitalocean.com"
+      },
+      {
+        "domain": "www.coinbase.com"
+      },
+      {
+        "domain": "www.box.com"
+      },
+      {
+        "domain": "substack.com"
+      },
+      {
+        "domain": "kick.com",
+        "target_carrier": "cu",
+        "prefer_region": "HK",
+        "weight": 90
+      }
     ]
   }
 }

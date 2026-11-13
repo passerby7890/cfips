@@ -55,3 +55,4 @@ replit.com
 substack.com
 wise.com
 perplexity.ai
+openai.com
