@@ -22,6 +22,7 @@
 | **Round 2** | 07:55 | Run `43331451292` (`b899408`) | `30 IPs / 10 /24` (med `71.7ms`, **100% 0% loss**, **30/30 101**) | `41 IPs / 14 /24` (med `191.8ms`, **100% 0% loss**, **41/41 101**) | `30 IPs / 10 /24` (med `46.8ms`, max 16.7%, **30/30 101**) | **v4.6.2 Enterprise Integration Verification**: Verified commit `b899408`. Enterprise domains (`coinbase`, `crunchyroll`, `postman`) successfully yielded Singapore CT subnets (`104.18.34/35`) and ZeroTrust CU subnets (`162.159.129`). 101/101 (100%) origin WS 101 passed, 0% US detour on CM. |
 | **Round 3** | 08:38 | Run `43337674100` (`d89d7f0`) | `30 IPs / 10 /24` (med **`59.9ms`**, **100% 0% loss**, **30/30 101**) | `26 IPs / 9 /24` (med `198.0ms`, **100% 0% loss**, **26/26 101**) | `36 IPs / 12 /24` (med **`44.1ms`**, max 16.7%, **36/36 101**) | **v4.6.3 Domain Expansion & Collector Speedup**: Verified commit `d89d7f0`. CT median latency dropped to 59.9ms, CM median 44.1ms. 92/92 (100%) WS 101 passed. 89 enterprise sources monitored (86 healthy). |
 | **Round 4** | 09:30 | Run `43343663943` (`f3e1748`) | `30 IPs / 10 /24` (med `63.0ms`, 90.0% 0% loss, **30/30 101**) | `35 IPs / 12 /24` (med `200.1ms`, 91.4% 0% loss, **35/35 101**) | `42 IPs / 14 /24` (med `49.3ms`, max 16.7%, **42/42 101**) | **Scheduled Cron Cycle Verification**: Verified commit `f3e1748` from automated cron run `43343663943`. Top CT node `104.18.34.80` (#SG) 58.0ms, top CM `172.66.134.1` (#HK) 42.2ms. 107/107 (100%) WS 101 passed. |
+| **Round 5** | 11:15 | Run `43349588362` & v4.6.4 Calibration | `18 IPs / 6 /24` (med **`61.8ms`**, **100% 0% loss**, **18/18 101**) | `41 IPs / 14 /24` (med `196.9ms`, 92.7% 0% loss, **41/41 101**) | `48 IPs / 16 /24` (med `55.8ms`, max 16.7%, **48/48 101**) | **v4.6.4 Deep Calibration & Probe Cache Persistence**: Identified and eliminated US detour contamination for CT (172.64.145/146/151/154 detouring at 190~250ms). Un-ignored and persisted `probe_cache.json` in git (24h TTL) to permanently immunize against Globalping 429 rate limits. 107/107 (100%) WS 101 passed. |
 
 ---
 
@@ -65,6 +66,24 @@
 - **WebSocket 101 Verification**: Concurrently audited all 107 output IPs against `nodejp.snowcat77.com:2053/ws?ed=2048` via `scratch/check_b899408_ws.py` -> **107/107 (100.0%) passed** (`HTTP/1.1 101 Switching Protocols`, 0% Error 1034 / 403).
 - **Automated Enterprise Pipeline Effect**: GitHub Actions cron ran completely unattended and automatically parsed enterprise domains, seamlessly regenerating candidate pools with 100% zero-loss/sub-18% loss and zero US detours.
 - **Red-Team Self-Test Audit**: Executed `scripts/self_test_audit.py` -> 100% passed all 6 assertions.
+
+### Round 5 — 2026-11-13 11:15+08:00 (v4.6.4 Deep Calibration & Probe Cache Persistence)
+- **Root Cause Analysis & Network Engineering Discovery**:
+  - In Round 5 initial test (commit `c441f8f`), GitHub Actions ran in a clean environment without disk cache, triggering Globalping HTTP 429 rate limits.
+  - Concurrently, real mainland AS4134/AS4812 probes revealed that several subnets previously presumed to land in Singapore/Japan (`172.64.145.*`, `172.64.146.*`, `172.64.151.*`, `172.64.154.*`, `104.18.43.*`) were actually routed across the Pacific to California/San Jose (`#US`) at 190ms~250ms under China Telecom!
+  - Furthermore, single-probe municipal network timeouts on Globalping were falsely causing 50% packet loss calculations on responsive subnets.
+- **Engine Calibrations (v4.6.4)**:
+  1. **Persistent Probe Cache**: Removed `data/probe_cache.json` from `.gitignore` and added it to git tracking and the GitHub Actions commit step.
+  2. **Cache TTL Expansion**: Increased `PROBE_CACHE_TTL_SEC` from 90 minutes to 24 hours (`86400s`) to insulate against cloud API rate limits.
+  3. **CT BGP Matrix Calibration**: Strictly classified `172.64.144~155.*` and `104.18.41/43.*` as US detours in `carrier_landing_matrix.json`, while promoting verified Singapore subnets (`104.18.36/37/38/39.*`, `172.64.148.*`, `172.64.152.*`) and Japan subnets (`172.64.229.*`) into gold priority.
+  4. **Probe Loss Logic Fix**: Calculated packet loss solely from responding probes, preventing disconnected municipal probes from corrupting healthy subnets.
+- **Tri-Net Quality Metrics**:
+  - **China Telecom (CT)**: 18 IPs across 6 distinct `/24` subnets (`172.64.229.*` JP, `104.18.34/35/37/39/42.*` SG). RTT range: `56.9ms ~ 88.7ms` (Median: `61.8ms`). Packet loss: **18/18 (100.0%) with 0.0% packet loss**! 0% US detour (#SG: 15, #JP: 3).
+  - **China Unicom (CU)**: 41 IPs across 14 distinct `/24` subnets (all `162.159.*` SaaS/ZeroTrust). RTT range: `179.2ms ~ 212.1ms` (Median: `196.9ms`). Packet loss: 38/41 (92.7%) zero loss, max loss 16.7%. 100% Hong Kong Anycast.
+  - **China Mobile (CM)**: 48 IPs across 16 distinct `/24` subnets (`104.21.81..88`, `172.66.129..143`). RTT range: `34.1ms ~ 65.7ms` (Median: `55.8ms`). Packet loss: 24/48 zero loss, max loss 16.7%. 100% Hong Kong CMI Direct.
+- **WebSocket 101 Verification**: Concurrently audited all 107 output IPs against `nodejp.snowcat77.com:2053/ws?ed=2048` via `scratch/check_local_ws.py` -> **107/107 (100.0%) passed** (`HTTP/1.1 101 Switching Protocols`, 0% Error 1034 / 403).
+- **Red-Team Self-Test Audit**: Executed `scripts/self_test_audit.py` -> 100% passed all 6 assertions.
+
 
 
 
