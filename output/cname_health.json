@@ -1,9 +1,9 @@
 {
   "version": "v4.6.3",
-  "updated_at": "2026-11-13T01:19:36.299675+00:00",
+  "updated_at": "2026-11-13T02:08:47.421786+00:00",
   "summary": {
-    "total_domains": 89,
-    "healthy": 86,
+    "total_domains": 91,
+    "healthy": 88,
     "degraded": 0,
     "dead_or_1034": 3
   },
@@ -538,6 +538,16 @@
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
+    "perplexity.ai": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
     "discord.com": {
       "carrier": "cu",
       "total_ips": 5,
@@ -889,6 +899,16 @@
       "status": "HEALTHY"
     },
     "www.algolia.com": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "v2ex.com": {
       "carrier": "cm",
       "total_ips": 2,
       "alive_ips": 2,
