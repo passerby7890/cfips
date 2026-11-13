@@ -1,9 +1,9 @@
 {
   "version": "v4.6.5",
-  "updated_at": "2026-11-13T05:28:59.119183+00:00",
+  "updated_at": "2026-11-13T06:16:15.201635+00:00",
   "summary": {
-    "total_domains": 95,
-    "healthy": 92,
+    "total_domains": 96,
+    "healthy": 93,
     "degraded": 0,
     "dead_or_1034": 3
   },
@@ -949,6 +949,16 @@
       "status": "HEALTHY"
     },
     "v2ex.com": {
+      "carrier": "cm",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
+    "www.v2ex.com": {
       "carrier": "cm",
       "total_ips": 2,
       "alive_ips": 2,

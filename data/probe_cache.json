@@ -9,148 +9,163 @@
   },
   "104.18.37.0/24|ct": {
     "country": "SG",
-    "ms": 67.4,
+    "ms": 96.0,
     "loss": 0.0,
-    "ts": 1794547739.1236093,
+    "ts": 1794550578.3724809,
     "source": "globalping",
     "colo": ""
   },
   "172.64.148.0/24|ct": {
     "country": "SG",
-    "ms": 59.3,
+    "ms": 65.3,
     "loss": 0.0,
-    "ts": 1794547742.2690701,
+    "ts": 1794550575.2040226,
     "source": "globalping",
     "colo": ""
   },
   "104.18.35.0/24|ct": {
     "country": "SG",
-    "ms": 58.1,
+    "ms": 80.4,
     "loss": 0.0,
-    "ts": 1794547745.4159904,
+    "ts": 1794550575.20583,
     "source": "globalping",
     "colo": ""
   },
   "172.64.152.0/24|ct": {
     "country": "SG",
-    "ms": 59.4,
+    "ms": 55.8,
     "loss": 0.0,
-    "ts": 1794547742.4690766,
+    "ts": 1794550578.3780828,
     "source": "globalping",
     "colo": ""
   },
   "104.18.39.0/24|ct": {
     "country": "SG",
-    "ms": 66.6,
+    "ms": 58.0,
     "loss": 0.0,
-    "ts": 1794547742.4342835,
+    "ts": 1794550575.2032719,
     "source": "globalping",
     "colo": ""
   },
   "172.66.132.0/24|cm": {
     "country": "HK",
-    "ms": 55.4,
+    "ms": 86.9,
     "loss": 0.0,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ts": 1794550622.5324996,
+    "source": "globalping",
+    "colo": ""
   },
   "172.66.134.0/24|cm": {
     "country": "HK",
-    "ms": 63.2,
-    "loss": 0.0,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ms": 80.3,
+    "loss": 33.3,
+    "ts": 1794550622.533135,
+    "source": "globalping",
+    "colo": ""
   },
   "104.21.82.0/24|cm": {
     "country": "HK",
-    "ms": 58.7,
+    "ms": 80.5,
     "loss": 0.0,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ts": 1794550622.5338025,
+    "source": "globalping",
+    "colo": ""
   },
   "104.21.81.0/24|cm": {
     "country": "HK",
-    "ms": 70.2,
-    "loss": 0.0,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ms": 46.4,
+    "loss": 16.7,
+    "ts": 1794550625.5093865,
+    "source": "globalping",
+    "colo": ""
   },
   "104.21.83.0/24|cm": {
     "country": "HK",
-    "ms": 56.1,
-    "loss": 16.7,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ms": 64.6,
+    "loss": 33.3,
+    "ts": 1794550628.8227806,
+    "source": "globalping",
+    "colo": ""
   },
   "104.21.85.0/24|cm": {
     "country": "HK",
-    "ms": 90.4,
-    "loss": 0.0,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ms": 74.8,
+    "loss": 16.7,
+    "ts": 1794550625.5095062,
+    "source": "globalping",
+    "colo": ""
   },
   "104.21.88.0/24|cm": {
     "country": "HK",
-    "ms": 106.0,
+    "ms": 77.3,
     "loss": 0.0,
-    "ts": 1794544844.5212483,
-    "source": "wetest"
+    "ts": 1794550628.381552,
+    "source": "globalping",
+    "colo": ""
   },
   "172.66.129.0/24|cm": {
     "country": "HK",
-    "ms": 105.0,
+    "ms": 72.0,
     "loss": 0.0,
-    "ts": 1794544844.5212643,
-    "source": "wetest"
+    "ts": 1794550628.497362,
+    "source": "globalping",
+    "colo": ""
   },
   "172.66.131.0/24|cm": {
     "country": "HK",
-    "ms": 52.3,
-    "loss": 16.7,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ms": 114.5,
+    "loss": 0.0,
+    "ts": 1794550625.6809793,
+    "source": "globalping",
+    "colo": ""
   },
   "172.66.136.0/24|cm": {
     "country": "HK",
-    "ms": 56.9,
-    "loss": 16.7,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ms": 57.1,
+    "loss": 0.0,
+    "ts": 1794550631.354321,
+    "source": "globalping",
+    "colo": ""
   },
   "172.66.140.0/24|cm": {
     "country": "HK",
-    "ms": 50.8,
-    "loss": 16.7,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ms": 75.6,
+    "loss": 0.0,
+    "ts": 1794550631.6335106,
+    "source": "globalping",
+    "colo": ""
   },
   "172.66.141.0/24|cm": {
     "country": "HK",
-    "ms": 57.3,
-    "loss": 0.0,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ms": 58.5,
+    "loss": 16.7,
+    "ts": 1794550635.2254276,
+    "source": "globalping",
+    "colo": ""
   },
   "172.66.142.0/24|cm": {
     "country": "HK",
-    "ms": 55.8,
+    "ms": 37.8,
     "loss": 0.0,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ts": 1794550637.8845387,
+    "source": "globalping",
+    "colo": ""
   },
   "172.66.143.0/24|cm": {
     "country": "HK",
-    "ms": 60.2,
-    "loss": 0.0,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ms": 77.2,
+    "loss": 16.7,
+    "ts": 1794550634.6954818,
+    "source": "globalping",
+    "colo": ""
   },
   "104.21.87.0/24|cm": {
     "country": "HK",
-    "ms": 65.7,
-    "loss": 16.7,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ms": 78.6,
+    "loss": 0.0,
+    "ts": 1794550634.9386766,
+    "source": "globalping",
+    "colo": ""
   },
   "172.64.154.0/24|ct": {
     "country": "JP",
@@ -175,9 +190,9 @@
   },
   "172.64.229.0/24|ct": {
     "country": "JP",
-    "ms": 52.5,
+    "ms": 53.1,
     "loss": 0.0,
-    "ts": 1794547739.1225538,
+    "ts": 1794550581.5187192,
     "source": "globalping",
     "colo": ""
   },
@@ -197,113 +212,121 @@
   },
   "104.18.34.0/24|ct": {
     "country": "SG",
-    "ms": 58.0,
+    "ms": 64.6,
     "loss": 0.0,
-    "ts": 1794547745.4370837,
+    "ts": 1794550578.5304747,
     "source": "globalping",
     "colo": ""
   },
   "104.18.42.0/24|ct": {
     "country": "SG",
-    "ms": 58.4,
+    "ms": 80.6,
     "loss": 0.0,
-    "ts": 1794547739.1214864,
+    "ts": 1794550581.5033875,
     "source": "globalping",
     "colo": ""
   },
   "162.159.141.0/24|cu": {
     "country": "HK",
-    "ms": 223.2,
-    "loss": 16.7,
-    "ts": 1794547761.7838187,
+    "ms": 232.2,
+    "loss": 0.0,
+    "ts": 1794550598.9506514,
     "source": "globalping",
     "colo": ""
   },
   "162.159.133.0/24|cu": {
     "country": "HK",
-    "ms": 196.2,
-    "loss": 0.0,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ms": 210.1,
+    "loss": 16.7,
+    "ts": 1794550605.267006,
+    "source": "globalping",
+    "colo": ""
   },
   "162.159.136.0/24|cu": {
     "country": "HK",
-    "ms": 196.9,
-    "loss": 0.0,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ms": 215.0,
+    "loss": 16.7,
+    "ts": 1794550608.358831,
+    "source": "globalping",
+    "colo": ""
   },
   "162.159.138.0/24|cu": {
     "country": "HK",
-    "ms": 198.0,
+    "ms": 223.7,
     "loss": 0.0,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ts": 1794550602.258713,
+    "source": "globalping",
+    "colo": ""
   },
   "162.159.135.0/24|cu": {
     "country": "HK",
-    "ms": 179.2,
+    "ms": 222.6,
     "loss": 0.0,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ts": 1794550608.5744762,
+    "source": "globalping",
+    "colo": ""
   },
   "162.159.130.0/24|cu": {
     "country": "HK",
-    "ms": 208.8,
+    "ms": 202.3,
     "loss": 0.0,
-    "ts": 1794547764.9081826,
+    "ts": 1794550602.0937617,
     "source": "globalping",
     "colo": ""
   },
   "162.159.129.0/24|cu": {
     "country": "HK",
-    "ms": 208.7,
+    "ms": 223.2,
     "loss": 0.0,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ts": 1794550602.2558072,
+    "source": "globalping",
+    "colo": ""
   },
   "162.159.134.0/24|cu": {
     "country": "HK",
-    "ms": 213.3,
-    "loss": 0.0,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ms": 223.5,
+    "loss": 16.7,
+    "ts": 1794550608.3817384,
+    "source": "globalping",
+    "colo": ""
   },
   "162.159.152.0/24|cu": {
     "country": "HK",
-    "ms": 203.9,
+    "ms": 210.3,
     "loss": 16.7,
-    "ts": 1794547761.785053,
+    "ts": 1794550598.9512014,
     "source": "globalping",
     "colo": ""
   },
   "162.159.153.0/24|cu": {
     "country": "HK",
-    "ms": 204.3,
-    "loss": 0.0,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ms": 220.7,
+    "loss": 16.7,
+    "ts": 1794550611.3300748,
+    "source": "globalping",
+    "colo": ""
   },
   "162.159.128.0/24|cu": {
     "country": "HK",
-    "ms": 206.8,
-    "loss": 16.7,
-    "ts": 1794547768.29874,
+    "ms": 218.6,
+    "loss": 0.0,
+    "ts": 1794550605.2209835,
     "source": "globalping",
     "colo": ""
   },
   "162.159.137.0/24|cu": {
     "country": "HK",
-    "ms": 205.1,
-    "loss": 16.7,
-    "source": "globalping_live",
-    "ts": 1794538472.5109642
+    "ms": 224.5,
+    "loss": 33.3,
+    "ts": 1794550605.227086,
+    "source": "globalping",
+    "colo": ""
   },
   "162.159.140.0/24|cu": {
-    "country": "HK",
-    "ms": 231.5,
-    "loss": 16.7,
-    "ts": 1794547761.7827077,
+    "country": "US",
+    "ms": 241.9,
+    "loss": 0.0,
+    "ts": 1794550598.9500318,
     "source": "globalping",
     "colo": ""
   },
@@ -365,33 +388,33 @@
   },
   "162.159.237.0/24|ct": {
     "country": "US",
-    "ms": 161.3,
-    "loss": 0.0,
-    "ts": 1794547745.7516232,
+    "ms": 151.9,
+    "loss": 16.7,
+    "ts": 1794550581.6697876,
     "source": "globalping",
     "colo": ""
   },
   "162.159.140.0/24|ct": {
     "country": "US",
-    "ms": 210.7,
+    "ms": 176.0,
     "loss": 16.7,
-    "ts": 1794547748.7248454,
+    "ts": 1794550584.644712,
     "source": "globalping",
     "colo": ""
   },
   "162.159.130.0/24|ct": {
     "country": "US",
-    "ms": 224.0,
-    "loss": 0.0,
-    "ts": 1794547748.7258606,
+    "ms": 217.5,
+    "loss": 16.7,
+    "ts": 1794550584.678943,
     "source": "globalping",
     "colo": ""
   },
   "162.159.152.0/24|ct": {
     "country": "US",
-    "ms": 198.5,
-    "loss": 16.7,
-    "ts": 1794547749.0337412,
+    "ms": 184.7,
+    "loss": 0.0,
+    "ts": 1794550584.8011928,
     "source": "globalping",
     "colo": ""
   },
@@ -405,9 +428,9 @@
   },
   "162.159.236.0/24|ct": {
     "country": "US",
-    "ms": 171.7,
-    "loss": 33.3,
-    "ts": 1794547751.8591917,
+    "ms": 151.5,
+    "loss": 0.0,
+    "ts": 1794550587.953107,
     "source": "globalping",
     "colo": ""
   },
@@ -437,33 +460,33 @@
   },
   "162.159.142.0/24|cu": {
     "country": "HK",
-    "ms": 206.7,
+    "ms": 221.8,
     "loss": 0.0,
-    "ts": 1794538275.7302115,
+    "ts": 1794550611.686982,
     "source": "globalping",
     "colo": ""
   },
   "162.159.237.0/24|cu": {
     "country": "US",
-    "ms": 231.9,
+    "ms": 281.7,
     "loss": 0.0,
-    "ts": 1794537211.6778314,
+    "ts": 1794550611.7295988,
     "source": "globalping",
     "colo": ""
   },
   "141.101.114.0/24|cu": {
     "country": "US",
-    "ms": 183.2,
+    "ms": 187.5,
     "loss": 0.0,
-    "ts": 1794538276.1728442,
+    "ts": 1794550614.511892,
     "source": "globalping",
     "colo": ""
   },
   "172.66.130.0/24|cm": {
     "country": "HK",
-    "ms": 50.9,
+    "ms": 93.5,
     "loss": 0.0,
-    "ts": 1794538312.5717711,
+    "ts": 1794550632.0091324,
     "source": "globalping",
     "colo": ""
   },
@@ -565,65 +588,65 @@
   },
   "104.19.68.0/24|ct": {
     "country": "US",
-    "ms": 153.4,
-    "loss": 0.0,
-    "ts": 1794538253.5475574,
+    "ms": 165.9,
+    "loss": 33.3,
+    "ts": 1794550591.1003978,
     "source": "globalping",
     "colo": ""
   },
   "141.101.113.0/24|cu": {
     "country": "US",
-    "ms": 175.8,
+    "ms": 188.3,
     "loss": 0.0,
-    "ts": 1794538279.4308705,
+    "ts": 1794550614.6638494,
     "source": "globalping",
     "colo": ""
   },
   "162.159.236.0/24|cu": {
     "country": "US",
-    "ms": 185.9,
+    "ms": 174.7,
     "loss": 0.0,
-    "ts": 1794538280.92104,
+    "ts": 1794550614.87356,
     "source": "globalping",
     "colo": "LAX"
   },
   "104.16.50.0/24|cu": {
     "country": "US",
-    "ms": 174.7,
+    "ms": 192.6,
     "loss": 0.0,
-    "ts": 1794538282.5684667,
+    "ts": 1794550617.6466324,
     "source": "globalping",
     "colo": "LAX"
   },
   "104.16.141.0/24|cu": {
     "country": "US",
-    "ms": 195.0,
+    "ms": 189.1,
     "loss": 0.0,
-    "ts": 1794538282.958616,
+    "ts": 1794550617.800775,
     "source": "globalping",
     "colo": "LAX"
   },
   "172.64.229.0/24|cm": {
     "country": "US",
-    "ms": 120.3,
-    "loss": 16.7,
-    "ts": 1794538319.7276845,
+    "ms": 193.8,
+    "loss": 0.0,
+    "ts": 1794550638.3700147,
     "source": "globalping",
     "colo": ""
   },
   "172.64.82.0/24|cm": {
     "country": "US",
-    "ms": 192.2,
+    "ms": 207.3,
     "loss": 0.0,
-    "ts": 1794538321.0258708,
+    "ts": 1794550641.1999881,
     "source": "globalping",
     "colo": ""
   },
   "141.101.113.0/24|cm": {
     "country": "US",
-    "ms": 181.4,
+    "ms": 215.5,
     "loss": 16.7,
-    "ts": 1794538319.6410944,
+    "ts": 1794550638.077525,
     "source": "globalping",
     "colo": ""
   },
@@ -850,7 +873,7 @@
     "country": "US",
     "ms": 198.0,
     "loss": 0.0,
-    "ts": 1794547482.7903426,
+    "ts": 1794550321.8715587,
     "source": "wetest"
   },
   "104.16.233.0/24|cu": {
@@ -919,6 +942,132 @@
     "ms": 67.8,
     "loss": 0.0,
     "ts": 1794547758.442415,
+    "source": "globalping",
+    "colo": ""
+  },
+  "104.16.44.0/24|cm": {
+    "country": "US",
+    "ms": 268.0,
+    "loss": 0.0,
+    "ts": 1794550321.871448,
+    "source": "wetest"
+  },
+  "104.16.59.0/24|cm": {
+    "country": "US",
+    "ms": 220.0,
+    "loss": 0.0,
+    "ts": 1794550321.8714705,
+    "source": "wetest"
+  },
+  "104.16.39.0/24|cm": {
+    "country": "US",
+    "ms": 230.0,
+    "loss": 0.0,
+    "ts": 1794550321.8714821,
+    "source": "wetest"
+  },
+  "104.16.110.0/24|cm": {
+    "country": "US",
+    "ms": 239.0,
+    "loss": 0.0,
+    "ts": 1794550321.8714926,
+    "source": "wetest"
+  },
+  "104.18.187.0/24|cm": {
+    "country": "US",
+    "ms": 263.0,
+    "loss": 0.0,
+    "ts": 1794550321.871502,
+    "source": "wetest"
+  },
+  "104.16.176.0/24|cu": {
+    "country": "US",
+    "ms": 185.0,
+    "loss": 0.0,
+    "ts": 1794550321.871513,
+    "source": "wetest"
+  },
+  "104.17.21.0/24|cu": {
+    "country": "US",
+    "ms": 194.0,
+    "loss": 0.0,
+    "ts": 1794550321.8715265,
+    "source": "wetest"
+  },
+  "104.18.218.0/24|cu": {
+    "country": "US",
+    "ms": 187.0,
+    "loss": 0.0,
+    "ts": 1794550321.8715403,
+    "source": "wetest"
+  },
+  "104.19.202.0/24|cu": {
+    "country": "US",
+    "ms": 187.0,
+    "loss": 0.0,
+    "ts": 1794550321.8715498,
+    "source": "wetest"
+  },
+  "104.18.40.0/24|ct": {
+    "country": "SG",
+    "ms": 59.9,
+    "loss": 0.0,
+    "ts": 1794550594.234331,
+    "source": "globalping",
+    "colo": "SIN"
+  },
+  "172.64.149.0/24|ct": {
+    "country": "SG",
+    "ms": 77.0,
+    "loss": 0.0,
+    "ts": 1794550321.871579,
+    "source": "wetest"
+  },
+  "162.159.240.0/24|ct": {
+    "country": "US",
+    "ms": 176.1,
+    "loss": 0.0,
+    "ts": 1794550587.953751,
+    "source": "globalping",
+    "colo": ""
+  },
+  "104.19.11.0/24|ct": {
+    "country": "US",
+    "ms": 152.3,
+    "loss": 33.3,
+    "ts": 1794550588.9663947,
+    "source": "globalping",
+    "colo": ""
+  },
+  "104.17.203.0/24|ct": {
+    "country": "US",
+    "ms": 168.3,
+    "loss": 16.7,
+    "ts": 1794550591.0920796,
+    "source": "globalping",
+    "colo": ""
+  },
+  "104.19.223.0/24|ct": {
+    "country": "US",
+    "ms": 164.5,
+    "loss": 0.0,
+    "ts": 1794550592.2680407,
+    "source": "globalping",
+    "colo": ""
+  },
+  "104.19.195.0/24|ct": {
+    "country": "US",
+    "ms": 166.1,
+    "loss": 0.0,
+    "ts": 1794550594.2306395,
+    "source": "globalping",
+    "colo": ""
+  },
+  "172.66.133.0/24|cm": {
+    "country": "HK",
+    "ms": 75.7,
+    "loss": 0.0,
+    "ts": 1794550641.2115643,
     "source": "globalping",
     "colo": ""
   }
