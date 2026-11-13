@@ -1,9 +1,9 @@
 {
   "version": "v4.6.4",
-  "updated_at": "2026-11-13T03:20:29.344649+00:00",
+  "updated_at": "2026-11-13T04:22:31.364410+00:00",
   "summary": {
-    "total_domains": 91,
-    "healthy": 88,
+    "total_domains": 93,
+    "healthy": 90,
     "degraded": 0,
     "dead_or_1034": 3
   },
@@ -548,6 +548,16 @@
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
+    "openai.com": {
+      "carrier": "ct",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
     "discord.com": {
       "carrier": "cu",
       "total_ips": 5,
@@ -638,6 +648,16 @@
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
+    "kick.com": {
+      "carrier": "cu",
+      "total_ips": 2,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
+      "status": "HEALTHY"
+    },
     "ridibooks.com": {
       "carrier": "cm",
       "total_ips": 2,
@@ -661,10 +681,10 @@
     "www.alchemy.com": {
       "carrier": "cm",
       "total_ips": 2,
-      "alive_ips": 1,
+      "alive_ips": 2,
       "error_1034_ips": 0,
-      "timeout_ips": 1,
-      "alive_rate": "50.0%",
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
@@ -681,10 +701,10 @@
     "www.amiami.jp": {
       "carrier": "cm",
       "total_ips": 2,
-      "alive_ips": 1,
+      "alive_ips": 2,
       "error_1034_ips": 0,
-      "timeout_ips": 1,
-      "alive_rate": "50.0%",
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
@@ -741,10 +761,10 @@
     "www.highsnobiety.com": {
       "carrier": "cm",
       "total_ips": 2,
-      "alive_ips": 1,
+      "alive_ips": 2,
       "error_1034_ips": 0,
-      "timeout_ips": 1,
-      "alive_rate": "50.0%",
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
@@ -891,10 +911,10 @@
     "www.ssense.com": {
       "carrier": "cm",
       "total_ips": 2,
-      "alive_ips": 1,
+      "alive_ips": 2,
       "error_1034_ips": 0,
-      "timeout_ips": 1,
-      "alive_rate": "50.0%",
+      "timeout_ips": 0,
+      "alive_rate": "100.0%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
