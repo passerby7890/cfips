@@ -261,6 +261,7 @@ def _probe_ping_multi_asn(rep_ip: str, c_key: str, limit: int = 2, timeout_sec: 
                     asn = probe_info.get("asn", "")
                     st = p.get("result", {}).get("stats", {})
                     avg = st.get("avg")
+                    loss = st.get("loss", 0.0)
                     if avg is not None and float(avg) > 0:
                         valid_rtts.append(float(avg))
                         losses.append(float(loss) if loss is not None else 0.0)
