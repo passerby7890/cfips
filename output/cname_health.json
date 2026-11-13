@@ -1,6 +1,6 @@
 {
-  "version": "v4.6.3",
-  "updated_at": "2026-11-13T03:12:09.095847+00:00",
+  "version": "v4.6.4",
+  "updated_at": "2026-11-13T03:20:29.344649+00:00",
   "summary": {
     "total_domains": 91,
     "healthy": 88,
@@ -600,8 +600,8 @@
     },
     "cf.877771.xyz": {
       "carrier": "cu",
-      "total_ips": 6,
-      "alive_ips": 6,
+      "total_ips": 4,
+      "alive_ips": 4,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
@@ -661,10 +661,10 @@
     "www.alchemy.com": {
       "carrier": "cm",
       "total_ips": 2,
-      "alive_ips": 2,
+      "alive_ips": 1,
       "error_1034_ips": 0,
-      "timeout_ips": 0,
-      "alive_rate": "100.0%",
+      "timeout_ips": 1,
+      "alive_rate": "50.0%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
@@ -681,10 +681,10 @@
     "www.amiami.jp": {
       "carrier": "cm",
       "total_ips": 2,
-      "alive_ips": 2,
+      "alive_ips": 1,
       "error_1034_ips": 0,
-      "timeout_ips": 0,
-      "alive_rate": "100.0%",
+      "timeout_ips": 1,
+      "alive_rate": "50.0%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
@@ -741,10 +741,10 @@
     "www.highsnobiety.com": {
       "carrier": "cm",
       "total_ips": 2,
-      "alive_ips": 2,
+      "alive_ips": 1,
       "error_1034_ips": 0,
-      "timeout_ips": 0,
-      "alive_rate": "100.0%",
+      "timeout_ips": 1,
+      "alive_rate": "50.0%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
@@ -891,10 +891,10 @@
     "www.ssense.com": {
       "carrier": "cm",
       "total_ips": 2,
-      "alive_ips": 2,
+      "alive_ips": 1,
       "error_1034_ips": 0,
-      "timeout_ips": 0,
-      "alive_rate": "100.0%",
+      "timeout_ips": 1,
+      "alive_rate": "50.0%",
       "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
