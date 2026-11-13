@@ -25,6 +25,7 @@
 | **Round 5** | 11:15 | Run `43349588362` & v4.6.4 Calibration | `18 IPs / 6 /24` (med **`61.8ms`**, **100% 0% loss**, **18/18 101**) | `41 IPs / 14 /24` (med `196.9ms`, 92.7% 0% loss, **41/41 101**) | `48 IPs / 16 /24` (med `55.8ms`, max 16.7%, **48/48 101**) | **v4.6.4 Deep Calibration & Probe Cache Persistence**: Identified and eliminated US detour contamination for CT (172.64.145/146/151/154 detouring at 190~250ms). Un-ignored and persisted `probe_cache.json` in git (24h TTL) to permanently immunize against Globalping 429 rate limits. 107/107 (100%) WS 101 passed. |
 | **Round 6** | 11:24 | Run `43357943566` (`12aad32`) | `18 IPs / 6 /24` (med `90.4ms`, 83.3% 0% loss, **18/18 101**) | `24 IPs / 8 /24` (med `204.3ms`, 75.0% 0% loss, **24/24 101**) | `48 IPs / 16 /24` (med `56.9ms`, max 16.7%, **48/48 101**) | **v4.6.4 Actions Execution Verification**: Verified commit `12aad32`. Probe cache was successfully enriched and committed by GitHub bot. 100% 101 WS pass (90/90), 0% US detour across all 3 carriers (CT: 15 SG, 3 JP; CU: 24 HK; CM: 48 HK). Red-team audit passed 100%. |
 | **Round 7** | 12:25 | Run `43364629926` (`cef6935`) | `20 IPs / 8 /24` (med **`81.0ms`**, **85.0% 0% loss**, **20/20 101**) | `29 IPs / 10 /24` (med `205.1ms`, **79.3% 0% loss**, **29/29 101**) | `45 IPs / 15 /24` (med `56.9ms`, max 16.7%, **45/45 101**) | **Enterprise Integration Round 7**: Verified commit `cef6935`. Added `openai.com` (CT) and `kick.com` (CU), expanding CT to 8 subnets and CU to 10 subnets. CT median dropped to 81.0ms. 94/94 (100%) 101 WS passed, 0% US detour across all 3 carriers (CT: 17 SG, 3 JP; CU: 29 HK; CM: 45 HK). Red-team audit passed 100%. |
+| **Round 8** | 12:46 | Run `43367035511` (`8b79078`) | `22 IPs / 10 /24` (med **`75.0ms`**, **100% 0% loss**, **22/22 101**) | `41 IPs / 14 /24` (med `205.1ms`, **85.4% 0% loss**, **41/41 101**) | `48 IPs / 16 /24` (med `58.7ms`, max 16.7%, **48/48 101**) | **Low-Latency Enterprise Integration Round 8**: Verified commit `8b79078`. Added `quizlet.com` (176ms) and `bitfinex.com` (181ms) to CU, expanding CU to 41 nodes across 14 subnets with 85.4% zero loss. CT median dropped to 75.0ms with 100% 0% loss! 111/111 (100%) 101 WS passed, 0% US detour across all 3 carriers. Red-team audit passed 100%. |
 
 ---
 
@@ -108,6 +109,16 @@
   - **China Mobile (CM)**: 45 IPs across 15 distinct `/24` subnets (`104.21.81..88`, `172.66.129..143`). RTT range: `50.9ms ~ 74.8ms` (Median: `56.9ms`). Packet loss: 27/45 (60.0%) zero loss, max loss 16.7%. 100% genuine Hong Kong CMI routing (`#HK`), 0% US detour (`172.64.144.*` purged 100%). Top node `172.66.130.1#HK` (50.9ms).
 - **WebSocket 101 Verification**: Concurrently audited all 94 output IPs against `nodejp.snowcat77.com:2053/ws?ed=2048` via `scratch/check_local_ws.py` -> **94/94 (100.0%) passed** (`HTTP/1.1 101 Switching Protocols`, 0% Error 1034 / 403).
 - **Red-Team Self-Test Audit**: Executed `scripts/self_test_audit.py` -> 100% passed all 6 assertions.
+
+### Round 8 — 2026-11-13 12:46+08:00 (Low-Latency Enterprise Sourcing & CT Zero-Loss Perfection Verification)
+- **GitHub Actions Status**: Workflow `Run 43367035511` (Trigger: Push `3c87b14`) completed with `conclusion: success` in ~3.5 minutes, automatically committing `8b79078`.
+- **Tri-Net Quality Metrics**:
+  - **China Telecom (CT)**: 22 IPs across 10 distinct `/24` subnets (`104.18.35.*`, `104.18.36.*`, `104.18.37.*`, `104.18.39.*`, `104.18.42.*`, `172.64.148.*`, `172.64.152.*`, `172.64.229.*`). RTT range: `57.9ms ~ 95.0ms` (Median: **`75.0ms`**, down from 81.0ms). Packet loss: **22/22 (100.0%) with 0.0% packet loss**! 0% US detour (#SG: 19, #JP: 3). Top node `104.18.39.1#SG` (57.9ms).
+  - **China Unicom (CU)**: 41 IPs across 14 distinct `/24` subnets (`162.159.*`, `104.16.133.*`, `104.16.164.*`). RTT range: `179.2ms ~ 211.3ms` (Median: `205.1ms`). Packet loss: 35/41 (85.4%) zero loss, max loss 16.7%. 100% Hong Kong Anycast (`#HK`), 0% US detour. Top node `162.159.135.1#HK` (179.2ms).
+  - **China Mobile (CM)**: 48 IPs across 16 distinct `/24` subnets (`104.21.81..88`, `172.66.129..143`). RTT range: `50.9ms ~ 74.8ms` (Median: `58.7ms`). Packet loss: 33/48 (68.8%) zero loss, max loss 16.7%. 100% genuine Hong Kong CMI routing (`#HK`), 0% US detour (`172.64.144.*` purged 100%). Top node `172.66.130.66#HK` (50.9ms).
+- **WebSocket 101 Verification**: Concurrently audited all 111 output IPs against `nodejp.snowcat77.com:2053/ws?ed=2048` via `scratch/check_local_ws.py` -> **111/111 (100.0%) passed** (`HTTP/1.1 101 Switching Protocols`, 0% Error 1034 / 403).
+- **Red-Team Self-Test Audit**: Executed `scripts/self_test_audit.py` -> 100% passed all 6 assertions.
+
 
 
 
