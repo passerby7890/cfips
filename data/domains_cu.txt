@@ -25,3 +25,5 @@ www.asda.com
 www.zendesk.com
 substack.com
 kick.com
+quizlet.com
+bitfinex.com

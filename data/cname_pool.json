@@ -427,6 +427,18 @@
         "target_carrier": "cu",
         "prefer_region": "HK",
         "weight": 90
+      },
+      {
+        "domain": "quizlet.com",
+        "target_carrier": "cu",
+        "prefer_region": "HK",
+        "weight": 95
+      },
+      {
+        "domain": "bitfinex.com",
+        "target_carrier": "cu",
+        "prefer_region": "HK",
+        "weight": 90
       }
     ]
   }
