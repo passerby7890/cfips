@@ -256,7 +256,24 @@
         "target_carrier": "ct",
         "prefer_region": "SG",
         "weight": 90
-      }
+      },
+      { "domain": "8card.net", "score": 55, "weight": 55 },
+      { "domain": "kktix.com", "score": 55, "weight": 55 },
+      { "domain": "hk.carousell.com", "score": 55, "weight": 55 },
+      { "domain": "inline.app", "score": 55, "weight": 55 },
+      { "domain": "hdfcbank.com", "score": 55, "weight": 55 },
+      { "domain": "kia.com", "score": 55, "weight": 55 },
+      { "domain": "ikea.com", "score": 55, "weight": 55 },
+      { "domain": "cal.com", "score": 55, "weight": 55 },
+      { "domain": "astro.build", "score": 55, "weight": 55 },
+      { "domain": "lovable.dev", "score": 55, "weight": 55 },
+      { "domain": "laravel.com", "score": 55, "weight": 55 },
+      { "domain": "forge.laravel.com", "score": 55, "weight": 55 },
+      { "domain": "neon.tech", "score": 55, "weight": 55 },
+      { "domain": "railway.app", "score": 55, "weight": 55 },
+      { "domain": "downdetector.com", "score": 55, "weight": 55 },
+      { "domain": "elementor.com", "score": 55, "weight": 55 },
+      { "domain": "fontawesome.com", "score": 55, "weight": 55 }
     ],
     "cm": [
       {
@@ -553,7 +570,23 @@
         "target_carrier": "cu",
         "prefer_region": "HK",
         "weight": 90
-      }
+      },
+      { "domain": "about.starbucks.com", "score": 55, "weight": 55 },
+      { "domain": "app.hubspot.com", "score": 55, "weight": 55 },
+      { "domain": "beehiiv.com", "score": 55, "weight": 55 },
+      { "domain": "chess.com", "score": 55, "weight": 55 },
+      { "domain": "digitalocean.com", "score": 55, "weight": 55 },
+      { "domain": "feedly.com", "score": 55, "weight": 55 },
+      { "domain": "ftmo.com", "score": 55, "weight": 55 },
+      { "domain": "hpanel.hostinger.com", "score": 55, "weight": 55 },
+      { "domain": "monday.com", "score": 55, "weight": 55 },
+      { "domain": "namecheap.com", "score": 55, "weight": 55 },
+      { "domain": "nodejs.org", "score": 55, "weight": 55 },
+      { "domain": "npmjs.com", "score": 55, "weight": 55 },
+      { "domain": "parallels.com", "score": 55, "weight": 55 },
+      { "domain": "risk.lexisnexis.com", "score": 55, "weight": 55 },
+      { "domain": "spaceship.com", "score": 55, "weight": 55 },
+      { "domain": "stockx.com", "score": 55, "weight": 55 }
     ]
   }
 }

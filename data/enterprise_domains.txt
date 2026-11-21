@@ -51,6 +51,23 @@ booth.pm:443#電信SG優選
 jp.mercari.com:443#電信SG優選
 dbrs.morningstar.com:443#電信SG優選
 bolt.eu:443#電信SG優選
+8card.net:443#電信企業SaaS探索
+kktix.com:443#電信企業SaaS探索
+hk.carousell.com:443#電信企業SaaS探索
+inline.app:443#電信企業SaaS探索
+hdfcbank.com:443#電信企業SaaS探索
+kia.com:443#電信企業SaaS探索
+ikea.com:443#電信企業SaaS探索
+cal.com:443#電信企業SaaS探索
+astro.build:443#電信企業SaaS探索
+lovable.dev:443#電信企業SaaS探索
+laravel.com:443#電信企業SaaS探索
+forge.laravel.com:443#電信企業SaaS探索
+neon.tech:443#電信企業SaaS探索
+railway.app:443#電信企業SaaS探索
+downdetector.com:443#電信企業SaaS探索
+elementor.com:443#電信企業SaaS探索
+fontawesome.com:443#電信企業SaaS探索
 
 
 
@@ -112,3 +129,19 @@ kakaku.com:443#聯通優選 | HKG直連 (162.159.141.*)
 ff.garena.com:443#聯通優選 | HKG直連 (104.18.16.*)
 forum.cursor.com:443#聯通優選 | HKG直連 (104.18.16.*)
 global.oliveyoung.com:443#聯通優選 | HKG直連 (104.18.16.*)
+about.starbucks.com:443#聯通企業SaaS探索
+app.hubspot.com:443#聯通企業SaaS探索
+beehiiv.com:443#聯通企業SaaS探索
+chess.com:443#聯通企業SaaS探索
+digitalocean.com:443#聯通企業SaaS探索
+feedly.com:443#聯通企業SaaS探索
+ftmo.com:443#聯通企業SaaS探索
+hpanel.hostinger.com:443#聯通企業SaaS探索
+monday.com:443#聯通企業SaaS探索
+namecheap.com:443#聯通企業SaaS探索
+nodejs.org:443#聯通企業SaaS探索
+npmjs.com:443#聯通企業SaaS探索
+parallels.com:443#聯通企業SaaS探索
+risk.lexisnexis.com:443#聯通企業SaaS探索
+spaceship.com:443#聯通企業SaaS探索
+stockx.com:443#聯通企業SaaS探索
