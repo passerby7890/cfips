@@ -23,17 +23,11 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 LINE_PATTERN = re.compile(r"^(\d{1,3}(?:\.\d{1,3}){3})#([A-Z]{2})$")
-BANNED_US_PREFIXES = (
-    "104.18.", "104.19.", "104.20.", "104.21.", "104.22.",
-    "104.24.", "104.25.", "104.26.", "172.67."
-)
 
 
 def check_ip_unblocked_tls(ip: str, port: int = 443, sni: str = "cdnjs.cloudflare.com", attempts: int = 2) -> bool:
     """實機抽檢 IP 是否具備健全的 TCP+TLS 握手連通性 (未被 GFW 阻斷/重置)"""
     ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
     for _ in range(attempts):
         for p in [port, 2053]:
             try:
@@ -57,8 +51,6 @@ def check_ip_unblocked_tls(ip: str, port: int = 443, sni: str = "cdnjs.cloudflar
 def verify_origin_ws_101(ip: str, port: int = 2053, sni: str = "nodejp.snowcat77.com", ws_path: str = "/ws?ed=2048") -> tuple[bool, str]:
     """以真實源站 SNI 與 WebSocket Upgrade 握手檢測是否為 101 Switching Protocols (100% 斬殺 1034)"""
     ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
     try:
         with socket.create_connection((ip, port), timeout=4.0) as s:
             with ctx.wrap_socket(s, server_hostname=sni) as ss:
@@ -85,7 +77,7 @@ def verify_origin_ws_101(ip: str, port: int = 2053, sni: str = "nodejp.snowcat77
 
 def run_redteam_audit() -> bool:
     print("==========================================================")
-    print("🔍 [@QA_RedTeam] 啟動 VPS789 v4.5.0 大陸三網真機探針與防繞美審計...")
+    print("🔍 [@QA_RedTeam] 啟動 VPS789 v4.6.5 大陸三網真機探針與防繞美審計...")
     print("==========================================================")
     errors = []
 
@@ -280,7 +272,7 @@ def run_redteam_audit() -> bool:
             print(f"   - {err}")
         return False
 
-    print("\n🎉 [@DecisionMaker] 全部審計通過！v4.5.0 三網深度解析清單 100% 通過驗收，准許發布！")
+    print("\n🎉 [@DecisionMaker] 全部審計通過！v4.6.5 三網深度解析清單 100% 通過驗收，准許發布！")
     return True
 
 

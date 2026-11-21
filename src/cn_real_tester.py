@@ -126,6 +126,27 @@ def is_blacklisted_us_range(ip: str, carrier: str) -> bool:
     return False
 
 
+def is_cached_bad_subnet(subnet_or_ip: str, carrier: str, ttl_sec: float = 43200.0) -> bool:
+    """檢查磁碟快取中是否在近期 (預設 12h) 已由 Globalping 實測確認為繞美/歐洲/高丟包段，避免擠占新段探測配額。"""
+    _load_disk_cache()
+    c_key = carrier.lower().strip()
+    sub = subnet_or_ip if "/" in subnet_or_ip else get_subnet_24(subnet_or_ip)
+    with _CACHE_LOCK:
+        cached = _DISK_CACHE.get(f"{sub}|{c_key}")
+    if not cached or cached.get("source") != "globalping":
+        return False
+    if (time.time() - float(cached.get("ts", 0))) > ttl_sec:
+        return False
+    cty = str(cached.get("country", "UNKNOWN"))
+    ms = float(cached.get("ms", 999.0))
+    loss = float(cached.get("loss", 100.0))
+    return (
+        cty in ("US", "GB", "DE", "NL", "FR", "CA", "UNKNOWN")
+        or loss > 25.0
+        or (c_key in ("ct", "cm") and ms > 155.0)
+    )
+
+
 def get_subnet_24(ip: str) -> str:
     parts = ip.strip().split(".")
     if len(parts) >= 3:
@@ -224,7 +245,7 @@ def _probe_ping_multi_asn(rep_ip: str, c_key: str, limit: int = 2, timeout_sec: 
         "target": rep_ip,
         "locations": locations,
         "limit": limit,
-        "measurementOptions": {"packets": 3}
+        "measurementOptions": {"packets": 5}
     }
 
     try:
@@ -252,8 +273,7 @@ def _probe_ping_multi_asn(rep_ip: str, c_key: str, limit: int = 2, timeout_sec: 
                 r_list = res.json().get("results", [])
                 if not r_list:
                     return 999.0, 100.0, False, []
-                valid_rtts: List[float] = []
-                losses: List[float] = []
+                valid_probes: List[Tuple[float, float]] = []
                 cities: List[str] = []
                 for p in r_list:
                     probe_info = p.get("probe", {})
@@ -263,18 +283,28 @@ def _probe_ping_multi_asn(rep_ip: str, c_key: str, limit: int = 2, timeout_sec: 
                     avg = st.get("avg")
                     loss = st.get("loss", 0.0)
                     if avg is not None and float(avg) > 0:
-                        valid_rtts.append(float(avg))
-                        losses.append(float(loss) if loss is not None else 0.0)
-                        cities.append(f"{city}(AS{asn}:{float(avg):.0f}ms)")
+                        f_avg = float(avg)
+                        f_loss = float(loss) if loss is not None else 0.0
+                        valid_probes.append((f_loss, f_avg))
+                        cities.append(f"{city}(AS{asn}:{f_avg:.0f}ms/{f_loss:.0f}%)")
                     else:
                         cities.append(f"{city}(AS{asn}:TIMEOUT)")
 
-                if not valid_rtts:
+                if not valid_probes:
                     return 999.0, 100.0, False, cities
 
-                # 依真實響應探針取平均 RTT 與真實丟包率 (杜絕單一故障探針超時導致全網段誤判 50% 丟包)
-                avg_ms = round(sum(valid_rtts) / len(valid_rtts), 1)
-                avg_loss = round(sum(losses) / len(losses), 1) if losses else 0.0
+                # 若有多個探針回應，優先採信健康低丟包探針 (<=25%，容許 packets=5 單包 20% 偶發抖動)，避免單一市級探針限流拖垮整段
+                healthy_probes = [(l, r) for (l, r) in valid_probes if l <= 25.0]
+                if healthy_probes:
+                    # 在健康低丟包探針中，排除單點極端高延遲離群值 (例如 > 2.5 倍最低延遲的繞遠探針)
+                    min_rtt = min(r for _, r in healthy_probes)
+                    consistent = [(l, r) for (l, r) in healthy_probes if r <= max(min_rtt * 2.2, min_rtt + 80.0)]
+                    selected = consistent if consistent else healthy_probes
+                else:
+                    selected = valid_probes
+
+                avg_ms = round(sum(r for _, r in selected) / len(selected), 1)
+                avg_loss = round(sum(l for l, _ in selected) / len(selected), 1)
                 return avg_ms, avg_loss, False, cities
     except Exception:
         return None, None, True, []
@@ -351,6 +381,26 @@ def probe_subnet_from_mainland_cn(
         cached = _DISK_CACHE.get(disk_key)
     now = time.time()
 
+    # 0. 冷卻與短時快取命中機制：對 12 小時內已實測確認為 #US/#EU/高丟包的劣質段直接跳過重複 API 請求，省下配額探測新子網
+    if cached and cached.get("source") == "globalping":
+        age_sec = now - float(cached.get("ts", 0))
+        c_cty_raw = str(cached.get("country", "UNKNOWN"))
+        c_ms_raw = float(cached.get("ms", 999.0))
+        c_loss_raw = float(cached.get("loss", 100.0))
+        is_known_bad = (
+            c_cty_raw in ("US", "GB", "DE", "NL", "FR", "CA", "UNKNOWN")
+            or c_loss_raw > 25.0
+            or (c_key in ("ct", "cm") and c_ms_raw > 155.0)
+        )
+        if (is_known_bad and age_sec <= 43200) or (age_sec <= 3600):
+            c_cty = _apply_speed_of_light_law(c_cty_raw, c_ms_raw, c_key, str(cached.get("colo", "")))
+            res = (c_cty, c_ms_raw, c_loss_raw)
+            with _CACHE_LOCK:
+                _SUBNET_PROBE_CACHE[cache_key] = res
+            tag = "負向冷卻快取" if is_known_bad else "近期實測快取"
+            print(f"    [*] [{tag}] 代表 IP {rep_ip} ({subnet}) [{c_key.upper()}] -> 國別: #{c_cty}, 延遲: {c_ms_raw}ms (丟包 {c_loss_raw}%)")
+            return res
+
     # 1. 發起真實大陸多省 ASN Ping 實測
     avg_ms, avg_loss, rate_limited, cities = _probe_ping_multi_asn(
         rep_ip, c_key, limit=probe_limit, timeout_sec=timeout_sec
@@ -382,7 +432,7 @@ def probe_subnet_from_mainland_cn(
     max_good_ms = 125.0 if c_key in ("ct", "cm") else 220.0
 
     if real_ms <= max_good_ms and real_loss <= 15.0:
-        if verify_colo and not matrix_country:
+        if verify_colo and (not matrix_country or (matrix_country in ("US", "GB", "DE", "NL", "FR") and c_key in ("ct", "cm"))):
             real_colo = _probe_http_colo(rep_ip, c_key)
 
     country = _resolve_colo_country(real_colo) or matrix_country

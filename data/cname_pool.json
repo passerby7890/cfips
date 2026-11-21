@@ -220,6 +220,42 @@
         "target_carrier": "ct",
         "prefer_region": "SG",
         "weight": 85
+      },
+      {
+        "domain": "geaerospace.com",
+        "target_carrier": "ct",
+        "prefer_region": "SG",
+        "weight": 95
+      },
+      {
+        "domain": "just-eat.co.uk",
+        "target_carrier": "ct",
+        "prefer_region": "SG",
+        "weight": 95
+      },
+      {
+        "domain": "booth.pm",
+        "target_carrier": "ct",
+        "prefer_region": "SG",
+        "weight": 90
+      },
+      {
+        "domain": "jp.mercari.com",
+        "target_carrier": "ct",
+        "prefer_region": "SG",
+        "weight": 90
+      },
+      {
+        "domain": "dbrs.morningstar.com",
+        "target_carrier": "ct",
+        "prefer_region": "SG",
+        "weight": 90
+      },
+      {
+        "domain": "bolt.eu",
+        "target_carrier": "ct",
+        "prefer_region": "SG",
+        "weight": 90
       }
     ],
     "cm": [
@@ -451,6 +487,72 @@
         "target_carrier": "cu",
         "prefer_region": "HK",
         "weight": 95
+      },
+      {
+        "domain": "moneyforward.com",
+        "target_carrier": "cu",
+        "prefer_region": "HK",
+        "weight": 95
+      },
+      {
+        "domain": "funplus.com",
+        "target_carrier": "cu",
+        "prefer_region": "HK",
+        "weight": 95
+      },
+      {
+        "domain": "garmin.com",
+        "target_carrier": "cu",
+        "prefer_region": "HK",
+        "weight": 95
+      },
+      {
+        "domain": "bluearchive.nexon.com",
+        "target_carrier": "cu",
+        "prefer_region": "HK",
+        "weight": 95
+      },
+      {
+        "domain": "app.ahrefs.com",
+        "target_carrier": "cu",
+        "prefer_region": "HK",
+        "weight": 95
+      },
+      {
+        "domain": "raindrop.io",
+        "target_carrier": "cu",
+        "prefer_region": "HK",
+        "weight": 95
+      },
+      {
+        "domain": "global.musinsa.com",
+        "target_carrier": "cu",
+        "prefer_region": "HK",
+        "weight": 95
+      },
+      {
+        "domain": "kakaku.com",
+        "target_carrier": "cu",
+        "prefer_region": "HK",
+        "weight": 95
+      },
+      {
+        "domain": "ff.garena.com",
+        "target_carrier": "cu",
+        "prefer_region": "HK",
+        "weight": 90
+      },
+      {
+        "domain": "forum.cursor.com",
+        "target_carrier": "cu",
+        "prefer_region": "HK",
+        "weight": 90
+      },
+      {
+        "domain": "global.oliveyoung.com",
+        "target_carrier": "cu",
+        "prefer_region": "HK",
+        "weight": 90
       }
     ]
   }

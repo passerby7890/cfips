@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import ipaddress
 import json
+import random
 import re
 from pathlib import Path
 from typing import Any, Dict, List, Set, Tuple
@@ -18,7 +19,7 @@ import requests
 
 from src.cn_real_tester import record_real_probe_observation
 from src.dns_extractor import exhaustive_resolve_domain_for_carrier
-from src.region_mapper import is_cf_official_anycast
+from src.region_mapper import is_cf_official_anycast, load_xiu2_cf_cidrs
 
 
 def _load_seeds_for_carrier(seed_path: Path) -> List[str]:
@@ -110,6 +111,55 @@ def _fetch_external_feed_ips() -> Dict[str, List[Dict[str, Any]]]:
     return results
 
 
+def _sample_xiu2_extra_candidates(
+    xiu2_cidrs: List[str],
+    existing_ips: Set[str],
+    max_subnets: int = 12,
+) -> List[str]:
+    """從 XIU2/CloudflareSpeedTest/ip.txt 官方 CIDR 池智慧抽樣未覆蓋的 /24 子網代表 IP。
+
+    只抽少量代表 IP 交由 Stage 2 (101) 過濾，不擠壓 Stage 3 既有黃金網段的 Globalping 配額。
+    """
+    existing_prefixes = {".".join(ip.split(".")[:3]) for ip in existing_ips if "." in ip}
+    sampled_ips: List[str] = []
+    seen_prefixes = set(existing_prefixes)
+
+    # 優先抽取常出現非 1034 亞太段的網段前綴，再隨機抽其他官方段
+    preferred_prefixes = ("172.64.", "172.66.", "104.18.", "104.21.", "162.159.", "141.101.")
+    ordered_cidrs = sorted(
+        xiu2_cidrs,
+        key=lambda c: (not c.startswith(preferred_prefixes), random.random()),
+    )
+
+    for cidr in ordered_cidrs:
+        if len(sampled_ips) >= max_subnets:
+            break
+        try:
+            net = ipaddress.ip_network(cidr, strict=False)
+            if not isinstance(net, ipaddress.IPv4Network):
+                continue
+            if net.prefixlen >= 24:
+                pick_sub = net
+            else:
+                num_sub24 = 1 << (24 - net.prefixlen)
+                sub_idx = random.randrange(num_sub24)
+                sub_addr = ipaddress.IPv4Address(int(net.network_address) + (sub_idx * 256))
+                pick_sub = ipaddress.IPv4Network(f"{sub_addr}/24", strict=False)
+            sub_prefix = ".".join(str(pick_sub.network_address).split(".")[:3])
+            if sub_prefix in seen_prefixes:
+                continue
+            host_offset = random.choice((1, 10, 20, 50, 100))
+            if host_offset < pick_sub.num_addresses - 1:
+                cand_ip = str(pick_sub[host_offset])
+                if cand_ip not in existing_ips:
+                    sampled_ips.append(cand_ip)
+                    seen_prefixes.add(sub_prefix)
+        except Exception:
+            continue
+
+    return sampled_ips
+
+
 def collect_carrier_candidates_with_domain_map(
     pool_path: str = "data/cname_pool.json",
     matrix_path: str = "data/cn_ecs_matrix.json"
@@ -127,6 +177,10 @@ def collect_carrier_candidates_with_domain_map(
     carriers_cfg = pool_cfg.get("carriers", {})
     carrier_results: Dict[str, List[Dict]] = {"ct": [], "cu": [], "cm": []}
     domain_map: Dict[str, Dict[str, Any]] = {}
+
+    # 0. 動態同步 XIU2/CloudflareSpeedTest/ip.txt 官方 CIDR 庫（失敗自動回退 data/cf_ranges.txt）
+    xiu2_cidrs = load_xiu2_cf_cidrs(data_dir / "cf_ranges.txt")
+    print(f"[*] 已同步 XIU2/CloudflareSpeedTest 官方 IPv4 網段庫（共 {len(xiu2_cidrs)} 個 CIDR）")
 
     # 1. 抓取外部即時測速源候選
     print("[*] 正在同步境內權威實測數據源 (WeTest / HostMonit)...")
@@ -221,12 +275,29 @@ def collect_carrier_candidates_with_domain_map(
                     "is_direct_cname": False
                 }
 
+        # D. 從 XIU2 官方網段庫補充少量未覆蓋的 /24 探索代表 IP（低權重排序，僅在黃金池有餘裕時遞補測探針）
+        xiu2_extra = _sample_xiu2_extra_candidates(xiu2_cidrs, set(direct_map.keys()), max_subnets=12)
+        for x_ip in xiu2_extra:
+            if x_ip not in direct_map:
+                direct_map[x_ip] = {
+                    "ip": x_ip,
+                    "domain": "xiu2_cf_cidr",
+                    "carrier": c_code,
+                    "target_carrier": c_code,
+                    "cn_latency_ms": 140.0 if c_code in ("ct", "cm") else 210.0,
+                    "speed_mbs": 10.0,
+                    "score": 70.0,
+                    "hit_ratio": 40.0,
+                    "prefer_region": "",
+                    "is_direct_cname": False
+                }
+
         direct_list = sorted(
             direct_map.values(),
             key=lambda x: (x["cn_latency_ms"], -x["hit_ratio"], -x["score"])
         )
         carrier_results[c_code] = direct_list
-        print(f"[+] [{c_code.upper()}] 整合 CNAME + 專屬種子 + 外部實測候選，共產出 {len(direct_list)} 顆待驗證 IP")
+        print(f"[+] [{c_code.upper()}] 整合 CNAME + 專屬種子 + 外部實測 + XIU2 擴充({len(xiu2_extra)})，共產出 {len(direct_list)} 顆待驗證 IP")
 
     return carrier_results, domain_map
 

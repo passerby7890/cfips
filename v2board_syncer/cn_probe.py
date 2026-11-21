@@ -57,8 +57,6 @@ def verify_cn_mainland_tcp(
     }
 
     ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
 
     try:
         req = urllib.request.Request(

@@ -11,7 +11,9 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import json
+import os
 import ssl
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -52,10 +54,19 @@ async def verify_single_ip_detailed(
     primary_port: int = 0,
     fallback_port: int = 0,
 ) -> Dict[str, Any]:
-    """測活單一 IP：發送真實 WebSocket Upgrade 握手，100% 斬殺 Error 1034 / 403 / 非 101 IP"""
+    """測活單一 IP：發送真實 WebSocket Upgrade 握手，100% 斬殺 Error 1034 / 403 / 非 101 IP。
+
+    區分 Cloudflare Edge 阻斷 (Error 1034 / 403，立即淘汰) 與源站偶發負載/雙 A 記錄抖動 (404/520/超時，重試並輪換健康備援 SNI)。
+    """
     ip = item["ip"]
     cfg = ORIGIN_VERIFY_CFG
-    target_sni = sni or cfg.get("sni") or "nodejp.snowcat77.com"
+    primary_sni = sni or cfg.get("sni") or "nodesg.snowcat77.com"
+    fallback_snis = cfg.get("fallback_snis") or ["nodesg.snowcat77.com", "nodehk.snowcat77.com", "nodesg.snowcat77.com", "nodehk.snowcat77.com", "nodejp.snowcat77.com"]
+    # 優先使用健康的單源站 SNI 並保留多輪重試，避免高併發或雙 A 記錄異常源站誤殺健康 CF IP
+    if primary_sni == "nodejp.snowcat77.com":
+        sni_candidates = list(fallback_snis)
+    else:
+        sni_candidates = [primary_sni] + [s for s in fallback_snis if s]
     target_port = primary_port or int(cfg.get("port", 2053))
     target_path = cfg.get("ws_path", "/ws?ed=2048")
 
@@ -64,81 +75,137 @@ async def verify_single_ip_detailed(
     ssl_ctx.verify_mode = ssl.CERT_NONE
 
     hit_1034 = False
+    last_status = "TIMEOUT_OR_BLOCKED"
+    last_first_line = "No Response"
+    consecutive_timeouts = 0
+    origin_tunnel_evidence = None
+    max_attempts = 5
+
     async with semaphore:
-        try:
-            conn = asyncio.open_connection(ip, target_port, ssl=ssl_ctx, server_hostname=target_sni)
-            r, w = await asyncio.wait_for(conn, timeout=3.5)
-
-            req = (
-                f"GET {target_path} HTTP/1.1\r\n"
-                f"Host: {target_sni}\r\n"
-                f"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n"
-                f"Upgrade: websocket\r\n"
-                f"Connection: Upgrade\r\n"
-                f"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n"
-                f"Sec-WebSocket-Version: 13\r\n\r\n"
-            )
-            w.write(req.encode())
-            await w.drain()
-
-            raw_resp = await asyncio.wait_for(r.read(2048), timeout=2.5)
+        for attempt in range(max_attempts):
+            target_sni = sni_candidates[attempt % len(sni_candidates)]
+            ws_key = base64.b64encode(os.urandom(16)).decode("ascii")
             try:
-                w.close()
-                await w.wait_closed()
-            except Exception:
-                pass
+                conn = asyncio.open_connection(ip, target_port, ssl=ssl_ctx, server_hostname=target_sni)
+                r, w = await asyncio.wait_for(conn, timeout=3.0)
 
-            text_resp = raw_resp.decode(errors="ignore")
-            first_line = text_resp.splitlines()[0] if text_resp.splitlines() else "No Response"
+                req = (
+                    f"GET {target_path} HTTP/1.1\r\n"
+                    f"Host: {target_sni}\r\n"
+                    f"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n"
+                    f"Upgrade: websocket\r\n"
+                    f"Connection: Upgrade\r\n"
+                    f"Sec-WebSocket-Key: {ws_key}\r\n"
+                    f"Sec-WebSocket-Version: 13\r\n\r\n"
+                )
+                w.write(req.encode())
+                await w.drain()
 
-            # 斬殺 1034 與 403 毒 IP
-            if "1034" in text_resp or "error code: 1034" in text_resp or "403 Forbidden" in text_resp or text_resp.startswith("HTTP/1.1 403") or text_resp.startswith("HTTP/2 403"):
-                hit_1034 = True
-                print(f"    [✖ 上游攔截 1034/非101] {ip} (響應: {repr(first_line[:40])})")
-                result = dict(item)
-                result["is_alive"] = False
-                result["status"] = "ERROR_1034"
-                return result
+                raw_resp = await asyncio.wait_for(r.read(2048), timeout=2.5)
+                try:
+                    w.close()
+                    await w.wait_closed()
+                except Exception:
+                    pass
 
-            # 嚴格 101 驗收：只有收到 HTTP/1.1 101 Switching Protocols 才算通過！
-            if "101" not in first_line and "101 Switching Protocols" not in text_resp:
-                print(f"    [✖ 上游攔截 1034/非101] {ip} (響應: {repr(first_line[:40])})")
-                result = dict(item)
-                result["is_alive"] = False
-                result["status"] = "NON_101"
-                return result
-
-            # 萃取邊緣 colo 機房代碼
-            colo = ""
-            for line in text_resp.splitlines():
-                if line.lower().startswith("cf-ray:"):
-                    parts = line.strip().split("-")
-                    if len(parts) >= 2:
-                        colo = parts[-1].strip().upper()
+                text_resp = raw_resp.decode(errors="ignore")
+                first_line = text_resp.splitlines()[0] if text_resp.splitlines() else "No Response"
+                last_first_line = first_line
+                if first_line == "No Response":
+                    consecutive_timeouts += 1
+                    if consecutive_timeouts >= 2:
                         break
-                elif line.startswith("colo="):
-                    colo = line.split("=", 1)[1].strip().upper()
+                    await asyncio.sleep(0.1)
+                    continue
+                consecutive_timeouts = 0
+
+                # 斬殺 1034 與 403 毒 IP (CF Edge IP Restriction 為確定性阻斷，無需重試)
+                if (
+                    "1034" in text_resp
+                    or "error code: 1034" in text_resp
+                    or "403 Forbidden" in text_resp
+                    or text_resp.startswith("HTTP/1.1 403")
+                    or text_resp.startswith("HTTP/2 403")
+                ):
+                    hit_1034 = True
+                    print(f"    [✖ 上游攔截 1034/非101] {ip} (響應: {repr(first_line[:40])})")
+                    result = dict(item)
+                    result["is_alive"] = False
+                    result["status"] = "ERROR_1034"
+                    return result
+
+                # 嚴格檢查狀態行 101 Switching Protocols，避免 Header 隨機字串誤判
+                if first_line.startswith("HTTP/1.1 101") or "101 Switching Protocols" in first_line:
+                    colo = ""
+                    for line in text_resp.splitlines():
+                        if line.lower().startswith("cf-ray:"):
+                            parts = line.strip().split("-")
+                            if len(parts) >= 2:
+                                colo = parts[-1].strip().upper()
+                                break
+                        elif line.startswith("colo="):
+                            colo = line.split("=", 1)[1].strip().upper()
+                            break
+
+                    c_carrier = str(item.get("carrier") or item.get("target_carrier") or "").lower()
+                    country = resolve_country_tag(item, runner_trace_colo=colo, carrier=c_carrier)
+                    if not country or country in ("CF", "UNKNOWN", "NONE"):
+                        country = item.get("prefer_region") or ("SG" if c_carrier == "ct" else "HK")
+
+                    print(f"    [✔ 上游驗證通過 101] {ip} -> #{country} (Colo: {colo or 'ANY'}, SNI: {target_sni})")
+                    verified = dict(item)
+                    verified["is_alive"] = True
+                    verified["status"] = "ALIVE"
+                    verified["colo"] = colo or "CF"
+                    verified["country"] = country
+                    return verified
+
+                # 若 Edge 明確已無 1034 阻斷並完成回源隧道 (Server-Timing 含 cfOrigin;dur= 且 cf-cache-status: DYNAMIC)，記錄備援證據
+                lower_resp = text_resp.lower()
+                if (
+                    "cf-cache-status: dynamic" in lower_resp
+                    and "cforigin;dur=" in lower_resp
+                    and not origin_tunnel_evidence
+                ):
+                    e_colo = ""
+                    for line in text_resp.splitlines():
+                        if line.lower().startswith("cf-ray:"):
+                            parts = line.strip().split("-")
+                            if len(parts) >= 2:
+                                e_colo = parts[-1].strip().upper()
+                                break
+                    origin_tunnel_evidence = {"colo": e_colo, "sni": target_sni}
+
+                # 非 1034 的暫時性源站回應 (例如 404 / 520 / 502)，快速重試並切換 SNI
+                last_status = "NON_101"
+                await asyncio.sleep(0.12)
+            except Exception:
+                last_status = "TIMEOUT_OR_BLOCKED"
+                consecutive_timeouts += 1
+                if consecutive_timeouts >= 2:
                     break
+                await asyncio.sleep(0.15)
 
-            c_carrier = str(item.get("carrier") or item.get("target_carrier") or "").lower()
-            country = resolve_country_tag(item, runner_trace_colo=colo, carrier=c_carrier)
-            if not country or country in ("CF", "UNKNOWN", "NONE"):
-                country = item.get("prefer_region") or ("SG" if c_carrier == "ct" else "HK")
+    # 若源站因高頻探針暫時限流返回 404，但確定已無 Error 1034 且打通 Cloudflare->源站隧道 (cfOrigin;dur=)，仍認定為乾淨可用 IP
+    if not hit_1034 and origin_tunnel_evidence:
+        colo = origin_tunnel_evidence["colo"]
+        target_sni = origin_tunnel_evidence["sni"]
+        c_carrier = str(item.get("carrier") or item.get("target_carrier") or "").lower()
+        country = resolve_country_tag(item, runner_trace_colo=colo, carrier=c_carrier)
+        if not country or country in ("CF", "UNKNOWN", "NONE"):
+            country = item.get("prefer_region") or ("SG" if c_carrier == "ct" else "HK")
+        print(f"    [✔ 上游回源隧道通過 cfOrigin] {ip} -> #{country} (Colo: {colo or 'ANY'}, SNI: {target_sni})")
+        verified = dict(item)
+        verified["is_alive"] = True
+        verified["status"] = "ALIVE"
+        verified["colo"] = colo or "CF"
+        verified["country"] = country
+        return verified
 
-            print(f"    [✔ 上游驗證通過 101] {ip} -> #{country} (Colo: {colo or 'ANY'})")
-            verified = dict(item)
-            verified["is_alive"] = True
-            verified["status"] = "ALIVE"
-            verified["colo"] = colo or "CF"
-            verified["country"] = country
-            return verified
-
-        except Exception:
-            pass
-
+    print(f"    [✖ 上游攔截 1034/非101] {ip} (響應: {repr(last_first_line[:40])})")
     result = dict(item)
     result["is_alive"] = False
-    result["status"] = "ERROR_1034" if hit_1034 else "TIMEOUT_OR_BLOCKED"
+    result["status"] = "ERROR_1034" if hit_1034 else last_status
     return result
 
 

@@ -91,8 +91,6 @@ def fetch_ip_table(source: str, cache_dir: Optional[Path] = None) -> List[Tuple[
     if not content and (source.startswith("http://") or source.startswith("https://")):
         try:
             ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
             req = urllib.request.Request(source, headers={"User-Agent": "curl/7.88.1"})
             with urllib.request.urlopen(req, timeout=8, context=ctx) as resp:
                 content = resp.read().decode("utf-8", errors="ignore")
@@ -128,8 +126,6 @@ class V2BoardAPI:
         self.base_url = base_url.rstrip("/")
         self.token = token.strip()
         self.ctx = ssl.create_default_context()
-        self.ctx.check_hostname = False
-        self.ctx.verify_mode = ssl.CERT_NONE
 
     def _headers(self) -> Dict[str, str]:
         h = {

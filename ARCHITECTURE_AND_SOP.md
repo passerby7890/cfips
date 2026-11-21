@@ -89,8 +89,8 @@ www.garmin.co.kr        www.dynadot.com         www.ssense.com          www.algo
 
 ## 三、 下游同步核心：`v2board_syncer` 五道防護門禁
 
-部署位置：面板伺服器 `/www/wwwroot/0n21.com/v2board_syncer`。  
-運行指令：`python3 v2board_db_sync.py`（或設置 crontab 每 10~15 分鐘運行一次）。
+部署位置：面板伺服器 `/opt/v2board_syncer`。  
+運行指令：`python3 /opt/v2board_syncer/v2board_db_sync.py`（由寶塔排程每 10 分鐘自動運行一次）。
 
 | 閘門 | 名稱 | 作用與防護邏輯 |
 | :---: | :--- | :--- |
@@ -116,7 +116,7 @@ www.garmin.co.kr        www.dynadot.com         www.ssense.com          www.algo
 4. **完工**：GitHub Actions 會自動被觸發，30 分鐘內產出最新篩選結果，下游 `v2board_syncer` 自動吸納入庫！
 
 ### 2. 面板節點如何對應？
-在伺服器 `/www/wwwroot/0n21.com/v2board_syncer/config.json` 中配置節點：
+在伺服器 `/opt/v2board_syncer/config.json`（權限 `chmod 600`）中配置節點：
 - `id: 8` $\rightarrow$ SG 新加坡（拉取 `ct` 表，偏好 SG）
 - `id: 7` $\rightarrow$ JP 日本（拉取 `ct` 表，偏好 JP）
 - `id: 6` $\rightarrow$ HK 香港（拉取 `cm` 表，偏好 HK）

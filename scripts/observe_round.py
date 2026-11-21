@@ -51,8 +51,6 @@ def fetch_gh_job_logs_summary(run_id):
 
 def test_ws_101(ip, timeout=3.5):
     ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
     t0 = time.time()
     try:
         sock = socket.create_connection((ip, PROBE_PORT), timeout=timeout)

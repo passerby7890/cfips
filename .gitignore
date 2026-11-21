@@ -12,3 +12,7 @@ venv/
 MAINTAINER_GUIDE.md
 output_dryrun/
 scratch/
+v2board_syncer/config.json
+v2board_syncer/state_cache.json
+v2board_syncer/*.log
+v2board_syncer/backups/*.json

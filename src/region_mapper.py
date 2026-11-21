@@ -12,6 +12,8 @@ import ipaddress
 from typing import Any, Dict, Optional
 
 # Cloudflare 官方 IPv4 Anycast 核心網段
+XIU2_IP_URL = "https://raw.githubusercontent.com/XIU2/CloudflareSpeedTest/master/ip.txt"
+
 CF_OFFICIAL_CIDRS = [
     "103.21.244.0/22", "103.22.200.0/22", "103.31.4.0/22",
     "104.16.0.0/13", "104.24.0.0/14", "108.162.192.0/18",
@@ -20,6 +22,48 @@ CF_OFFICIAL_CIDRS = [
     "190.93.240.0/20", "197.234.240.0/22", "198.41.128.0/17"
 ]
 _CF_NETWORKS = [ipaddress.IPv4Network(cidr) for cidr in CF_OFFICIAL_CIDRS]
+
+
+def load_xiu2_cf_cidrs(local_fallback_path: Any = None, timeout: float = 4.0) -> list[str]:
+    """從 XIU2/CloudflareSpeedTest/ip.txt 動態同步 Cloudflare 官方 CIDR 並更新白名單。"""
+    global _CF_NETWORKS
+    from pathlib import Path
+    import requests
+
+    raw_text = ""
+    try:
+        r = requests.get(XIU2_IP_URL, timeout=timeout)
+        if r.status_code == 200 and "/" in r.text:
+            raw_text = r.text
+    except Exception:
+        pass
+
+    fallback_file = Path(local_fallback_path) if local_fallback_path else (Path(__file__).resolve().parent.parent / "data" / "cf_ranges.txt")
+    if not raw_text and fallback_file.is_file():
+        try:
+            raw_text = fallback_file.read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            raw_text = ""
+
+    cidrs: list[str] = []
+    nets: list[ipaddress.IPv4Network] = []
+    for line in raw_text.splitlines():
+        item = line.split("#", 1)[0].strip()
+        if not item or ":" in item:
+            continue
+        try:
+            net = ipaddress.ip_network(item, strict=False)
+            if isinstance(net, ipaddress.IPv4Network):
+                cidrs.append(str(net))
+                nets.append(net)
+        except Exception:
+            continue
+
+    if nets:
+        # 合併保留 CF_OFFICIAL_CIDRS 與 XIU2 同步網段，避免白名單漏判
+        merged = list({str(n): n for n in (_CF_NETWORKS + nets)}.values())
+        _CF_NETWORKS = merged
+    return cidrs or list(CF_OFFICIAL_CIDRS)
 
 # 全局母體網段 -> 國家對照快取 (由種子庫與已知亞太段預載)
 _SUBNET_COUNTRY_MAP: list[tuple[ipaddress.IPv4Network, str]] = []

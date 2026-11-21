@@ -1,6 +1,6 @@
 # V2Board (Xiao 版) 節點入口純 IP 替換引擎（v4.3.0 五道防護機制版）
 
-本工具包專為 **V2Board / Xboard (Xiao 版)** 打造，部署於伺服器 `/www/wwwroot/0n21.com/v2board_syncer`。  
+本工具包專為 **V2Board / HyperBoard** 打造，部署於伺服器 `/opt/v2board_syncer`。  
 採用純 Python 3 原生標準庫實現，落實**決策驗收官 (@DecisionMaker)** 制定的「最後選取五道防護閘門」，徹底杜絕 Anycast 路由動態漂移繞美、GFW 阻斷、1034 限制及節點衝突，保障**零中斷（Zero Downtime）**與**真亞太低延遲**！
 
 ---
@@ -36,12 +36,12 @@
 ## 📂 檔案結構
 
 ```text
-/www/wwwroot/0n21.com/v2board_syncer/
+/opt/v2board_syncer/
 ├── v2board_db_sync.py     # 【核心】MySQL 資料庫直連替換引擎 (含五道防護與智慧黏性)
 ├── state_manager.py       # 【狀態】1034/GFW/漂移繞美黑名單與節點黏性管理器
 ├── cn_probe.py            # 【探針】Globalping 大陸三網 ASN 對齊與延遲防漂移模組
 ├── state_cache.json       # 【快取】本地持久化記憶庫 (自動產生與輪替)
-├── config.json            # 節點設定檔 (節點 ID、三網表、落地國、策略、延遲上限)
+├── config.json            # 節點設定檔 (節點 ID、三網表、落地國、策略、延遲上限；chmod 600)
 ├── README.md              # 系統技術手冊與操作筆記
 ├── cache/                 # 離線容災快取目錄
 └── backups/               # 每次變更前的節點備份 JSON
@@ -49,17 +49,17 @@
 
 ---
 
-## ⚙️ 設定檔說明 (`config.json`)
+## ⚙️ 設定檔說明 (`config.json` / `config.example.json`)
 
 ```json
 {
-  "_comment": "V2Board (Xiao 版) 節點入口純 IP 替換設定檔 (v4.3.0 實戰自癒與防繞美漂移版)",
+  "_comment": "V2Board 節點入口純 IP 替換設定檔 (請從 config.example.json 複製並設為 chmod 600)",
   "database": {
     "host": "127.0.0.1",
     "port": 3306,
-    "database": "0n21_com",
-    "username": "0n21_com",
-    "password": "MStrTX7EpG3wtlXM"
+    "database": "v2board",
+    "username": "v2board",
+    "password": "CHANGE_ME"
   },
   "tables": {
     "ct": "https://raw.githubusercontent.com/passerby7890/cfips/main/output/ct.txt",
@@ -155,21 +155,21 @@
 
 ### 1. 模擬測試（Dry-Run，僅測活不改資料庫）
 ```bash
-python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py --dry-run
+python3 /opt/v2board_syncer/v2board_db_sync.py --dry-run
 ```
 
 ### 2. 正式執行（測活確認無誤後寫入 MySQL）
 ```bash
-python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py
+python3 /opt/v2board_syncer/v2board_db_sync.py
 ```
 
 ### 3. 單一節點手動測試
 ```bash
 # 測試並更新節點 7 (電信，偏好日本)
-python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py --node 7 --table ct --country JP --strategy random_all
+python3 /opt/v2board_syncer/v2board_db_sync.py --node 7 --table ct --country JP --strategy random_all
 
 # 測試並更新節點 6 (移動，偏好香港)
-python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py --node 6 --table cm --country HK --strategy random_all
+python3 /opt/v2board_syncer/v2board_db_sync.py --node 6 --table cm --country HK --strategy random_all
 ```
 
 ---
@@ -179,9 +179,9 @@ python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py --node 6 --table
 進入寶塔面板（aaPanel）後台 ➡️ **「計劃任務」** ➡️ **「新增任務」**：
 - **任務名稱**：`V2Board 節點入口優選 IP 測活輪替`
 - **任務類型**：`Shell 腳本`
-- **執行週期**：`N分鐘` ➡️ `5` 分鐘
+- **執行週期**：`N分鐘` ➡️ `10` 分鐘
 - **腳本內容**：
   ```bash
-  /usr/bin/flock -n /tmp/v2board_db_sync.lock /usr/bin/python3 /www/wwwroot/0n21.com/v2board_syncer/v2board_db_sync.py >> /www/wwwroot/0n21.com/v2board_syncer/sync.log 2>&1
+  /usr/bin/flock -n /tmp/v2board_db_sync.lock /usr/bin/python3 /opt/v2board_syncer/v2board_db_sync.py >> /opt/v2board_syncer/sync.log 2>&1
   ```
 - **日誌查看**：直接在寶塔計劃任務清單點擊「日誌」，即可查看每次執行的 IP 測活過程、淘汰原因與最終套入的健康 IP。

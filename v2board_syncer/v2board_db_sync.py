@@ -16,17 +16,21 @@ V2Board / Xboard (Xiao 版) MySQL 資料庫直接極速替換引擎 (v4.3.0 五�
 from __future__ import annotations
 
 import argparse
+import base64
+import ipaddress
 import json
 import logging
 import os
 import random
 import re
+import shutil
 import socket
 import ssl
 import subprocess
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -80,9 +84,9 @@ IP_REGEX = re.compile(r"^(\d{1,3}(?:\.\d{1,3}){3})")
 def find_env_file() -> Optional[Path]:
     """自動尋找 V2Board 面板根目錄的 .env 檔案"""
     candidates = [
+        Path("/www/wwwroot/acc1688-go/.env"),
         CURRENT_DIR.parent / ".env",
         CURRENT_DIR / ".env",
-        Path("/www/wwwroot/0n21.com/.env")
     ]
     for c in candidates:
         if c.is_file():
@@ -91,7 +95,7 @@ def find_env_file() -> Optional[Path]:
 
 
 def parse_env_file(env_path: Path) -> Dict[str, str]:
-    """解析 .env 檔案獲取 DB 配置"""
+    """解析 .env 檔案獲取 DB 配置 (相容 Laravel DB_* 與 V2Board-Go V2B_MYSQL_DSN)"""
     res = {}
     if not env_path or not env_path.is_file():
         return res
@@ -101,6 +105,15 @@ def parse_env_file(env_path: Path) -> Dict[str, str]:
             continue
         k, v = line.split("=", 1)
         res[k.strip()] = v.strip().strip("'\"")
+    dsn = res.get("V2B_MYSQL_DSN", "")
+    if dsn:
+        m = re.match(r"^(?P<user>[^:]+):(?P<pwd>[^@]*)@tcp\((?P<host>[^:)]+):(?P<port>\d+)\)/(?P<db>[^?]+)", dsn)
+        if m:
+            res.setdefault("DB_USERNAME", urllib.parse.unquote(m.group("user")))
+            res.setdefault("DB_PASSWORD", urllib.parse.unquote(m.group("pwd")))
+            res.setdefault("DB_HOST", m.group("host"))
+            res.setdefault("DB_PORT", m.group("port"))
+            res.setdefault("DB_DATABASE", m.group("db"))
     return res
 
 
@@ -131,8 +144,6 @@ def fetch_ip_table(source: str, cache_dir: Optional[Path] = None) -> List[Tuple[
     if not content and (source.startswith("http://") or source.startswith("https://")):
         try:
             ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
             req = urllib.request.Request(source, headers={"User-Agent": "curl/7.88.1"})
             with urllib.request.urlopen(req, timeout=8, context=ctx) as resp:
                 content = resp.read().decode("utf-8", errors="ignore")
@@ -168,60 +179,80 @@ def verify_node_origin_handshake(
     ws_path: str = "/ws?ed=2048",
     timeout: float = 4.0
 ) -> Tuple[bool, str, float]:
-    """針對節點特定配置進行端到端回源驗證
+    """針對節點特定配置進行端到端回源驗證 (區分 1034 阻斷與源站偶發 404/520/超時重試)
     回傳: (is_valid, reason, rtt_ms)
     """
     t_start = time.time()
-    try:
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-        
-        s = socket.create_connection((ip, int(port)), timeout=timeout)
-        if sni:
-            ss = ctx.wrap_socket(s, server_hostname=sni)
-        else:
-            ss = s
-            
-        target_host = host_header or sni or ip
-        target_path = ws_path or "/ws?ed=2048"
-        target_path = target_path.replace(r"\/", "/").replace("\\", "/")
-        if not target_path.startswith("/"):
-            target_path = "/" + target_path
-        req = (
-            f"GET {target_path} HTTP/1.1\r\n"
-            f"Host: {target_host}\r\n"
-            f"Upgrade: websocket\r\n"
-            f"Connection: Upgrade\r\n"
-            f"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n"
-            f"Sec-WebSocket-Version: 13\r\n\r\n"
-        )
-        ss.sendall(req.encode())
-        resp = ss.recv(512).decode("utf-8", errors="replace")
-        rtt_ms = round((time.time() - t_start) * 1000, 1)
-        
+    ctx = ssl.create_default_context()
+
+    target_host = host_header or sni or ip
+    target_path = ws_path or "/ws?ed=2048"
+    target_path = target_path.replace(r"\/", "/").replace("\\", "/")
+    if not target_path.startswith("/"):
+        target_path = "/" + target_path
+
+    last_reason = "未知握手失敗"
+    consecutive_timeouts = 0
+    for attempt in range(8):
+        t_try = time.time()
         try:
-            ss.close()
-        except Exception:
-            pass
+            s = socket.create_connection((ip, int(port)), timeout=timeout)
+            ss = ctx.wrap_socket(s, server_hostname=sni) if sni else s
 
-        if "1034" in resp or ("403" in resp and "cloudflare" in resp.lower()):
-            return False, "Cloudflare Error 1034 (Edge IP Restricted 邊緣阻斷)", rtt_ms
-        if any(err in resp for err in ("502 Bad Gateway", "521 Web Server", "522 Connection", "523 Origin")):
-            return False, "Cloudflare 回源失敗 (502/521/522/523)", rtt_ms
-        if "101" in resp:
-            return True, "101 Switching Protocols (WS 回源握手成功)", rtt_ms
-        if "400" in resp and "sec-websocket-version" in resp.lower():
-            return True, "Origin WebSocket Active (回源成功)", rtt_ms
-        if "200 OK" in resp:
-            return True, "HTTP 200 OK", rtt_ms
+            ws_key = base64.b64encode(os.urandom(16)).decode("ascii")
+            req = (
+                f"GET {target_path} HTTP/1.1\r\n"
+                f"Host: {target_host}\r\n"
+                f"Upgrade: websocket\r\n"
+                f"Connection: Upgrade\r\n"
+                f"Sec-WebSocket-Key: {ws_key}\r\n"
+                f"Sec-WebSocket-Version: 13\r\n\r\n"
+            )
+            ss.sendall(req.encode())
+            resp = ss.recv(512).decode("utf-8", errors="replace")
+            rtt_ms = round((time.time() - t_try) * 1000, 1)
 
-        first_line = resp.splitlines()[0] if resp.splitlines() else "No Response"
-        return False, f"未符合回源協議: {first_line[:40]}", rtt_ms
-    except socket.timeout:
-        return False, f"連線超時 (>{timeout}s)", round((time.time() - t_start) * 1000, 1)
-    except Exception as e:
-        return False, f"網路握手失敗: {e}", round((time.time() - t_start) * 1000, 1)
+            try:
+                ss.close()
+            except Exception:
+                pass
+
+            first_line = resp.splitlines()[0] if resp.splitlines() else "No Response"
+            if first_line == "No Response":
+                consecutive_timeouts += 1
+                if consecutive_timeouts >= 2:
+                    return False, "連續無回應/超時", rtt_ms
+                time.sleep(0.1)
+                continue
+            consecutive_timeouts = 0
+
+            if "1034" in resp or ("403" in first_line and "cloudflare" in resp.lower()):
+                return False, "Cloudflare Error 1034 (Edge IP Restricted 邊緣阻斷)", rtt_ms
+            if first_line.startswith("HTTP/1.1 101") or "101 Switching Protocols" in first_line:
+                return True, "101 Switching Protocols (WS 回源握手成功)", rtt_ms
+            if "400" in first_line and "sec-websocket-version" in resp.lower():
+                return True, "Origin WebSocket Active (回源成功)", rtt_ms
+            if "200 OK" in first_line:
+                return True, "HTTP 200 OK", rtt_ms
+            if any(err in resp for err in ("502 Bad Gateway", "521 Web Server", "522 Connection", "523 Origin")):
+                last_reason = f"Cloudflare 回源失敗 ({first_line[:40]})"
+            else:
+                last_reason = f"未符合回源協議: {first_line[:40]}"
+        except socket.timeout:
+            last_reason = f"連線超時 (>{timeout}s)"
+            consecutive_timeouts += 1
+            if consecutive_timeouts >= 2:
+                break
+        except Exception as e:
+            last_reason = f"網路握手失敗: {e}"
+            consecutive_timeouts += 1
+            if consecutive_timeouts >= 2:
+                break
+
+        if attempt < 7:
+            time.sleep(0.12)
+
+    return False, last_reason, round((time.time() - t_start) * 1000, 1)
 
 
 def select_best_verified_ip(
@@ -514,28 +545,31 @@ def select_best_verified_ip(
 
 
 class MySQLManager:
-    """直接透過 mysql 命令列或連線管理資料庫"""
+    """直接透過 mysql / mariadb 命令列管理資料庫 (經 MYSQL_PWD 環境變數傳遞憑證，避免 ps 暴露密碼)"""
 
     def __init__(self, host: str, port: int, user: str, password: str, database: str):
         self.host = host or "127.0.0.1"
-        self.port = str(port or 3306)
+        self.port = str(int(port or 3306))
         self.user = user
         self.password = password
         self.database = database
+        self.cli_bin = shutil.which("mariadb") or shutil.which("mysql") or "mysql"
 
     def run_query(self, sql: str) -> str:
         cmd = [
-            "mysql",
+            self.cli_bin,
             f"-h{self.host}",
             f"-P{self.port}",
             f"-u{self.user}",
-            f"-p{self.password}",
             self.database,
             "-N",
             "-e",
             sql
         ]
-        res = subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
+        env = os.environ.copy()
+        if self.password:
+            env["MYSQL_PWD"] = self.password
+        res = subprocess.check_output(cmd, env=env, stderr=subprocess.DEVNULL)
         return res.decode("utf-8", errors="replace")
 
     def get_vless_nodes(self, node_ids: List[int]) -> Dict[int, Dict[str, Any]]:
@@ -588,9 +622,16 @@ class MySQLManager:
         return nodes
 
     def update_vless_host(self, node_id: int, new_host: str) -> bool:
-        safe_host = re.sub(r"[^0-9a-zA-Z.:_-]", "", new_host)
+        try:
+            ipaddress.ip_address(new_host)
+            safe_host = new_host
+        except ValueError:
+            if not re.fullmatch(r"[A-Za-z0-9.-]{1,253}", new_host):
+                raise ValueError(f"拒絕寫入非法 host 格式: {new_host!r}")
+            safe_host = new_host
+        nid = int(node_id)
         now_ts = int(time.time())
-        sql = f"UPDATE v2_server_vless SET host = '{safe_host}', updated_at = {now_ts} WHERE id = {node_id};"
+        sql = f"UPDATE v2_server_vless SET host = '{safe_host}', updated_at = {now_ts} WHERE id = {nid};"
         self.run_query(sql)
         return True
 
@@ -781,12 +822,22 @@ def main():
     panel_root = env_file.parent if env_file else CURRENT_DIR.parent
 
     db_conf = conf.get("database", {})
+    db_host = db_conf.get("host") or os.getenv("V2B_SYNCER_DB_HOST") or env_vars.get("DB_HOST", "127.0.0.1")
+    db_port = int(db_conf.get("port") or os.getenv("V2B_SYNCER_DB_PORT") or env_vars.get("DB_PORT", 3306))
+    db_user = db_conf.get("username") or os.getenv("V2B_SYNCER_DB_USER") or env_vars.get("DB_USERNAME", "")
+    db_pass = db_conf.get("password") or os.getenv("V2B_SYNCER_DB_PASSWORD") or env_vars.get("DB_PASSWORD", "")
+    db_name = db_conf.get("database") or os.getenv("V2B_SYNCER_DB_NAME") or env_vars.get("DB_DATABASE", "")
+
+    if not args.dry_run and (not db_user or not db_pass or not db_name or db_pass == "CHANGE_ME"):
+        logger.error("缺少資料庫連線憑證！請於 config.json、V2B_SYNCER_DB_* 環境變數或 V2Board .env 中設定資料庫帳密與名稱。")
+        sys.exit(1)
+
     db_mgr = MySQLManager(
-        host=db_conf.get("host") or env_vars.get("DB_HOST", "127.0.0.1"),
-        port=int(db_conf.get("port") or env_vars.get("DB_PORT", 3306)),
-        user=db_conf.get("username") or env_vars.get("DB_USERNAME", "0n21_com"),
-        password=db_conf.get("password") or env_vars.get("DB_PASSWORD", "MStrTX7EpG3wtlXM"),
-        database=db_conf.get("database") or env_vars.get("DB_DATABASE", "0n21_com")
+        host=db_host,
+        port=db_port,
+        user=db_user,
+        password=db_pass,
+        database=db_name
     )
 
     if args.node is not None:

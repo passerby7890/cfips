@@ -24,6 +24,7 @@ from src.collector import collect_carrier_candidates_with_domain_map
 from src.cn_real_tester import (
     get_subnet_24,
     is_blacklisted_us_range,
+    is_cached_bad_subnet,
     probe_subnet_from_mainland_cn,
     save_probe_cache,
 )
@@ -65,10 +66,9 @@ async def run_pipeline():
                 unique_candidates[ip] = item
 
     print(f"[*] 階段 1 完成：共萃取 {len(unique_candidates)} 個唯一候選 IP，開始執行 2053 WebSocket 101 回源測活 (100% 斬殺 Error 1034)...")
-    print(f"[*] 共剩餘 {len(unique_candidates)} 個唯一候選 IP，開始執行 2053 WebSocket 101 回源測活 (100% 斬殺 Error 1034)...")
 
-    # 階段 2：2053 端口 WebSocket 101 握手測活（砍掉所有 Error 1034 與非 101 節點）
-    alive_list, all_results = await batch_verify_with_health_stats(list(unique_candidates.values()), concurrency=35)
+    # 階段 2：2053 端口 WebSocket 101 握手測活（砍掉所有 Error 1034 與非 101 節點；併發設 15 防源站限流誤殺）
+    alive_list, all_results = await batch_verify_with_health_stats(list(unique_candidates.values()), concurrency=15)
     alive_map = {item["ip"]: item for item in alive_list}
     ip_status_map = {item["ip"]: item.get("status", "TIMEOUT_OR_BLOCKED") for item in all_results}
     print(f"[+] 階段 2 完成！通過 101 握手之健康 IP 共 {len(alive_map)} 個（死 IP / 1034 毒 IP 已全數拋棄）")
@@ -179,39 +179,45 @@ async def run_pipeline():
             ))
 
             is_ct_gold = c_code == "ct" and sub.startswith((
-                "104.18.34.", "104.18.35.", "104.18.37.", "104.18.39.", "104.18.42.",
-                "172.64.229.", "172.64.148.", "172.64.152.",
-                "108.162.192.", "108.162.198.", "198.41.223.", "172.64.52."
+                "104.18.34.", "104.18.35.", "104.18.37.", "104.18.38.", "104.18.39.",
+                "104.18.40.", "104.18.41.", "104.18.42.", "104.18.46.",
+                "172.64.229.", "172.64.145.", "172.64.146.", "172.64.148.",
+                "172.64.152.", "172.64.153.", "108.162.192.", "108.162.198.",
+                "198.41.223.", "172.64.52."
             ))
             is_ct_dirty = c_code == "ct" and sub.startswith((
-                "172.67.", "104.21.", "172.64.144.", "172.64.145.", "172.64.146.",
-                "172.64.147.", "172.64.149.", "172.64.150.", "172.64.151.",
-                "172.64.154.", "172.64.155.", "172.64.230.", "172.64.231.", "172.64.232.",
-                "104.18.33.", "104.18.41.", "104.18.43.", "104.18.44.", "103.21.", "103.31."
+                "172.67.", "104.21.", "172.64.144.", "172.64.147.", "172.64.149.",
+                "172.64.150.", "172.64.151.", "172.64.154.", "172.64.155.",
+                "172.64.230.", "172.64.231.", "172.64.232.",
+                "104.18.33.", "104.18.43.", "104.18.44.", "103.21.", "103.31."
             ))
 
             is_cu_gold = c_code == "cu" and sub.startswith((
                 "162.159.141.", "162.159.133.", "162.159.136.", "162.159.138.",
                 "162.159.130.", "162.159.135.", "162.159.129.", "162.159.134.",
                 "162.159.152.", "162.159.153.", "162.159.128.", "162.159.137.",
-                "162.159.140.", "108.162.198."
+                "162.159.140.", "108.162.198.", "104.18.16."
             ))
-            is_cu_lax = c_code == "cu" and sub.startswith((
-                "104.18.", "104.19.", "172.64.14", "172.64.15", "172.64.229.", "172.67.",
-                "162.159.131.", "162.159.132.", "162.159.139.", "162.159.145.",
-                "162.159.150.", "162.159.151.", "162.159.155.", "103.21.", "103.31."
-            ))
+            is_cu_lax = c_code == "cu" and (
+                (sub.startswith("104.18.") and not sub.startswith("104.18.16."))
+                or sub.startswith((
+                    "104.19.", "172.64.14", "172.64.15", "172.64.229.", "172.67.",
+                    "162.159.131.", "162.159.132.", "162.159.139.", "162.159.145.",
+                    "162.159.150.", "162.159.151.", "162.159.155.", "103.21.", "103.31."
+                ))
+            )
 
             is_gold = is_cm_gold or is_ct_gold or is_cu_gold
             is_lax = is_cm_lax or is_cu_lax or is_ct_dirty
-            return (not is_lax, is_gold, has_prefer, avg_hit, avg_score)
+            is_bad_cached = is_cached_bad_subnet(sub, c_code)
+            return (not is_bad_cached, not is_lax, is_gold, has_prefer, avg_hit, avg_score)
 
         sorted_subnets = sorted(subnets.items(), key=subnet_priority, reverse=True)
-        # 精選最高優先級的 20 個子網代表發起大陸多省探測 (快取命中率高，實時補充新子網)
-        target_subnets = sorted_subnets[:20]
-        remaining_subnets = sorted_subnets[20:]
+        # 精選最高優先級的 24 個子網代表發起大陸多省探測 (已將確認繞美/高丟包段降級，自動騰出額度探索 XIU2 新段)
+        target_subnets = sorted_subnets[:24]
+        remaining_subnets = sorted_subnets[24:]
 
-        print(f"\n[*] 階段 3：對 [{c_code.upper()}] 共 {len(carrier_candidates)} 顆候選 IP (精選 {len(target_subnets)}/{len(subnets)} 個優質 /24 網段) 發起大陸境內 ASN 真機實測 (併發=3)...")
+        print(f"\n[*] 階段 3：對 [{c_code.upper()}] 共 {len(carrier_candidates)} 顆候選 IP (精選 {len(target_subnets)}/{len(subnets)} 個優質 /24 網段) 發起大陸境內 ASN 真機實測 (併發=2)...")
         def _probe_sub(sub_items):
             sub, items = sub_items
             items.sort(key=lambda x: (-x.get("hit_ratio", 0.0), -x.get("score", 0.0)))
@@ -219,7 +225,7 @@ async def run_pipeline():
             real_country, real_ms, real_loss = probe_subnet_from_mainland_cn(rep_ip, c_code)
             return items, real_country, real_ms, real_loss
 
-        with ThreadPoolExecutor(max_workers=3) as executor:
+        with ThreadPoolExecutor(max_workers=2) as executor:
             futs = [executor.submit(_probe_sub, s_item) for s_item in target_subnets]
             for fut in as_completed(futs):
                 items, real_country, real_ms, real_loss = fut.result()
@@ -231,7 +237,7 @@ async def run_pipeline():
                     it["cn_latency_ms"] = real_ms
                     it["unprobed"] = False
 
-        # 針對超出前 18 個網段的剩餘節點標記為未實測 (嚴格拒絕偽造假延遲)
+        # 針對超出前 20 個網段的剩餘節點標記為未實測 (嚴格拒絕偽造假延遲)
         for sub, items in remaining_subnets:
             for it in items:
                 it["unprobed"] = True
@@ -253,6 +259,66 @@ async def run_pipeline():
             and it.get("real_cn_loss", 100.0) <= max_allowed_loss
             and it.get("real_cn_ms", 999.0) <= max_allowed_ms
         ]
+
+        # 階段 3.5：對實測勝出的亞太黃金 /24 子網進行同段擴充（零額外 Globalping 消耗，補齊至每段最多 3 顆）
+        if usable_nodes:
+            winning_subs: dict[str, dict] = {}
+            sub_existing_cnt: dict[str, int] = {}
+            for it in usable_nodes:
+                sub = get_subnet_24(it["ip"])
+                sub_existing_cnt[sub] = sub_existing_cnt.get(sub, 0) + 1
+                if sub not in winning_subs or it["real_cn_ms"] < winning_subs[sub]["real_cn_ms"]:
+                    winning_subs[sub] = it
+
+            sorted_win_subs = sorted(
+                winning_subs.items(),
+                key=lambda kv: (kv[1].get("real_cn_loss", 0.0), kv[1].get("real_cn_ms", 999.0)),
+            )
+            expand_cands = []
+            expand_template: dict[str, dict] = {}
+            host_offsets = (1, 2, 10, 20, 32, 50, 80, 100, 150, 200, 250)
+            for sub, rep_item in sorted_win_subs[:18]:
+                need = 3 - sub_existing_cnt.get(sub, 0)
+                if need <= 0:
+                    continue
+                prefix3 = sub.rsplit(".", 1)[0]
+                added_for_sub = 0
+                for off in host_offsets:
+                    cand_ip = f"{prefix3}.{off}"
+                    if cand_ip in seen_ips:
+                        continue
+                    seen_ips.add(cand_ip)
+                    expand_cands.append({
+                        "ip": cand_ip,
+                        "domain": rep_item.get("domain", f"expand_{c_code}"),
+                        "carrier": c_code,
+                        "target_carrier": c_code,
+                        "prefer_region": rep_item.get("country", ""),
+                    })
+                    expand_template[cand_ip] = rep_item
+                    added_for_sub += 1
+                    if added_for_sub >= max(5, need * 3):
+                        break
+
+            if expand_cands:
+                print(f"    [*] [階段 3.5] 對 {len(sorted_win_subs[:18])} 個勝出亞太 /24 補探 {len(expand_cands)} 顆同段候選 IP（目標補滿每段 3 顆）...")
+                exp_alive, _ = await batch_verify_with_health_stats(expand_cands, concurrency=15)
+                added_cnt = 0
+                for exp_item in exp_alive:
+                    ip = exp_item["ip"]
+                    sub = get_subnet_24(ip)
+                    if sub_existing_cnt.get(sub, 0) >= 3:
+                        continue
+                    rep = expand_template[ip]
+                    merged_exp = dict(rep)
+                    merged_exp["ip"] = ip
+                    merged_exp["colo"] = exp_item.get("colo", rep.get("colo", ""))
+                    merged_exp["expanded_from_subnet"] = True
+                    usable_nodes.append(merged_exp)
+                    sub_existing_cnt[sub] = sub_existing_cnt.get(sub, 0) + 1
+                    added_cnt += 1
+                if added_cnt:
+                    print(f"    [+] [階段 3.5] 成功為 [{c_code.upper()}] 擴充 {added_cnt} 顆同段實測驗證 IP")
 
         if len(usable_nodes) < 3:
             print(f"    [!] [{c_code.upper()}] 警告：合格節點數僅 {len(usable_nodes)} 顆，維持高標準過濾，拒絕注入假節點！")

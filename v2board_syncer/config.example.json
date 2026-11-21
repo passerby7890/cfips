@@ -1,11 +1,11 @@
 {
-  "_comment": "V2Board (Xiao 版) 節點入口純 IP 替換設定檔 (v4.3.0 實戰自癒與防繞美漂移版)",
+  "_comment": "V2Board 節點入口純 IP 替換設定範本 (請複製為 config.json 並填入真實資料庫設定，切勿將 config.json 提交至 Git)",
   "database": {
     "host": "127.0.0.1",
     "port": 3306,
-    "database": "0n21_com",
-    "username": "0n21_com",
-    "password": "MStrTX7EpG3wtlXM"
+    "database": "v2board",
+    "username": "v2board",
+    "password": "CHANGE_ME"
   },
   "tables": {
     "ct": "https://raw.githubusercontent.com/passerby7890/cfips/main/output/ct.txt",
