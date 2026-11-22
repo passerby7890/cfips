@@ -1,6 +1,6 @@
 {
   "version": "v4.6.5",
-  "updated_at": "2026-11-21T21:29:58.499921+00:00",
+  "updated_at": "2026-11-22T01:37:16.400972+00:00",
   "summary": {
     "total_domains": 147,
     "healthy": 144,
@@ -271,11 +271,11 @@
     "www.aesop.com": {
       "carrier": "ct",
       "total_ips": 2,
-      "alive_ips": 2,
-      "error_1034_ips": 0,
+      "alive_ips": 1,
+      "error_1034_ips": 1,
       "timeout_ips": 0,
-      "alive_rate": "100.0%",
-      "error_1034_rate": "0.0%",
+      "alive_rate": "50.0%",
+      "error_1034_rate": "50.0%",
       "status": "HEALTHY"
     },
     "www.akg.com": {
