@@ -1,6 +1,6 @@
 {
   "version": "v4.6.5",
-  "updated_at": "2026-11-22T08:36:48.295028+00:00",
+  "updated_at": "2026-11-22T22:20:25.377131+00:00",
   "summary": {
     "total_domains": 147,
     "healthy": 144,
@@ -1171,11 +1171,11 @@
     "spaceship.com": {
       "carrier": "cu",
       "total_ips": 2,
-      "alive_ips": 1,
-      "error_1034_ips": 1,
+      "alive_ips": 2,
+      "error_1034_ips": 0,
       "timeout_ips": 0,
-      "alive_rate": "50.0%",
-      "error_1034_rate": "50.0%",
+      "alive_rate": "100.0%",
+      "error_1034_rate": "0.0%",
       "status": "HEALTHY"
     },
     "stockx.com": {
