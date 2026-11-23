@@ -1,6 +1,6 @@
 {
   "version": "v4.6.5",
-  "updated_at": "2026-11-22T22:20:25.377131+00:00",
+  "updated_at": "2026-11-23T03:02:09.608637+00:00",
   "summary": {
     "total_domains": 147,
     "healthy": 144,
@@ -780,8 +780,8 @@
     },
     "fontawesome.com": {
       "carrier": "ct",
-      "total_ips": 1,
-      "alive_ips": 1,
+      "total_ips": 2,
+      "alive_ips": 2,
       "error_1034_ips": 0,
       "timeout_ips": 0,
       "alive_rate": "100.0%",
