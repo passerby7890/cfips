@@ -352,8 +352,8 @@ async def run_pipeline():
             return (not is_bad_cached, not is_lax, is_gold, has_prefer, avg_hit, avg_score)
 
         sorted_subnets = sorted(subnets.items(), key=subnet_priority, reverse=True)
-        # 精選最高優先級的 24 個子網代表發起大陸多省探測（保留 3 席給 XIU2 未測新網段探索）
-        target_subnets, remaining_subnets = select_target_subnets(sorted_subnets, limit=24, xiu2_reserve=3)
+        # 精選最高優先級的 18 個子網代表發起大陸多省探測（保留 2 席給 XIU2 未測新網段探索，並為雙棧 IPv6 保留 Globalping 配額）
+        target_subnets, remaining_subnets = select_target_subnets(sorted_subnets, limit=18, xiu2_reserve=2)
 
         print(f"\n[*] 階段 3：對 [{c_code.upper()}] 共 {len(carrier_candidates)} 顆候選 IP (精選 {len(target_subnets)}/{len(subnets)} 個優質 /24 網段) 發起大陸境內 ASN 真機實測 (併發=2)...")
         def _probe_sub(sub_items):
@@ -454,14 +454,14 @@ async def run_pipeline():
                 if added_cnt:
                     print(f"    [+] [階段 3.5] 成功為 [{c_code.upper()}] 擴充 {added_cnt} 顆同段實測驗證 IP")
 
-        # 階段 4.5：對合格候選執行真實 Cloudflare TLS SNI (speed.cloudflare.com:443) 吞吐篩查，踢除限速/1034 節點
+        # 階段 4.5：對合格候選執行真實 Cloudflare TLS SNI (speed.cloudflare.com:443) 吞吐篩查，降低同時併發避免本機/CI 網卡頻寬被稀釋誤殺
         if usable_nodes:
             measured_nodes = batch_measure_bandwidth(
                 usable_nodes,
                 port=443,
                 sni_host="speed.cloudflare.com",
                 duration_limit=1.6,
-                max_workers=12,
+                max_workers=4,
             )
             speed_filtered = filter_usable_nodes(measured_nodes, c_code, min_speed_mbps=2.0)
             dropped_speed = len(measured_nodes) - len(speed_filtered)
@@ -523,15 +523,17 @@ async def run_pipeline():
             v6_subs.items(),
             key=lambda kv: (
                 not is_cached_bad_subnet(kv[0], c_code),
+                any(x.get("domain") == "wetest.vip" for x in kv[1]),
+                kv[0].startswith(("2606:4700:440", "2a06:98c1:310", "2606:4700:90d", "2606:4700:9ad", "2606:4700:9b0", "2606:4700:ff0")),
                 sum(x.get("hit_ratio", 0.0) for x in kv[1]) / max(1, len(kv[1])),
             ),
             reverse=True,
-        )[:12]
+        )[:8]
 
         def _probe_v6_sub(sub_items):
             sub, items = sub_items
             rep_ip = items[0]["ip"]
-            real_country, real_ms, real_loss = probe_subnet_from_mainland_cn(rep_ip, c_code)
+            real_country, real_ms, real_loss = probe_subnet_from_mainland_cn(rep_ip, c_code, probe_limit=1)
             return sub, items, real_country, real_ms, real_loss
 
         probed_v6_cands: list[dict] = []

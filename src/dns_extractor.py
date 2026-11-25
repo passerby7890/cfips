@@ -27,7 +27,6 @@ import requests
 
 WIRE_DOH_SERVERS = [
     "https://dns.alidns.com/dns-query",
-    "https://doh.pub/dns-query",
     "https://dns.google/dns-query"
 ]
 
@@ -96,14 +95,13 @@ def extract_cname_from_msg(resp_msg: dns.message.Message) -> str:
 
 @functools.lru_cache(maxsize=512)
 def discover_target_and_auth_ns(domain: str) -> Tuple[str, Tuple[str, ...]]:
-    """追蹤 CNAME 鏈找到最終目標網域，並查出其權威 NS 伺服器 IP（帶 LRU 快取避免重複查詢）"""
+    """追蹤 CNAME 鏈找到最終目標網域（DoH/UDP 快速併發路徑無須逐域名預查 4 台權威 NS IP）。"""
     current = domain.strip().rstrip(".")
     resolver = dns.resolver.Resolver()
-    resolver.nameservers = ["223.5.5.5", "119.29.29.29", "8.8.8.8"]
-    resolver.lifetime = 1.5
+    resolver.nameservers = ["223.5.5.5", "8.8.8.8"]
+    resolver.lifetime = 0.8
 
-    # 追蹤最多 3 層 CNAME
-    for _ in range(3):
+    for _ in range(2):
         try:
             ans = resolver.resolve(current, "CNAME")
             cname_target = str(ans[0].target).rstrip(".")
@@ -114,28 +112,7 @@ def discover_target_and_auth_ns(domain: str) -> Tuple[str, Tuple[str, ...]]:
         except Exception:
             break
 
-    # 尋找 current 所屬根網域的 NS 記錄
-    labels = current.split(".")
-    ns_ips: Set[str] = set()
-    for i in range(len(labels) - 1):
-        zone_cand = ".".join(labels[i:])
-        try:
-            ns_ans = resolver.resolve(zone_cand, "NS")
-            for rdata in ns_ans:
-                ns_host = str(rdata.target).rstrip(".")
-                try:
-                    a_ans = resolver.resolve(ns_host, "A")
-                    for a_r in a_ans:
-                        if is_valid_public_ipv4(a_r.address):
-                            ns_ips.add(a_r.address)
-                except Exception:
-                    pass
-            if ns_ips:
-                break
-        except Exception:
-            continue
-
-    return current, tuple(list(ns_ips)[:4])
+    return current, ()
 
 
 def build_ecs_query(qname: str, anchor_ip: str, rdtype: str = "A") -> dns.message.Message:
@@ -175,6 +152,8 @@ def single_ecs_probe(
                 if ips:
                     collected.extend(ips)
                     return ips
+                if rtype == "AAAA" and resp.rcode() == dns.rcode.NOERROR:
+                    return []
         except Exception:
             pass
 
@@ -186,13 +165,16 @@ def single_ecs_probe(
             timeout=1.2
         )
         if r.status_code == 200:
-            for ans in r.json().get("Answer", []):
+            payload = r.json()
+            for ans in payload.get("Answer", []):
                 if ans.get("type") == json_type_num:
                     ip = ans.get("data", "").strip()
                     if is_valid_public_ip(ip, rtype):
                         collected.append(ip)
             if collected:
                 return collected
+            if rtype == "AAAA" and payload.get("Status") == 0:
+                return []
     except Exception:
         pass
 
@@ -232,12 +214,12 @@ def exhaustive_resolve_domain_for_carrier(
     100% 榨出該網域在該運營商下的所有分省與輪詢 IP (支援 A / AAAA)，並計算命中率 (hit_ratio)！
     """
     final_qname, auth_ns_ips = discover_target_and_auth_ns(domain)
-    query_targets = list({domain, final_qname})
+    query_targets = [final_qname] if (final_qname and rdtype.upper() == "AAAA") else list({domain, final_qname})
 
     ip_counter = Counter()
     tasks = []
 
-    with ThreadPoolExecutor(max_workers=24) as executor:
+    with ThreadPoolExecutor(max_workers=6) as executor:
         for _ in range(rounds):
             for qname in query_targets:
                 for anchor in carrier_anchors:

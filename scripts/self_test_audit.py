@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""[@QA_RedTeam] VPS789 v4.6.0 大陸三網真機探針實測、零 1034 毒性與防繞美硬性審計腳本。"""
+"""[@QA_RedTeam] VPS789 v5.0.0 大陸三網真機探針實測、零 1034 毒性與雙棧防繞美硬性審計腳本。"""
 
 from __future__ import annotations
 
+import ipaddress
 import json
 import os
 import re
@@ -22,7 +23,62 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from src import __version__
+from src.region_mapper import get_subnet_prefix
+
 LINE_PATTERN = re.compile(r"^(\d{1,3}(?:\.\d{1,3}){3})#([A-Z]{2})$")
+V6_LINE_PATTERN = re.compile(r"^([0-9a-fA-F:]+)#([A-Z]{2})$")
+
+
+def get_max_hk_ms(carrier: str) -> float:
+    """回傳各運營商物理光速定律 #HK/#TW 上限 (CT/CM <= 130ms, CU <= 230ms)。"""
+    return 130.0 if carrier in ("ct", "cm") else 230.0
+
+
+def audit_ipv6_outputs(
+    output_dir: Path,
+    required_carriers: tuple[str, ...] = ("ct", "cm"),
+) -> list[str]:
+    """審計三網 IPv6 輸出檔案格式、/48 分散度與防繞美標籤；CT/CM 為強制定稿，CU 若無合規亞太 IPv6 則不強制要求但若存在仍嚴審。"""
+    errors: list[str] = []
+    for carrier in ("ct", "cu", "cm"):
+        fpath = output_dir / f"{carrier}_v6.txt"
+        if not fpath.is_file() or fpath.stat().st_size == 0:
+            if carrier in required_carriers:
+                errors.append(f"[致命] {fpath.name} 不存在或為空檔案！")
+            else:
+                print(f"    [i] [{carrier.upper()}-v6] 當前無合規亞太實測 IPv6 節點，誠實從缺 (拒絕以繞美/高延遲節點充數)")
+            continue
+
+        lines = [line.strip() for line in fpath.read_text(encoding="utf-8").splitlines() if line.strip()]
+        if len(lines) < 1:
+            if carrier in required_carriers:
+                errors.append(f"[{carrier.upper()}-v6] 輸出 IPv6 清單為空！")
+            continue
+        if len(lines) > 30:
+            errors.append(f"[IPv6 斷言 3 失敗] {carrier.upper()} 輸出行數超過 30 行上限 ({len(lines)} 行)！")
+
+        subnet_counts: dict[str, int] = {}
+        for idx, line in enumerate(lines, 1):
+            m = V6_LINE_PATTERN.match(line)
+            if not m:
+                errors.append(f"[{carrier.upper()}-v6] 第 {idx} 行格式錯誤: {line} (應為 IPv6#COUNTRY)")
+                continue
+            ip, country = m.group(1), m.group(2)
+            try:
+                ipaddress.IPv6Address(ip)
+            except Exception:
+                errors.append(f"[{carrier.upper()}-v6] 第 {idx} 行無效 IPv6 位址: {ip}")
+                continue
+            if country in ("CF", "US"):
+                errors.append(f"[{carrier.upper()}-v6] 致命錯誤！第 {idx} 行出現不合規標籤 #{country}: {line}")
+            sub_48 = get_subnet_prefix(ip)
+            subnet_counts[sub_48] = subnet_counts.get(sub_48, 0) + 1
+
+        over_subs = {s: c for s, c in subnet_counts.items() if c > 3}
+        if over_subs:
+            errors.append(f"[IPv6 斷言 5 失敗] {carrier.upper()} 違反同 /48 子網 <= 3 顆限制: {over_subs}")
+    return errors
 
 
 def check_ip_unblocked_tls(ip: str, port: int = 443, sni: str = "cdnjs.cloudflare.com", attempts: int = 2) -> bool:
@@ -77,7 +133,7 @@ def verify_origin_ws_101(ip: str, port: int = 2053, sni: str = "nodejp.snowcat77
 
 def run_redteam_audit() -> bool:
     print("==========================================================")
-    print("🔍 [@QA_RedTeam] 啟動 VPS789 v4.6.5 大陸三網真機探針與防繞美審計...")
+    print(f"🔍 [@QA_RedTeam] 啟動 VPS789 v{__version__} 大陸三網真機探針與雙棧防繞美審計...")
     print("==========================================================")
     errors = []
 
@@ -241,8 +297,8 @@ def run_redteam_audit() -> bool:
                 if over_latency_nodes:
                     errors.append(f"[斷言 4 失敗] {carrier.upper()} 發現 {len(over_latency_nodes)} 顆節點延遲超標 (>{max_all_ms}ms): {over_latency_nodes[:5]}")
 
-                # 物理光速定律校驗：電信/移動直連 #HK/#TW 必 <= 130ms，聯通 #HK/#TW 必 <= 220ms
-                max_hk_ms = 130.0 if carrier in ("ct", "cm") else 220.0
+                # 物理光速定律校驗：電信/移動直連 #HK/#TW 必 <= 130ms，聯通 #HK/#TW 必 <= 230ms
+                max_hk_ms = get_max_hk_ms(carrier)
                 speed_of_light_violations = [
                     f"{n.get('ip')}({n.get('country')}:{n.get('real_cn_ms')}ms)"
                     for n in c_list
@@ -266,13 +322,20 @@ def run_redteam_audit() -> bool:
         if all_passed:
             print(f"✅ [{carrier.upper()}] 通過格式規範、國家標籤與防牆抽檢 (共 {len(lines)} 筆優選 IP)")
 
+    # 5. IPv6 雙棧輸出檔案審計
+    v6_errors = audit_ipv6_outputs(PROJECT_ROOT / "output")
+    if v6_errors:
+        errors.extend(v6_errors)
+    else:
+        print("✅ [IPv6 雙棧] ct_v6.txt / cu_v6.txt / cm_v6.txt 通過格式、/48 分散與防繞美標籤審計")
+
     if errors:
         print("\n❌ [@QA_RedTeam] 審計未通過！發現以下重大違規：")
         for err in errors:
             print(f"   - {err}")
         return False
 
-    print("\n🎉 [@DecisionMaker] 全部審計通過！v4.6.5 三網深度解析清單 100% 通過驗收，准許發布！")
+    print(f"\n🎉 [@DecisionMaker] 全部審計通過！v{__version__} 三網雙棧優選清單 100% 通過驗收，准許發布！")
     return True
 
 

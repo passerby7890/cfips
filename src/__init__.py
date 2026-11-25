@@ -1,3 +1,3 @@
 """CF-Global-QuadNet-Feed：Cloudflare 三網與多國優選 IP 自動化雲端生成系統。"""
 
-__version__ = "4.6.5"
+__version__ = "5.0.0"

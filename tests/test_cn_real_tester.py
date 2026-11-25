@@ -113,6 +113,13 @@ class TestCnRealTester(unittest.TestCase):
         self.assertEqual(posts[-1]["locations"], [{"country": "CN"}])
         self.assertIn("Shanghai", cities[0])
 
+    def test_cm_ipv6_prefers_dualstack_asns(self):
+        v6_asns = crt._select_carrier_asns("cm", "2606:4700:99e3::9f9b:7d93")
+        self.assertEqual(v6_asns, [24445, 56040])
+        v4_asns = crt._select_carrier_asns("cm", "172.66.132.1")
+        self.assertEqual(v4_asns[0], 9808)
+        self.assertIn(56040, v4_asns)
+
 
 if __name__ == "__main__":
     unittest.main()

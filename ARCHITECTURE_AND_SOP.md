@@ -1,8 +1,8 @@
 # Cloudflare 三網優選與 V2Board 直寫架構全景手冊 (SOP)
 
-> **版本**：v4.5.1 (三網深度解析與聯通物理路由校正版)  
-> **更新時間**：2026-11-12  
-> **核心宗旨**：徹底廢除 Cloudflare DNS 綁定模式，改採 **「GitHub Actions 雲端造水 + v2board_syncer 資料庫直寫純 IP」** 雙段閉環架構，實現 0 DNS 延遲、0 污染、真亞太直連。
+> **版本**：v5.0.0 (雙棧三網真機探針、TCP 限流交叉驗證與 TLS SNI 真實吞吐版)  
+> **更新時間**：2026-11-25  
+> **核心宗旨**：徹底廢除 Cloudflare DNS 綁定模式，改採 **「GitHub Actions 雲端雙棧造水 + v2board_syncer 資料庫直寫純 IP」** 雙段閉環架構，實現 0 DNS 延遲、0 污染、真亞太直連與防震盪自癒。
 
 ---
 
@@ -19,16 +19,16 @@
 
 ```mermaid
 flowchart TD
-    subgraph S1["第一段：雲端造水廠 (passerby7890/cfips)"]
-        D["data/cname_pool.json<br/>(三網獨立企業級網域池)"] --> P1["1. 全國 12 省真實 ECS 深度挖掘 + Stage 1 CF 官方 CIDR 白名單過濾"]
-        P1 --> P2["2. 2053 端口 WebSocket 101 端到端測活<br/>(100% 斬殺 Error 1034 與假死)"]
-        P2 --> P3["3. 大陸境內三網獨立 ASN 探針實測 RTT (CU 優先鎖定 162.159.* #HK)"]
-        P3 --> P4["4. /24 C 段離散打散 + 國家多樣性保障 + Top 50 排序"]
-        P4 --> OUT["輸出至 GitHub Raw：<br/>output/ct.txt | cu.txt | cm.txt"]
+    subgraph S1["第一段：雲端造水廠 (passerby7890/cfips v5.0.0)"]
+        D["data/cname_pool.json + XIU2 ip.txt/ipv6.txt<br/>(三網獨立企業級網域池與官方 CIDR)"] --> P1["1. 全國 12 省 ECS (A + AAAA) 解析 + Stage 1 CF 官方雙棧白名單過濾"]
+        P1 --> P2["2. 2053 端口 WebSocket 101 端到端測活<br/>(健康備援 SNI，100% 斬殺 Error 1034)"]
+        P2 --> P3["3. 大陸境內三網獨立 ASN 探針實測 RTT + HTTP TCP 限流交叉校驗"]
+        P3 --> P4["4. TLS SNI speed.cloudflare.com 吞吐快篩 + 跨輪次 EWMA 排序 + /24 & /48 打散"]
+        P4 --> OUT["輸出至 GitHub Raw：<br/>output/{ct,cu,cm}.txt | {ct,cu,cm}_v6.txt"]
     end
 
     subgraph S2["第二段：水庫分發中樞 (v2board_syncer 部署於面板伺服器)"]
-        OUT --"定時拉取"--> RAW["拉取最新清單"]
+        OUT --"定時拉取"--> RAW["拉取最新雙棧/IPv4清單"]
         RAW --> G1["閘門 1：記憶庫攔截 1034 + 僅底線剔除 104.21./172.67. 免費髒段"]
         G1 --> G2["閘門 2：跨節點防撞鎖 (各節點嚴格不共用 IP)"]
         G2 --> G3["閘門 3：事前真實 V2bX:2053 101 端到端握手驗證"]
@@ -45,45 +45,12 @@ flowchart TD
 
 ---
 
-## 二、 三網優選域名資產清冊（2026-10-23 最新狀態）
+## 二、 三網優選域名資產管理（`data/cname_pool.json`）
 
-程序在雲端運行的唯一輸入源文件為：**`data/cname_pool.json`**。
+程序在雲端運行的核心輸入源文件為：**`data/cname_pool.json`**（目前涵蓋 147 個三網獨立域名組態）搭配 **`data/seeds_{ct,cu,cm}.txt`** 與 **XIU2 官方 CIDR (`data/cf_ranges.txt`, `data/cf_ranges_v6.txt`)**。
 
-### 1. 中國電信 (CT) - 41 個大廠精選優選域名
-全數支持大陸電信寬帶直連，大量命中新加坡（SG）與亞太優質大帶寬機房：
-
-```text
-wpengine.com            console.groq.com        www.liberty.co.uk       www.pedroshoes.com
-www.goat.com            www.specialized.com     www.umbraco.com         www.zwilling.com
-www.domain.com          www.cannondale.com      www.aweber.com          www.jago.com
-www.saucony.com         www.bluehost.com        www.lululemon.com.hk    www.on-running.com
-www.propertyguru.com.my mailerlite.com          www.charleskeith.com    www.selfridges.com
-www.foodpanda.my        www.lululemon.co.kr     www.petzl.com           www.topping.audio
-auth0.com               steelseries.com         www.aesop.com           www.akg.com
-linear.app              www.casetify.com        codecanyon.net          makerworld.com
-elements.envato.com     www.yslbeauty.com       www.foodpanda.com.tw    www.shopify.com
-www.lululemon.co.jp     placeit.net             www.zendesk.com         www.glassdoor.com
-www.omnisend.com
-```
-
-### 2. 中國移動 (CM) - 36 個實測直通香港 (HKG) VIP-Enterprise 域名
-經端到端嚴格篩選，全部為 `VIP-Enterprise` 頂級站點，實測延時 20ms ~ 94ms：
-
-```text
-ridibooks.com           www.rhbgroup.com        www.alchemy.com         www.rome2rio.com
-wiki.bambulab.com       www.amiami.jp           mailersend.com          www.garmin.com.sg
-www.buy123.com.tw       www.casetify.com        store.ubi.com           www.chrono24.com
-www.liberty.co.uk       www.highsnobiety.com    linear.app              www.3cecosmetics.com
-www.hydroflask.com      makerworld.com          theordinary.com         www.fragrancenet.com
-kinsta.com              www.garmin.co.jp        www.garmin.com.cn       www.propertyguru.com.sg
-www.xendit.co           www.aesop.com           www.humblebundle.com    www.pedroshoes.com
-www.foodpanda.sg        www.macpaw.com          www.garmin.com.hk       www.shopify.com
-www.garmin.co.kr        www.dynadot.com         www.ssense.com          www.algolia.com
-```
-
-### 3. 中國聯通 (CU) - 9 個優選域名
-覆蓋 4837 骨幹網直連優質站點：
-`www.090902.xyz`、`224322.xyz`、`cf.877771.xyz`、`cfsaas.080112.xyz`、`cfyx.aliyun.20237737.xyz`、`eteaf.cf.3666888.xyz`、`cf.090227.xyz`、`bestcf.top`、`cf.877774.xyz`。
+- **健康度自動追蹤**：每次執行後於 `output/cname_health.json` 即時產出每個網域之 2053 WS 101 存活率與 Error 1034 毒害率，便於定期清理失效站點。
+- **物理落地矩陣與種子庫**：`data/carrier_landing_matrix.json` 記錄三網各段真實物理落地（如電信 `172.64.229.0/24` `#JP`、移動 `172.66.128.0/20` `#HK`、聯通 `162.159.128.0/20` `#HK`），並由 Globalping 真機實測動態覆蓋與校正。
 
 ---
 
@@ -94,10 +61,10 @@ www.garmin.co.kr        www.dynadot.com         www.ssense.com          www.algo
 
 | 閘門 | 名稱 | 作用與防護邏輯 |
 | :---: | :--- | :--- |
-| **閘門 1** | **記憶庫與三網繞美底線攔截** | 0ms 讀取 `state_cache.json` 剔除 24h 1034 毒 IP 與 2h 漂移超時黑名單；電信強制封殺 `104.18.`、`172.67.` 等必繞美前綴。 |
+| **閘門 1** | **記憶庫與三網繞美底線攔截** | 0ms 讀取 `state_cache.json` 剔除 24h 1034 毒 IP 與 2h 漂移超時黑名單；僅底線剔除 `104.21.`、`172.67.` 等免費髒段。 |
 | **閘門 2** | **跨節點防撞車鎖與 C 段打散** | `Node 8` (SG 電信)、`Node 7` (JP 電信)、`Node 6` (HK 移動) 絕對禁止共用同一 IP，且強制打散在不同 `/24` 網段。 |
 | **閘門 3** | **真實 V2bX 端到端 101 握手** | 帶節點真實 SNI / Port (2053) / WS Path (/ws) 握手，非 HTTP 101 立即淘汰並冷卻。 |
-| **閘門 4** | **大陸境內 ASN 探針雙指標** | 依運營商對齊 AS4134/AS9808，要求丟包率 <= 50% 且境內平均延遲 <= 115ms（超標視為漂移至美西，淘汰冷卻 2 小時）。 |
+| **閘門 4** | **大陸境內 ASN 探針雙指標** | 依運營商對齊 AS4134/AS4837/AS9808，要求丟包率 <= 50% 且境內延遲達標（CT/CM<=115ms, CU<=230ms）。 |
 | **閘門 5** | **智慧條件式黏性守護** | 現任 IP 若各項合格，鎖定保持 15 分鐘，避免頻繁替換造成客戶端反覆重連中斷。 |
 
 ---

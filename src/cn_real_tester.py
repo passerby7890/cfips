@@ -35,8 +35,14 @@ from src.region_mapper import (
 CARRIER_ASNS: Dict[str, List[int]] = {
     "ct": [4134, 4812],
     "cu": [4837, 17621],
-    "cm": [9808, 56041, 56045, 56046, 56047, 56048, 24445]
+    "cm": [9808, 24445, 56040, 56041, 56045, 56046, 56047, 56048]
 }
+
+def _select_carrier_asns(c_key: str, rep_ip: str) -> List[int]:
+    """依協定棧與運營商挑選最可靠的探針 ASN；CM IPv6 避開桂林 9808 單邊盲點，優先河南/上海雙棧探針。"""
+    if ":" in rep_ip and c_key == "cm":
+        return [24445, 56040]
+    return list(CARRIER_ASNS.get(c_key, [CARRIER_ASN_MAP.get(c_key, 4134)]))
 
 CARRIER_ASN_MAP = {
     "ct": 4134,
@@ -305,7 +311,7 @@ def _probe_ping_multi_asn(rep_ip: str, c_key: str, limit: int = 2, timeout_sec: 
 
     api_url = "https://api.globalping.io/v1/measurements"
     headers = {"Content-Type": "application/json", "User-Agent": "cf-trinet-verifier/5.0"}
-    asns = CARRIER_ASNS.get(c_key, [CARRIER_ASN_MAP.get(c_key, 4134)])
+    asns = _select_carrier_asns(c_key, rep_ip)
     locations = [{"country": "CN", "asn": a} for a in asns]
 
     payload = {
@@ -377,7 +383,7 @@ def _probe_http_colo_and_tcp(rep_ip: str, c_key: str, timeout_sec: float = 5.0) 
 
     api_url = "https://api.globalping.io/v1/measurements"
     headers = {"Content-Type": "application/json", "User-Agent": "cf-trinet-verifier/5.0"}
-    asns = CARRIER_ASNS.get(c_key, [CARRIER_ASN_MAP.get(c_key, 4134)])
+    asns = _select_carrier_asns(c_key, rep_ip)
     payload = {
         "type": "http",
         "target": rep_ip,
@@ -451,7 +457,7 @@ def probe_subnet_from_mainland_cn(
             or c_loss_raw > 25.0
             or (c_key in ("ct", "cm") and c_ms_raw > 155.0)
         )
-        if (is_known_bad and age_sec <= 43200) or (age_sec <= 3600):
+        if (is_known_bad and age_sec <= 43200) or (age_sec <= 5400):
             c_cty = _apply_speed_of_light_law(c_cty_raw, c_ms_raw, c_key, str(cached.get("colo", "")))
             res = (c_cty, c_ms_raw, c_loss_raw)
             with _CACHE_LOCK:

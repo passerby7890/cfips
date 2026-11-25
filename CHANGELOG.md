@@ -1,5 +1,20 @@
 # 更新紀錄 (Changelog)
 
+## [v5.0.0] - 2026-11-25
+### feat!: P1 防震盪交叉校驗 + P2 真實 CF TLS SNI 吞吐/EWMA 評分 + P3 雙棧 IPv6 優選與測試/CI 全面對齊
+- 1. **P1 ICMP 限流防誤殺與探針閾值對齊 (`src/cn_real_tester.py`, `main.py`, `scripts/self_test_audit.py`)**：
+  - 當運營商探針延遲達標亞太門檻 (`<=125ms` CT/CM、`<=230ms` CU) 但受 `packets=5` 偶發限流出現 `20%~65%` ICMP 丟包時，發起 Globalping HTTP `/cdn-cgi/trace` 交叉驗證真實 TCP 握手 (`extract_http_metrics`)；僅在 TCP 握手成功且 `tcp_ms <= max_good_ms` 時校準 `real_loss` (`<=10%`)，消除黃金網段震盪淘汰。
+  - 對齊聯通 `main.py` 延遲門檻 `219ms -> 228ms` 與 `self_test_audit.py` 光速門檻 `get_max_hk_ms("cu") = 230ms`；為 `XIU2` 未測新網段在 `target_subnets` 中預留專屬探索名額 (`select_target_subnets`)，並優化 Globalping 配額為 `limit=18`（IPv4）與 `[:8], probe_limit=1`（IPv6），防止 30 分鐘排程觸發 250/hr 限流。
+- 2. **P2 原生 TLS SNI 吞吐驗證與跨輪次子網 EWMA (`src/speed_tester.py`, `src/scorer.py`, `main.py`)**：
+  - 淘汰失效之 `node1.snowcat77.com:2053`，改為透過 Raw TLS Socket (`server_hostname="speed.cloudflare.com"`, port `443`) 實測 `/__down?bytes=2097152`（`max_workers=4` 防網卡頻寬稀釋誤殺），直接拒絕 `< 2.0 Mbps` 或 Error 1034 / 非 200 節點。
+  - 在 `data/ip_history.json["__subnet_ewma__"]` 持久化各子網跨輪次 EWMA 延遲 (`load_subnet_history` / `update_subnet_ewma` / `save_subnet_history`)，並向下相容舊版 `load_history` 頂層 IP 分數；排名採用 `0.7 * real_cn_ms + 0.3 * ewma_ms`。
+- 3. **P3 IPv4 + IPv6 雙棧優選管線與 422/AS24445 探針適配 (`data/cf_ranges_v6.txt`, `src/region_mapper.py`, `src/dns_extractor.py`, `src/collector.py`, `scripts/discover_xiu2_subnets.py`)**：
+  - 納入 XIU2 官方 97 段 IPv6 CIDR (`cf_ranges_v6.txt`)，擴充 `is_cf_official_anycast`、`get_subnet_prefix` (`/24` & `/48`)、`exhaustive_resolve_domain_for_carrier(..., rdtype="AAAA")` 及 WeTest IPv6 (`address_v6.html`) 解析。
+  - 優化 DoH `AAAA` 空紀錄 (`NOERROR`) 立即結束與域間溫和併發，將 ECS 雙棧收集總耗時從 16+ 分鐘壓縮至 ~2.5 分鐘；Globalping IPv6 加入 422 回退 `{"country": "CN"}` 與移動 IPv6 優先河南/上海雙棧探針 (`[24445, 56040]`)，避開桂林 `AS9808` 對 `2606:4700:9*` ICMPv6 單邊黑洞 (`TIMEOUT` -> 實測 `51.5~54.5ms #HK 0%`)。
+  - 產出 `output/ct_v6.txt` (`6` 筆, `93.1~113.5ms #SG`)、`output/cm_v6.txt` (`15` 筆, `51.5~54.5ms #HK`) 及 `best_ips.json["ipv6"]`；誠實偵測聯通 `AS4837` IPv6 全數繞歐美 (`238~286ms`) 不充數寫入。
+- 4. **全自動單元測試與 CI/紅隊審計雙重門禁 (`tests/`, `scripts/self_test_audit.py`, `.github/workflows/update_ips.yml`)**：
+  - 建立 `23` 項單元測試 (`python -m unittest discover -s tests -v`)，納入 GitHub Actions 必過門檻；更新版號 (`v5.0.0`)、`README.md`、`ARCHITECTURE_AND_SOP.md`、`DEV_NOTES.md` 與六人專家技能檔。
+
 ## [v4.5.1] - 2026-11-12
 ### feat & fix!: 聯通 AS4837 真實物理路由校正 (`162.159.128~155.*` HKG 擴容)、Stage 1 Anycast 白名單過濾與全鏈路三網獨立閉環對齊
 - 1. **修正聯通 (`cu`) 誤判 `172.64.229.0/24` 為 `#JP` 之矩陣缺陷 (`carrier_landing_matrix.json`, `src/cn_real_tester.py`)**：

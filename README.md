@@ -1,37 +1,29 @@
-# CF-Global-QuadNet-Feed (Cloudflare 三網前 50 優選 IP 自動產出系統)
+# CF-Global-QuadNet-Feed (Cloudflare 三網雙棧優選 IP 自動產出系統)
 
-> **版本**：`v3.1.0` (ITDog 同款：全國七大區三網 ECS 深度 DNS 解析榨取與防牆測活引擎)  
-> **運營交付手冊**：詳見 [docs/OPERATIONS_MANUAL.md](docs/OPERATIONS_MANUAL.md)  
-> **GitHub Actions 雲端全自動化**：覆蓋華東、華南、華中、華北、西南、西北、東北七大區 12 省三網真實子網 (`data/cn_ecs_matrix.json`) + `dnspython` RFC 7871 ECSOption 二進位封包 + 權威 NS 直查與 RFC 8484 DoH + 官方邊緣憑證 (`cdnjs.cloudflare.com:443`) 防牆測活 + 跨省命中率 (`hit_ratio`) 權重排序，每 30 分鐘全自動更新三網前 50 優選清單。
+> **版本**：`v5.0.0` (三網真機雙棧實測、ICMP 限流 TCP 交叉校驗、TLS SNI 真實吞吐篩查與跨輪次 EWMA 穩定評分系統)  
+> **GitHub Actions 雲端全自動化**：覆蓋七大區 12 省三網真實 ECS (`data/cn_ecs_matrix.json`) `A` + `AAAA` 雙棧解析 + XIU2 官方 `ip.txt`/`ipv6.txt` 子網智慧探索 + `2053` WebSocket `101` 握手去毒 + Globalping 大陸多省 ASN 探針實測（含 TCP 限流交叉驗證）+ `speed.cloudflare.com:443` 吞吐篩查 + 跨輪次 EWMA 排序，每 30 分鐘全自動更新雙棧三網清單。
 
 ---
 
 ## 📖 專案交付與運營文件
-- 📘 **完整運營手冊**：請參閱 [docs/OPERATIONS_MANUAL.md](docs/OPERATIONS_MANUAL.md)，涵蓋架構原理、資產維護 SOP、自測驗收規範、Clash/Sing-box 客戶端訂閱範例與故障排查。
+- 📘 **架構演進與 SOP 手冊**：請參閱 [ARCHITECTURE_AND_SOP.md](ARCHITECTURE_AND_SOP.md)。
 - 📝 **版本更新歷史**：請參閱 [CHANGELOG.md](CHANGELOG.md)。
 - 💡 **架構演化筆記**：請參閱 [DEV_NOTES.md](DEV_NOTES.md)。
 
 本系統構建於兩段分離的傳輸路徑之上：
-- **前半段 (大陸客戶端 → Cloudflare 邊緣節點)：** 走普通公網，受限於國際出口擁塞、晚高峰潮汐與省級防火牆動態 QoS 限速。此段是最易發生丟包與斷流的瓶頸。
-- **後半段 (Cloudflare 邊緣節點 → 落地 VPS):** 走 Cloudflare 全球私有光纖骨幹網回源至指定 VPS（`70.36.96.110:2053`）。此段具備高穩定性與低丟包特性。
+- **前半段 (大陸客戶端 → Cloudflare 邊緣節點)：** 依電信 (AS4134/4812)、聯通 (AS4837/17621)、移動 (AS9808/56041) 獨立出境路由決定真實亞太或繞美落地。
+- **後半段 (Cloudflare 邊緣節點 → 落地源站)：** 嚴格透過健康備援 SNI (`nodesg/nodehk/nodejp.snowcat77.com:2053/ws?ed=2048`) 實測 HTTP `101 Switching Protocols`，100% 攔截 Error 1034 / 403 假活節點。
 
-### 關鍵工程矛盾與對策 (Engineering Fixes)
-1. **海外 Runner 測速失真矛盾：**
-   - *矛盾：* GitHub Actions 伺服器位於歐美機房，其發起的下載測速僅代表「海外機房 → CF」的數百兆頻寬，無法反映「大陸境內 → CF」的真實出口帶寬。
-   - *對策：* 境內頻寬指標改由**境內實測情報源（WeTest、HostMonit 等）提取**，作為網段基礎分；GitHub 上的 `speed_tester.py` 嚴格定位為「端到端回源頻寬與節點抗過載快篩」，設定「10MB 切片 + 2.5 秒限時截斷」。
-2. **同 /24 網段平移的假死損耗矛盾：**
-   - *矛盾：* 隨機平移抽樣的冷門鄰居 IP 可能未在該機房開放 `2053` 端口，若直接執行 2.5 秒測速會浪費大量時間。
-   - *對策：* 引入 `fast_precheck()`，以極短的異步 TCP 握手（0.6 秒超時）進行前置快篩，未開放端口者瞬間剔除。
-3. **短期衝刺型 IP 誤判矛盾：**
-   - *矛盾：* 某些 IP 剛好在測速的 2 秒內爆發，但連線 10 分鐘後極度不穩定。
-   - *對策：* 引入微型狀態持久化 `data/ip_history.json`，計算 EWMA 指數加權平均分：
-     $$\text{Final\_Score} = 0.7 \times \text{History\_Score} + 0.3 \times \text{Current\_Score}$$
-     只有多次排程均穩定的節點才能維持在 Top 50。
-4. **輸出檔案精簡與跨 C 段抗 QoS：**
-   - 簡化為 `output/ct.txt` (中國電信)、`output/cu.txt` (中國聯通)、`output/cm.txt` (中國移動) 三個核心檔案，取消多檔案國家目錄分散。
-   - 每個檔案嚴格收錄綜合評分最高的前 50 個優選節點。
-   - 每一行固定格式化為 `<IP>#<國家簡寫>`（例如：`172.67.140.251#TW` 或 `104.16.132.229#US`），國家簡寫由該 IP 的 `colo` 透過 `region_mapper` 精確解析。
-   - 同一個 `/24` 網段最多收錄 3 個 IP，防止單一 C 段遭受 QoS 靶向封鎖時導致全盤斷連。
+### 核心工程設計 (v5.0.0)
+1. **三網真機探針與 ICMP 限流交叉校驗 (`src/cn_real_tester.py`)**：
+   - 當大陸移動/聯通市級探針出現亞太低延遲但 ICMP 限流顯示 `20%~65%` 假丟包時，發起 HTTP `/cdn-cgi/trace` 交叉驗證真實 TCP 握手與 `CF-RAY` IATA 機房，避免黃金節點偶發震盪淘汰。
+2. **TLS SNI 真實吞吐篩查 (`src/speed_tester.py`)**：
+   - 使用 Raw TLS Socket (`server_hostname="speed.cloudflare.com"`, port `443`) 直接下載 `/__down?bytes=2097152`，淘汰 `< 2.0 Mbps` 或非 200 異常節點。
+3. **跨輪次子網 EWMA 穩定性評分 (`src/scorer.py`, `data/ip_history.json`)**：
+   - 結合 `0.7 × 當輪延遲 + 0.3 × 歷史 EWMA 延遲`，優先推薦長期穩定的亞太直連網段。
+4. **IPv4 + IPv6 雙棧三網獨立輸出 (`output/*.txt`, `output/best_ips.json`)**：
+   - IPv4 (`ct.txt`, `cu.txt`, `cm.txt`): 每檔最多 50 筆，同 `/24` <= 3 顆，禁 `#US`/`#CF`。
+   - IPv6 (`ct_v6.txt`, `cu_v6.txt`, `cm_v6.txt`): 每檔最多 30 筆，同 `/48` <= 3 顆，禁 `#US`/`#CF`。
 
 ```mermaid
 flowchart TD
@@ -77,10 +69,13 @@ flowchart TD
 
 | 運營商分類 | 匯出檔案路徑 | 節點數量 | 行格式範例 |
 | :--- | :--- | :--- | :--- |
-| **中國電信 (CT)** | `output/ct.txt` | Top 50 | `104.19.137.24#TW` |
-| **中國聯通 (CU)** | `output/cu.txt` | Top 50 | `162.159.236.175#TW` |
-| **中國移動 (CM)** | `output/cm.txt` | Top 50 | `172.67.67.189#TW` |
-| **結構化詳細總表** | `output/best_ips.json` | 完整元數據 | 包含機房、延遲、丟包率、頻寬與評分 |
+| **中國電信 (CT v4)** | `output/ct.txt` | 最多 50 筆 | `172.64.229.2#JP` |
+| **中國聯通 (CU v4)** | `output/cu.txt` | 最多 50 筆 | `162.159.130.10#HK` |
+| **中國移動 (CM v4)** | `output/cm.txt` | 最多 50 筆 | `172.66.133.2#HK` |
+| **中國電信 (CT v6)** | `output/ct_v6.txt` | 最多 30 筆 | `2606:4700:3033::1#JP` |
+| **中國聯通 (CU v6)** | `output/cu_v6.txt` | 最多 30 筆 | `2606:4700:3034::1#HK` |
+| **中國移動 (CM v6)** | `output/cm_v6.txt` | 最多 30 筆 | `2606:4700:3035::1#HK` |
+| **結構化詳細總表** | `output/best_ips.json` | 完整雙棧元數據 | 含 IPv4/IPv6 機房、延遲、EWMA、丟包率與實測頻寬 |
 
 ### 2. 快速 curl 單一清單
 

@@ -13,6 +13,7 @@ import ipaddress
 import json
 import random
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Dict, List, Set, Tuple
 import requests
@@ -257,8 +258,22 @@ def collect_carrier_candidates_with_domain_map(
 
         print(f"\n[*] [@Mainland_Probe] 啟動 ITDog 同款七大區 ECS 深度解析 [{c_code.upper()}] (共 {len(c_domains)} 個網域 x {len(c_anchors)} 省錨點)...")
 
-        # A. CNAME 域名解析
-        for d_info in c_domains:
+        # A. CNAME 域名併發深度解析
+        resolved_batch: List[Tuple[Dict, List[Dict]]] = []
+        with ThreadPoolExecutor(max_workers=4) as dom_pool:
+            fut_map = {
+                dom_pool.submit(exhaustive_resolve_domain_for_carrier, d_info["domain"], c_anchors, 1, "A"): d_info
+                for d_info in c_domains
+            }
+            for fut in as_completed(fut_map):
+                d_info = fut_map[fut]
+                try:
+                    extracted = fut.result()
+                except Exception:
+                    extracted = []
+                resolved_batch.append((d_info, extracted))
+
+        for d_info, extracted in resolved_batch:
             domain = d_info["domain"]
             prefer_reg = (d_info.get("prefer_region") or "").strip().upper()
             if domain not in domain_map:
@@ -268,7 +283,6 @@ def collect_carrier_candidates_with_domain_map(
                     "cn_latency_ms": float(d_info.get("cn_latency_ms", 999.0)),
                     "prefer_region": prefer_reg
                 }
-            extracted = exhaustive_resolve_domain_for_carrier(domain, c_anchors, rounds=1)
             ip_summary = ", ".join([f"{x['ip']}({x['hit_ratio']}%)" for x in extracted[:6]])
             print(f"    -> [{c_code.upper()}] {domain} (prefer: {prefer_reg or 'AUTO'}) 榨出 {len(extracted)} 個唯一 IP: {ip_summary}")
 
@@ -399,10 +413,24 @@ def collect_carrier_v6_candidates(
         c_anchors = ecs_matrix.get(c_code, [])
         direct_map: Dict[str, Dict] = {}
 
-        for d_info in c_domains:
+        v6_domains = c_domains[:12]
+        v6_resolved: List[Tuple[Dict, List[Dict]]] = []
+        with ThreadPoolExecutor(max_workers=4) as dom_pool:
+            fut_map = {
+                dom_pool.submit(exhaustive_resolve_domain_for_carrier, d_info["domain"], c_anchors, 1, "AAAA"): d_info
+                for d_info in v6_domains
+            }
+            for fut in as_completed(fut_map):
+                d_info = fut_map[fut]
+                try:
+                    extracted = fut.result()
+                except Exception:
+                    extracted = []
+                v6_resolved.append((d_info, extracted))
+
+        for d_info, extracted in v6_resolved:
             domain = d_info["domain"]
             prefer_reg = (d_info.get("prefer_region") or "").strip().upper()
-            extracted = exhaustive_resolve_domain_for_carrier(domain, c_anchors, rounds=1, rdtype="AAAA")
             for item in extracted:
                 ip = item["ip"]
                 if ":" not in ip or not is_cf_official_anycast(ip):

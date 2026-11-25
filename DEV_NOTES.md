@@ -1,5 +1,22 @@
 # 開發筆記與架構演化歷程 (Development Notes)
 
+## [v5.0.0] 演化實錄 (2026-11-25)
+### P1 防震盪交叉驗證 + P2 TLS SNI 吞吐與跨輪 EWMA + P3 雙棧 IPv6 實測落地
+- **根因排查與實測發現**：
+  1. **移動 (CM) / 聯通 (CU) 單包 ICMP 限流引發清單震盪 (`20% >= 18%`)**：
+     - 實測記錄顯示許多直連 `#HK` `35~62ms` 的黃金 `/24`（如 `104.21.81/82/87`、`172.66.129/134/137/141/142/143/208`、`162.159.133`）在 `packets=5` 探測時偶發 `1/5 = 20%` ICMP 丟包，遭到 `max_allowed_loss = 18.0%` 誤殺。
+     - 對策：於 [src/cn_real_tester.py](src/cn_real_tester.py) 新增 `_probe_http_colo_and_tcp` 與 `extract_http_metrics`，當 Ping 延遲達標亞太門檻卻有 `20%~65%` ICMP 丟包時發起 HTTP `/cdn-cgi/trace` 真實 TCP 握手核驗；實測成功救回多條 57~63ms `#HK` 黃金段。
+  2. **原測速模組失效與高併發誤殺 (`node1.snowcat77.com:2053` -> `speed.cloudflare.com:443`)**：
+     - 舊版 [src/speed_tester.py](src/speed_tester.py) 依賴已失效域名且帶 `fallback_speed=50.0` 盲退，無法識別真實限速與 Error 1034。
+     - 重寫為 Raw TLS Socket + SNI `speed.cloudflare.com:443` 測速並設定 `max_workers=4`（實測排除 `max_workers=12` 同時搶占單機網卡頻寬造成的假低速），真實淘汰 `<2.0 Mbps` 異常節點；同時於 [src/scorer.py](src/scorer.py) 透過 `__subnet_ewma__` 持久化跨輪 EWMA (`0.7*current + 0.3*ewma`)。
+  3. **DoH `AAAA` 空紀錄冗餘重試與移動 IPv6 探針盲點定位**：
+     - 當沒有 `AAAA` 的網域於 DoH 收到 `NOERROR` 空答覆時，舊邏輯繼續輪詢 Dead DoH (`doh.pub` HTTP 502) 與多台權威/公共 UDP DNS，導致 DNS 收集階段耗時 > 16 分鐘。補上 `NOERROR` 早退、移除失效 `doh.pub` 與溫和 `4x6` 併發後縮短至 ~2.5 分鐘。
+     - 實測發現 Globalping 桂林 `AS9808` 對 Cloudflare `2606:4700:9*` 網段出現單邊 ICMPv6 `TIMEOUT`，改用移動雙棧優勢 ASN `[24445, 56040]` (鄭州 `AS24445` / 上海 `AS56040`) 後，5 組 WeTest `#HK` IPv6 `/48` 全數實測通過 (`51.5ms ~ 54.5ms`, `0.0%` 丟包)；同步實證聯通 `AS4837` IPv6 當前確係全走歐美 (`238~286ms`)，誠實從缺不填假值。
+- **本地端到端驗收實測 (`python -m unittest discover -s tests -v; python main.py; python scripts/self_test_audit.py`)**：
+  - `23/23` 單元測試全數通過。
+  - IPv4：`ct.txt` `30` 顆 (`10` 個 `/24`, `#SG: 27, #JP: 3`, `51.0~111.7ms`)、`cu.txt` `27` 顆 (`9` 個 `/24`, `#HK`, `215.4~225.0ms`)、`cm.txt` `39` 顆 (`13` 個 `/24`, `#HK`, `34.9~48.6ms`)。
+  - IPv6：`ct_v6.txt` `6` 顆 (`93.1~113.5ms #SG`)、`cm_v6.txt` `15` 顆 (`51.5~54.5ms #HK`)，`cu_v6` 誠實從缺；`self_test_audit.py` 100% 通過。
+
 ## [v4.5.1] 演化實錄 (2026-11-12)
 ### 決策官全鏈路架構校正：聯通 AS4837 真實路由正名 (`162.159.*` HKG 擴容)、Stage 1 官方 CIDR 過濾與下游門檻對齊
 - **核心排查發現與物理真相**：
