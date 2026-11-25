@@ -27,6 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 from src.region_mapper import (
     COLO_COUNTRY_MAP,
     APAC_COLO_MAP,
+    get_subnet_prefix,
     lookup_carrier_landing_country
 )
 
@@ -148,37 +149,65 @@ def is_cached_bad_subnet(subnet_or_ip: str, carrier: str, ttl_sec: float = 43200
 
 
 def get_subnet_24(ip: str) -> str:
-    parts = ip.strip().split(".")
-    if len(parts) >= 3:
-        return f"{parts[0]}.{parts[1]}.{parts[2]}.0/24"
-    return ip
+    """相容舊呼叫名稱：IPv4 回傳 /24，IPv6 回傳 /48。"""
+    return get_subnet_prefix(ip)
 
 
-def extract_colo_from_http_result(res_json: dict) -> str:
-    """從 Globalping HTTP 測量結果中萃取 Cloudflare 機房 IATA 代碼 (CF-RAY 或 body)"""
+def extract_http_metrics(res_json: dict) -> Tuple[str, Optional[float], bool]:
+    """從 Globalping HTTP 測量結果同時萃取 (CF-RAY Colo, TCP 握手耗時 ms, TCP 握手成功與否)。"""
     results = res_json.get("results", [])
+    colo = ""
+    tcp_samples: List[float] = []
+    tcp_ok = False
+
     for p in results:
-        res_data = p.get("result", {})
+        res_data = p.get("result", {}) or {}
         raw_output = res_data.get("rawOutput", "") or ""
         raw_body = res_data.get("rawBody", "") or ""
         headers = res_data.get("headers", {}) or {}
 
-        for k, v in headers.items():
-            if k.lower() == "cf-ray" and "-" in str(v):
-                parts = str(v).strip().split("-")
-                if len(parts) >= 2 and len(parts[-1]) == 3:
-                    return parts[-1].upper()
+        if not colo:
+            for k, v in headers.items():
+                if k.lower() == "cf-ray" and "-" in str(v):
+                    parts = str(v).strip().split("-")
+                    if len(parts) >= 2 and len(parts[-1]) == 3:
+                        colo = parts[-1].upper()
+                        break
 
-        combined = f"{raw_output}\n{raw_body}"
-        m = re.search(r'cf-ray:\s*[a-f0-9]+-([a-z]{3})', combined, re.IGNORECASE)
-        if m:
-            return m.group(1).upper()
+        if not colo:
+            combined = f"{raw_output}\n{raw_body}"
+            m = re.search(r'cf-ray:\s*[a-f0-9]+-([a-z]{3})', combined, re.IGNORECASE)
+            if m:
+                colo = m.group(1).upper()
+            else:
+                m2 = re.search(r'\bcolo=([A-Z]{3})\b', combined)
+                if m2:
+                    colo = m2.group(1).upper()
 
-        m2 = re.search(r'\bcolo=([A-Z]{3})\b', combined)
-        if m2:
-            return m2.group(1).upper()
+        timings = res_data.get("timings", {}) or {}
+        tcp_val = timings.get("tcp")
+        has_http_reply = bool(
+            res_data.get("statusCode") is not None
+            or raw_output
+            or headers
+        )
+        if tcp_val is not None and has_http_reply:
+            try:
+                f_tcp = float(tcp_val)
+                if f_tcp > 0:
+                    tcp_samples.append(f_tcp)
+                    tcp_ok = True
+            except (TypeError, ValueError):
+                pass
 
-    return ""
+    best_tcp = round(min(tcp_samples), 1) if tcp_samples else None
+    return colo, best_tcp, tcp_ok
+
+
+def extract_colo_from_http_result(res_json: dict) -> str:
+    """從 Globalping HTTP 測量結果中萃取 Cloudflare 機房 IATA 代碼 (CF-RAY 或 body)"""
+    colo, _, _ = extract_http_metrics(res_json)
+    return colo
 
 
 def _resolve_colo_country(colo: str) -> str:
@@ -222,21 +251,60 @@ def _apply_speed_of_light_law(country: str, real_ms: float, c_key: str, real_col
             return "HK"
         if c_key == "ct" and real_ms <= 125.0:
             return "SG"
-        if c_key == "cu" and real_ms <= 220.0:
+        if c_key == "cu" and real_ms <= 230.0:
             return "HK"
         return "US"
 
     return country
 
 
+def _submit_globalping_measurement(
+    api_url: str,
+    payload: dict,
+    headers: dict,
+    asns: List[int],
+    post_timeout: float = 4.0,
+) -> Tuple[Optional[str], bool]:
+    """送出 Globalping 測量請求，自動處理 429 限流與 422 探針位置降級（含 IPv6 CN 全境回退）。"""
+    global _GLOBALPING_RATE_LIMITED
+    try:
+        r = requests.post(api_url, json=payload, headers=headers, timeout=post_timeout)
+        if r.status_code in (429, 503):
+            _GLOBALPING_RATE_LIMITED = True
+            return None, True
+
+        if r.status_code == 422 and len(payload.get("locations", [])) > 1:
+            fallback_payload = dict(payload)
+            fallback_payload["locations"] = [{"country": "CN", "asn": asns[0]}]
+            fallback_payload["limit"] = 1
+            r = requests.post(api_url, json=fallback_payload, headers=headers, timeout=post_timeout)
+            if r.status_code in (429, 503):
+                _GLOBALPING_RATE_LIMITED = True
+                return None, True
+
+        if r.status_code == 422:
+            cn_payload = dict(payload)
+            cn_payload["locations"] = [{"country": "CN"}]
+            cn_payload["limit"] = min(int(payload.get("limit", 1)), 2)
+            r = requests.post(api_url, json=cn_payload, headers=headers, timeout=post_timeout)
+            if r.status_code in (429, 503):
+                _GLOBALPING_RATE_LIMITED = True
+                return None, True
+
+        if r.status_code != 202:
+            return None, False
+        return r.json().get("id"), False
+    except Exception:
+        return None, True
+
+
 def _probe_ping_multi_asn(rep_ip: str, c_key: str, limit: int = 2, timeout_sec: float = 6.5) -> Tuple[Optional[float], Optional[float], bool, List[str]]:
     """發起多省同運營商 ASN Ping 實測，避免單一幸運省市探針掩蓋全國大面積高延遲與丟包"""
-    global _GLOBALPING_RATE_LIMITED
     if _GLOBALPING_RATE_LIMITED:
         return None, None, True, []
 
     api_url = "https://api.globalping.io/v1/measurements"
-    headers = {"Content-Type": "application/json", "User-Agent": "cf-trinet-verifier/4.6"}
+    headers = {"Content-Type": "application/json", "User-Agent": "cf-trinet-verifier/5.0"}
     asns = CARRIER_ASNS.get(c_key, [CARRIER_ASN_MAP.get(c_key, 4134)])
     locations = [{"country": "CN", "asn": a} for a in asns]
 
@@ -249,22 +317,12 @@ def _probe_ping_multi_asn(rep_ip: str, c_key: str, limit: int = 2, timeout_sec: 
     }
 
     try:
-        r = requests.post(api_url, json=payload, headers=headers, timeout=4.0)
-        if r.status_code in (429, 503):
-            _GLOBALPING_RATE_LIMITED = True
+        m_id, rate_limited = _submit_globalping_measurement(api_url, payload, headers, asns, post_timeout=4.0)
+        if rate_limited:
             return None, None, True, []
-        if r.status_code == 422 and len(locations) > 1:
-            # 若部分 ASN 暫無在線探針，退回核心骨幹 ASN
-            payload["locations"] = [{"country": "CN", "asn": asns[0]}]
-            payload["limit"] = 1
-            r = requests.post(api_url, json=payload, headers=headers, timeout=4.0)
-            if r.status_code in (429, 503):
-                _GLOBALPING_RATE_LIMITED = True
-                return None, None, True, []
-        if r.status_code != 202:
+        if not m_id:
             return None, None, False, []
 
-        m_id = r.json().get("id")
         deadline = time.time() + timeout_sec
         while time.time() < deadline:
             time.sleep(1.1)
@@ -312,14 +370,13 @@ def _probe_ping_multi_asn(rep_ip: str, c_key: str, limit: int = 2, timeout_sec: 
     return 999.0, 100.0, False, []
 
 
-def _probe_http_colo(rep_ip: str, c_key: str, timeout_sec: float = 5.0) -> str:
-    """僅在 Ping 延遲通過初篩且需要確認精準機房 IATA 時，查詢一次 HTTP port 80 CF-RAY Colo"""
-    global _GLOBALPING_RATE_LIMITED
+def _probe_http_colo_and_tcp(rep_ip: str, c_key: str, timeout_sec: float = 5.0) -> Tuple[str, Optional[float], bool]:
+    """向 Globalping 大陸探針發起一次 HTTP /cdn-cgi/trace 測量，同時取得 Colo IATA 與真實 TCP 握手耗時。"""
     if _GLOBALPING_RATE_LIMITED:
-        return ""
+        return "", None, False
 
     api_url = "https://api.globalping.io/v1/measurements"
-    headers = {"Content-Type": "application/json", "User-Agent": "cf-trinet-verifier/4.6"}
+    headers = {"Content-Type": "application/json", "User-Agent": "cf-trinet-verifier/5.0"}
     asns = CARRIER_ASNS.get(c_key, [CARRIER_ASN_MAP.get(c_key, 4134)])
     payload = {
         "type": "http",
@@ -337,22 +394,24 @@ def _probe_http_colo(rep_ip: str, c_key: str, timeout_sec: float = 5.0) -> str:
         }
     }
     try:
-        r = requests.post(api_url, json=payload, headers=headers, timeout=3.5)
-        if r.status_code in (429, 503):
-            _GLOBALPING_RATE_LIMITED = True
-            return ""
-        if r.status_code != 202:
-            return ""
-        m_id = r.json().get("id")
+        m_id, rate_limited = _submit_globalping_measurement(api_url, payload, headers, asns, post_timeout=3.5)
+        if rate_limited or not m_id:
+            return "", None, False
         deadline = time.time() + timeout_sec
         while time.time() < deadline:
             time.sleep(1.0)
             res = requests.get(f"{api_url}/{m_id}", headers=headers, timeout=2.5)
             if res.status_code == 200 and res.json().get("status") == "finished":
-                return extract_colo_from_http_result(res.json())
+                return extract_http_metrics(res.json())
     except Exception:
         pass
-    return ""
+    return "", None, False
+
+
+def _probe_http_colo(rep_ip: str, c_key: str, timeout_sec: float = 5.0) -> str:
+    """僅在 Ping 延遲通過初篩且需要確認精準機房 IATA 時，查詢一次 HTTP port 80 CF-RAY Colo"""
+    colo, _, _ = _probe_http_colo_and_tcp(rep_ip, c_key, timeout_sec=timeout_sec)
+    return colo
 
 
 def probe_subnet_from_mainland_cn(
@@ -427,13 +486,23 @@ def probe_subnet_from_mainland_cn(
     real_loss = avg_loss if avg_loss is not None else 100.0
     real_colo = ""
 
-    # 2. 若 Ping 延遲通過亞太門檻 (CT/CM <= 125ms 或 CU <= 220ms)，決定真實機房國別
+    # 2. 若 Ping 延遲通過亞太門檻 (CT/CM <= 125ms 或 CU <= 230ms)，決定真實機房國別，並交叉驗證可疑 ICMP 限流丟包
     matrix_country = lookup_carrier_landing_country(rep_ip, c_key)
-    max_good_ms = 125.0 if c_key in ("ct", "cm") else 220.0
+    max_good_ms = 125.0 if c_key in ("ct", "cm") else 230.0
+    need_loss_check = real_ms <= max_good_ms and 20.0 <= real_loss <= 65.0
+    need_colo_check = (
+        real_ms <= max_good_ms
+        and real_loss <= 15.0
+        and verify_colo
+        and (not matrix_country or (matrix_country in ("US", "GB", "DE", "NL", "FR") and c_key in ("ct", "cm")))
+    )
 
-    if real_ms <= max_good_ms and real_loss <= 15.0:
-        if verify_colo and (not matrix_country or (matrix_country in ("US", "GB", "DE", "NL", "FR") and c_key in ("ct", "cm"))):
-            real_colo = _probe_http_colo(rep_ip, c_key)
+    if need_loss_check or need_colo_check:
+        real_colo, tcp_ms, tcp_ok = _probe_http_colo_and_tcp(rep_ip, c_key)
+        if need_loss_check and tcp_ok and tcp_ms is not None and tcp_ms <= max_good_ms:
+            raw_icmp_loss = real_loss
+            real_loss = 5.0 if raw_icmp_loss <= 25.0 else 10.0
+            cities.append(f"TCP校驗通過({tcp_ms:.0f}ms,原ICMP丟包{raw_icmp_loss:.0f}%->{real_loss:.0f}%)")
 
     country = _resolve_colo_country(real_colo) or matrix_country
     country = _apply_speed_of_light_law(country, real_ms, c_key, real_colo)
