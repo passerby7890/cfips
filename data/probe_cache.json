@@ -1197,9 +1197,9 @@
   },
   "172.64.147.0/24|ct": {
     "country": "SG",
-    "ms": 74.0,
+    "ms": 105.0,
     "loss": 0.0,
-    "ts": 1795575089.2711987,
+    "ts": 1795620097.8708875,
     "source": "wetest"
   },
   "104.18.43.0/24|ct": {
@@ -2410,6 +2410,322 @@
     "ms": 202.2,
     "loss": 0.0,
     "ts": 1795619987.1440065,
+    "source": "globalping",
+    "colo": ""
+  },
+  "172.66.44.0/24|cm": {
+    "country": "US",
+    "ms": 199.0,
+    "loss": 0.0,
+    "ts": 1795620097.8706393,
+    "source": "wetest"
+  },
+  "104.25.249.0/24|cm": {
+    "country": "HK",
+    "ms": 107.0,
+    "loss": 0.0,
+    "ts": 1795620097.8706946,
+    "source": "wetest"
+  },
+  "104.16.236.0/24|cu": {
+    "country": "US",
+    "ms": 243.0,
+    "loss": 10.0,
+    "ts": 1795620296.179407,
+    "source": "globalping",
+    "colo": ""
+  },
+  "104.18.21.0/24|cu": {
+    "country": "HK",
+    "ms": 190.0,
+    "loss": 0.0,
+    "ts": 1795620097.8707454,
+    "source": "wetest"
+  },
+  "104.18.31.0/24|cu": {
+    "country": "HK",
+    "ms": 187.0,
+    "loss": 0.0,
+    "ts": 1795620097.8707674,
+    "source": "wetest"
+  },
+  "104.20.26.0/24|cu": {
+    "country": "US",
+    "ms": 238.0,
+    "loss": 20.0,
+    "ts": 1795620291.8156712,
+    "source": "globalping",
+    "colo": ""
+  },
+  "104.26.2.0/24|cu": {
+    "country": "US",
+    "ms": 239.8,
+    "loss": 20.0,
+    "ts": 1795620291.8167152,
+    "source": "globalping",
+    "colo": ""
+  },
+  "104.18.47.0/24|ct": {
+    "country": "SG",
+    "ms": 117.2,
+    "loss": 0.0,
+    "ts": 1795620264.0834315,
+    "source": "globalping",
+    "colo": ""
+  },
+  "104.17.163.0/24|ct": {
+    "country": "US",
+    "ms": 163.9,
+    "loss": 0.0,
+    "ts": 1795620264.0843074,
+    "source": "globalping",
+    "colo": ""
+  },
+  "104.19.171.0/24|ct": {
+    "country": "US",
+    "ms": 186.2,
+    "loss": 20.0,
+    "ts": 1795620268.5277615,
+    "source": "globalping",
+    "colo": ""
+  },
+  "104.17.153.0/24|ct": {
+    "country": "US",
+    "ms": 186.0,
+    "loss": 0.0,
+    "ts": 1795620268.6013963,
+    "source": "globalping",
+    "colo": ""
+  },
+  "104.16.103.0/24|cu": {
+    "country": "US",
+    "ms": 259.4,
+    "loss": 10.0,
+    "ts": 1795620296.194777,
+    "source": "globalping",
+    "colo": ""
+  },
+  "104.16.14.0/24|cu": {
+    "country": "US",
+    "ms": 259.8,
+    "loss": 10.0,
+    "ts": 1795620300.5942702,
+    "source": "globalping",
+    "colo": ""
+  },
+  "104.16.102.0/24|cu": {
+    "country": "US",
+    "ms": 263.4,
+    "loss": 10.0,
+    "ts": 1795620300.455539,
+    "source": "globalping",
+    "colo": ""
+  },
+  "104.16.142.0/24|cu": {
+    "country": "US",
+    "ms": 262.1,
+    "loss": 0.0,
+    "ts": 1795620304.8556762,
+    "source": "globalping",
+    "colo": ""
+  },
+  "172.64.230.0/24|cu": {
+    "country": "US",
+    "ms": 293.8,
+    "loss": 10.0,
+    "ts": 1795620306.1838355,
+    "source": "globalping",
+    "colo": ""
+  },
+  "172.66.140.0/24|cu": {
+    "country": "US",
+    "ms": 384.5,
+    "loss": 0.0,
+    "ts": 1795620309.105954,
+    "source": "globalping",
+    "colo": ""
+  },
+  "172.64.69.0/24|cm": {
+    "country": "US",
+    "ms": 210.7,
+    "loss": 20.0,
+    "ts": 1795620320.7316535,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2606:4700:9a61::/48|cm": {
+    "country": "HK",
+    "ms": 52.6,
+    "loss": 0.0,
+    "ts": 1795620383.149146,
+    "source": "globalping",
+    "colo": "HKG"
+  },
+  "2606:4700:99e2::/48|cm": {
+    "country": "HK",
+    "ms": 53.3,
+    "loss": 0.0,
+    "ts": 1795620387.5465846,
+    "source": "globalping",
+    "colo": "HKG"
+  },
+  "2a06:98c1:3109::/48|cm": {
+    "country": "US",
+    "ms": 215.3,
+    "loss": 60.0,
+    "ts": 1795620383.1483452,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2606:4700:9766::/48|cm": {
+    "country": "HK",
+    "ms": 53.5,
+    "loss": 0.0,
+    "ts": 1795620387.7945201,
+    "source": "globalping",
+    "colo": "HKG"
+  },
+  "2606:4700:4408::/48|ct": {
+    "country": "US",
+    "ms": 207.4,
+    "loss": 0.0,
+    "ts": 1795620353.1351943,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2a06:98c1:3109::/48|ct": {
+    "country": "SG",
+    "ms": 122.5,
+    "loss": 0.0,
+    "ts": 1795620348.7398589,
+    "source": "globalping",
+    "colo": "SIN"
+  },
+  "2606:4700:4700::/48|ct": {
+    "country": "SG",
+    "ms": 98.0,
+    "loss": 0.0,
+    "ts": 1795620354.5933962,
+    "source": "globalping",
+    "colo": "SIN"
+  },
+  "2606:4700:440c::/48|ct": {
+    "country": "US",
+    "ms": 249.4,
+    "loss": 20.0,
+    "ts": 1795620348.740064,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2a06:98c1:3103::/48|ct": {
+    "country": "US",
+    "ms": 147.8,
+    "loss": 0.0,
+    "ts": 1795620357.4981174,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2606:4700:3020::/48|ct": {
+    "country": "US",
+    "ms": 187.8,
+    "loss": 20.0,
+    "ts": 1795620360.4547284,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2606:4700:9a94::/48|cu": {
+    "country": "US",
+    "ms": 470.9,
+    "loss": 0.0,
+    "ts": 1795620365.880296,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2606:4700:8dd0::/48|cu": {
+    "country": "US",
+    "ms": 268.1,
+    "loss": 20.0,
+    "ts": 1795620365.8810887,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2606:4700:9aea::/48|cu": {
+    "country": "US",
+    "ms": 583.2,
+    "loss": 40.0,
+    "ts": 1795620368.9755256,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2606:4700:9a61::/48|cu": {
+    "country": "US",
+    "ms": 285.4,
+    "loss": 0.0,
+    "ts": 1795620370.1519263,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2606:4700:9a63::/48|cu": {
+    "country": "US",
+    "ms": 574.8,
+    "loss": 20.0,
+    "ts": 1795620373.37786,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2a06:98c1:3121::/48|cu": {
+    "country": "US",
+    "ms": 290.4,
+    "loss": 80.0,
+    "ts": 1795620374.289186,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2606:4700:3000::/48|cu": {
+    "country": "US",
+    "ms": 257.0,
+    "loss": 20.0,
+    "ts": 1795620377.7650602,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2606:4700:d0::/48|cu": {
+    "country": "US",
+    "ms": 312.0,
+    "loss": 80.0,
+    "ts": 1795620378.7564495,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2606:4700:90cb::/48|cm": {
+    "country": "US",
+    "ms": 159.5,
+    "loss": 40.0,
+    "ts": 1795620392.3796098,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2a06:98c1:3101::/48|cm": {
+    "country": "US",
+    "ms": 220.9,
+    "loss": 60.0,
+    "ts": 1795620393.1684325,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2606:4700:a1::/48|cm": {
+    "country": "US",
+    "ms": 209.4,
+    "loss": 60.0,
+    "ts": 1795620396.772558,
+    "source": "globalping",
+    "colo": ""
+  },
+  "2606:4700:3036::/48|cm": {
+    "country": "US",
+    "ms": 196.8,
+    "loss": 20.0,
+    "ts": 1795620397.559669,
     "source": "globalping",
     "colo": ""
   }
