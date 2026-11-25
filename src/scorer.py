@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -188,6 +189,9 @@ def apply_ewma_history(current_ip: str, instant_score: float, history_dict: dict
     return round(final_score, 2)
 
 
+SUBNET_EWMA_KEY = "__subnet_ewma__"
+
+
 def load_history(history_file: Path | str) -> dict[str, float]:
     p = Path(history_file)
     if not p.is_file():
@@ -195,7 +199,11 @@ def load_history(history_file: Path | str) -> dict[str, float]:
     try:
         data = json.loads(p.read_text(encoding="utf-8"))
         if isinstance(data, dict):
-            return {k: float(v) for k, v in data.items()}
+            return {
+                k: float(v)
+                for k, v in data.items()
+                if k != SUBNET_EWMA_KEY and isinstance(v, (int, float)) and not isinstance(v, bool)
+            }
     except Exception as exc:
         log.warning("讀取歷史加權檔案失敗：%s", exc)
     return {}
@@ -205,7 +213,86 @@ def save_history(history_dict: dict[str, float], history_file: Path | str) -> No
     p = Path(history_file)
     p.parent.mkdir(parents=True, exist_ok=True)
     try:
-        p.write_text(json.dumps(history_dict, ensure_ascii=False, indent=2), encoding="utf-8")
+        merged: dict[str, Any] = {}
+        if p.is_file():
+            try:
+                existing = json.loads(p.read_text(encoding="utf-8"))
+                if isinstance(existing, dict) and isinstance(existing.get(SUBNET_EWMA_KEY), dict):
+                    merged[SUBNET_EWMA_KEY] = existing[SUBNET_EWMA_KEY]
+            except Exception:
+                pass
+        for k, v in history_dict.items():
+            if k != SUBNET_EWMA_KEY:
+                merged[k] = v
+        p.write_text(json.dumps(merged, ensure_ascii=False, indent=2), encoding="utf-8")
         log.info("成功持久化 %d 筆 IP 歷史加權分數 -> %s", len(history_dict), p)
     except Exception as exc:
         log.error("儲存歷史加權檔案失敗：%s", exc)
+
+
+def load_subnet_history(history_file: Path | str) -> dict[str, dict]:
+    """讀取子網-運營商跨輪次 EWMA 穩定性快取（與頂層舊式 IP 分數共存）。"""
+    p = Path(history_file)
+    if not p.is_file():
+        return {}
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        if isinstance(data, dict):
+            ewma_block = data.get(SUBNET_EWMA_KEY)
+            if isinstance(ewma_block, dict):
+                return {
+                    str(k): dict(v)
+                    for k, v in ewma_block.items()
+                    if isinstance(v, dict)
+                }
+    except Exception as exc:
+        log.warning("讀取子網 EWMA 歷史失敗：%s", exc)
+    return {}
+
+
+def save_subnet_history(subnet_history: dict[str, dict], history_file: Path | str) -> None:
+    """持久化子網 EWMA 記錄至 ip_history.json，保留既有的頂層 IP 分數鍵值。"""
+    p = Path(history_file)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        payload: dict[str, Any] = {}
+        if p.is_file():
+            try:
+                existing = json.loads(p.read_text(encoding="utf-8"))
+                if isinstance(existing, dict):
+                    payload.update(existing)
+            except Exception:
+                pass
+        payload[SUBNET_EWMA_KEY] = subnet_history
+        p.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        log.info("成功持久化 %d 筆子網 EWMA 歷史記錄 -> %s", len(subnet_history), p)
+    except Exception as exc:
+        log.error("儲存子網 EWMA 歷史失敗：%s", exc)
+
+
+def update_subnet_ewma(
+    subnet_history: dict[str, dict],
+    subnet: str,
+    carrier: str,
+    current_ms: float,
+    alpha: float = 0.4,
+) -> float:
+    """更新特定「子網|運營商」的跨輪次 EWMA 平滑延遲。"""
+    key = f"{subnet}|{carrier.lower().strip()}"
+    cur = float(current_ms)
+    existing = subnet_history.get(key)
+    if isinstance(existing, dict) and existing.get("ewma_ms") is not None:
+        prev = float(existing["ewma_ms"])
+        ewma = round((alpha * cur) + ((1.0 - alpha) * prev), 1)
+        runs = int(existing.get("runs", 0)) + 1
+    else:
+        ewma = round(cur, 1)
+        runs = 1
+
+    subnet_history[key] = {
+        "ewma_ms": ewma,
+        "last_ms": round(cur, 1),
+        "runs": runs,
+        "updated_ts": round(time.time(), 1),
+    }
+    return ewma
