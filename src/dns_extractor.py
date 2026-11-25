@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import functools
+import ipaddress
 import socket
 import threading
 from collections import Counter
@@ -50,32 +51,37 @@ def _get_doh_session() -> requests.Session:
     return sess
 
 
-def is_valid_public_ipv4(ip: str) -> bool:
-    parts = ip.strip().split(".")
-    if len(parts) != 4:
-        return False
+def is_valid_public_ip(ip: str, rdtype: str = "A") -> bool:
+    """校驗是否為合法公網 IPv4 / IPv6 位址（排除保留/私網/鏈路本地段）"""
     try:
-        nums = [int(p) for p in parts]
-        if any(n < 0 or n > 255 for n in nums):
-            return False
-        if nums[0] in (0, 10, 127) or (nums[0] == 172 and 16 <= nums[1] <= 31) or (nums[0] == 192 and nums[1] == 168):
-            return False
-        return True
+        obj = ipaddress.ip_address(ip.strip())
+        if rdtype.upper() == "AAAA":
+            return isinstance(obj, ipaddress.IPv6Address) and obj.is_global
+        return isinstance(obj, ipaddress.IPv4Address) and obj.is_global
     except ValueError:
         return False
 
 
-def extract_a_records_from_msg(resp_msg: dns.message.Message) -> List[str]:
+def is_valid_public_ipv4(ip: str) -> bool:
+    return is_valid_public_ip(ip, "A")
+
+
+def extract_records_from_msg(resp_msg: dns.message.Message, rdtype: str = "A") -> List[str]:
     ips = []
     if not resp_msg:
         return ips
+    target_rtype = dns.rdatatype.AAAA if rdtype.upper() == "AAAA" else dns.rdatatype.A
     for rrset in resp_msg.answer:
-        if rrset.rdtype == dns.rdatatype.A:
+        if rrset.rdtype == target_rtype:
             for rdata in rrset:
                 ip = rdata.address.strip()
-                if is_valid_public_ipv4(ip):
+                if is_valid_public_ip(ip, rdtype):
                     ips.append(ip)
     return ips
+
+
+def extract_a_records_from_msg(resp_msg: dns.message.Message) -> List[str]:
+    return extract_records_from_msg(resp_msg, "A")
 
 
 def extract_cname_from_msg(resp_msg: dns.message.Message) -> str:
@@ -132,17 +138,25 @@ def discover_target_and_auth_ns(domain: str) -> Tuple[str, Tuple[str, ...]]:
     return current, tuple(list(ns_ips)[:4])
 
 
-def build_ecs_query(qname: str, anchor_ip: str) -> dns.message.Message:
+def build_ecs_query(qname: str, anchor_ip: str, rdtype: str = "A") -> dns.message.Message:
     """構造帶有 RFC 7871 EDNS Client Subnet (/24) 的二進位 DNS 查詢封包"""
     ecs_opt = dns.edns.ECSOption(anchor_ip, 24)
-    msg = dns.message.make_query(qname, dns.rdatatype.A, use_edns=0, payload=4096, options=[ecs_opt])
+    target_rtype = dns.rdatatype.AAAA if rdtype.upper() == "AAAA" else dns.rdatatype.A
+    msg = dns.message.make_query(qname, target_rtype, use_edns=0, payload=4096, options=[ecs_opt])
     return msg
 
 
-def single_ecs_probe(qname: str, anchor_ip: str, auth_ns_ips: Tuple[str, ...] | List[str]) -> List[str]:
-    """對單一省份錨點執行快速多通道 ECS 解析（優先 DoH，成功即快速返回，僅失敗時才進兜底）"""
+def single_ecs_probe(
+    qname: str,
+    anchor_ip: str,
+    auth_ns_ips: Tuple[str, ...] | List[str],
+    rdtype: str = "A",
+) -> List[str]:
+    """對單一省份錨點執行快速多通道 ECS 解析（支援 A / AAAA，優先 DoH）"""
     collected: List[str] = []
-    msg = build_ecs_query(qname, anchor_ip)
+    rtype = rdtype.upper()
+    json_type_num = 28 if rtype == "AAAA" else 1
+    msg = build_ecs_query(qname, anchor_ip, rdtype=rtype)
     wire_data = msg.to_wire()
     sess = _get_doh_session()
 
@@ -157,25 +171,25 @@ def single_ecs_probe(qname: str, anchor_ip: str, auth_ns_ips: Tuple[str, ...] | 
             r = sess.post(doh_url, data=wire_data, headers=headers, timeout=1.5)
             if r.status_code == 200 and r.content:
                 resp = dns.message.from_wire(r.content)
-                ips = extract_a_records_from_msg(resp)
+                ips = extract_records_from_msg(resp, rtype)
                 if ips:
                     collected.extend(ips)
                     return ips
         except Exception:
             pass
 
-    # 2. 阿里雲 DoH JSON ECS 兜底
+    # 2. DoH JSON ECS 兜底
     try:
         r = sess.get(
             DOH_JSON_FALLBACK,
-            params={"name": qname, "type": "A", "edns_client_subnet": f"{anchor_ip}/24"},
+            params={"name": qname, "type": rtype, "edns_client_subnet": f"{anchor_ip}/24"},
             timeout=1.2
         )
         if r.status_code == 200:
             for ans in r.json().get("Answer", []):
-                if ans.get("type") == 1:
+                if ans.get("type") == json_type_num:
                     ip = ans.get("data", "").strip()
-                    if is_valid_public_ipv4(ip):
+                    if is_valid_public_ip(ip, rtype):
                         collected.append(ip)
             if collected:
                 return collected
@@ -186,7 +200,7 @@ def single_ecs_probe(qname: str, anchor_ip: str, auth_ns_ips: Tuple[str, ...] | 
     for ns_ip in auth_ns_ips:
         try:
             resp = dns.query.udp(msg, ns_ip, timeout=0.6)
-            ips = extract_a_records_from_msg(resp)
+            ips = extract_records_from_msg(resp, rtype)
             if ips:
                 collected.extend(ips)
                 return ips
@@ -197,7 +211,7 @@ def single_ecs_probe(qname: str, anchor_ip: str, auth_ns_ips: Tuple[str, ...] | 
     for pub_dns in PUBLIC_ECS_UDP_SERVERS:
         try:
             resp = dns.query.udp(msg, pub_dns, timeout=0.6)
-            ips = extract_a_records_from_msg(resp)
+            ips = extract_records_from_msg(resp, rtype)
             if ips:
                 collected.extend(ips)
                 return ips
@@ -210,11 +224,12 @@ def single_ecs_probe(qname: str, anchor_ip: str, auth_ns_ips: Tuple[str, ...] | 
 def exhaustive_resolve_domain_for_carrier(
     domain: str,
     carrier_anchors: List[Dict],
-    rounds: int = 1
+    rounds: int = 1,
+    rdtype: str = "A",
 ) -> List[Dict]:
-    """模擬 ITDog 全國各省監測點，針對指定網域與指定運營商的 12 個省份錨點進行多輪併發解析，
+    """模擬 ITDog 全國各省監測點，針對指定網域與指定運營商的省份錨點進行併發解析，
 
-    100% 榨出該網域在該運營商下的所有分省與輪詢 IP，並計算命中百分比 (hit_ratio)！
+    100% 榨出該網域在該運營商下的所有分省與輪詢 IP (支援 A / AAAA)，並計算命中率 (hit_ratio)！
     """
     final_qname, auth_ns_ips = discover_target_and_auth_ns(domain)
     query_targets = list({domain, final_qname})
@@ -226,7 +241,7 @@ def exhaustive_resolve_domain_for_carrier(
         for _ in range(rounds):
             for qname in query_targets:
                 for anchor in carrier_anchors:
-                    tasks.append(executor.submit(single_ecs_probe, qname, anchor["ip"], auth_ns_ips))
+                    tasks.append(executor.submit(single_ecs_probe, qname, anchor["ip"], auth_ns_ips, rdtype))
 
         for fut in as_completed(tasks):
             try:

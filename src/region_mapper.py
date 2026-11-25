@@ -11,8 +11,9 @@ from __future__ import annotations
 import ipaddress
 from typing import Any, Dict, Optional
 
-# Cloudflare 官方 IPv4 Anycast 核心網段
+# Cloudflare 官方 IPv4 / IPv6 Anycast 核心網段
 XIU2_IP_URL = "https://raw.githubusercontent.com/XIU2/CloudflareSpeedTest/master/ip.txt"
+XIU2_IPV6_URL = "https://raw.githubusercontent.com/XIU2/CloudflareSpeedTest/master/ipv6.txt"
 
 CF_OFFICIAL_CIDRS = [
     "103.21.244.0/22", "103.22.200.0/22", "103.31.4.0/22",
@@ -21,49 +22,96 @@ CF_OFFICIAL_CIDRS = [
     "172.64.0.0/13", "173.245.48.0/20", "188.114.96.0/20",
     "190.93.240.0/20", "197.234.240.0/22", "198.41.128.0/17"
 ]
+CF_OFFICIAL_V6_CIDRS = [
+    "2400:cb00::/32", "2606:4700::/32", "2803:f800::/32",
+    "2405:b500::/32", "2405:8100::/32", "2a06:98c0::/29", "2c0f:f248::/32"
+]
 _CF_NETWORKS = [ipaddress.IPv4Network(cidr) for cidr in CF_OFFICIAL_CIDRS]
+_CF_V6_NETWORKS = [ipaddress.IPv6Network(cidr) for cidr in CF_OFFICIAL_V6_CIDRS]
 
 
-def load_xiu2_cf_cidrs(local_fallback_path: Any = None, timeout: float = 4.0) -> list[str]:
-    """從 XIU2/CloudflareSpeedTest/ip.txt 動態同步 Cloudflare 官方 CIDR 並更新白名單。"""
-    global _CF_NETWORKS
-    from pathlib import Path
+def _fetch_xiu2_cidrs(
+    url: str,
+    fallback_path: Path,
+    default_cidrs: list[str],
+    is_v6: bool = False,
+    timeout: float = 4.0,
+) -> tuple[list[str], list]:
+    """從 XIU2 遠端清單（失敗時回退本地檔案）載入並解析 IPv4 或 IPv6 CIDR。"""
     import requests
 
     raw_text = ""
     try:
-        r = requests.get(XIU2_IP_URL, timeout=timeout)
+        r = requests.get(url, timeout=timeout)
         if r.status_code == 200 and "/" in r.text:
             raw_text = r.text
     except Exception:
         pass
 
-    fallback_file = Path(local_fallback_path) if local_fallback_path else (Path(__file__).resolve().parent.parent / "data" / "cf_ranges.txt")
-    if not raw_text and fallback_file.is_file():
+    if not raw_text and fallback_path.is_file():
         try:
-            raw_text = fallback_file.read_text(encoding="utf-8", errors="ignore")
+            raw_text = fallback_path.read_text(encoding="utf-8", errors="ignore")
         except Exception:
             raw_text = ""
 
     cidrs: list[str] = []
-    nets: list[ipaddress.IPv4Network] = []
+    nets: list = []
+    target_cls = ipaddress.IPv6Network if is_v6 else ipaddress.IPv4Network
     for line in raw_text.splitlines():
         item = line.split("#", 1)[0].strip()
-        if not item or ":" in item:
+        if not item:
+            continue
+        if is_v6 and ":" not in item:
+            continue
+        if not is_v6 and ":" in item:
             continue
         try:
             net = ipaddress.ip_network(item, strict=False)
-            if isinstance(net, ipaddress.IPv4Network):
+            if isinstance(net, target_cls):
                 cidrs.append(str(net))
                 nets.append(net)
         except Exception:
             continue
+    return (cidrs or list(default_cidrs)), nets
 
+
+def load_xiu2_cf_cidrs(local_fallback_path: Any = None, timeout: float = 4.0) -> list[str]:
+    """從 XIU2/CloudflareSpeedTest/ip.txt 動態同步 Cloudflare 官方 IPv4 CIDR 並更新白名單。"""
+    global _CF_NETWORKS
+    from pathlib import Path
+
+    fallback_file = Path(local_fallback_path) if local_fallback_path else (Path(__file__).resolve().parent.parent / "data" / "cf_ranges.txt")
+    cidrs, nets = _fetch_xiu2_cidrs(XIU2_IP_URL, fallback_file, CF_OFFICIAL_CIDRS, is_v6=False, timeout=timeout)
     if nets:
-        # 合併保留 CF_OFFICIAL_CIDRS 與 XIU2 同步網段，避免白名單漏判
-        merged = list({str(n): n for n in (_CF_NETWORKS + nets)}.values())
-        _CF_NETWORKS = merged
-    return cidrs or list(CF_OFFICIAL_CIDRS)
+        _CF_NETWORKS = list({str(n): n for n in (_CF_NETWORKS + nets)}.values())
+    return cidrs
+
+
+def load_xiu2_cf_v6_cidrs(local_fallback_path: Any = None, timeout: float = 4.0) -> list[str]:
+    """從 XIU2/CloudflareSpeedTest/ipv6.txt 動態同步 Cloudflare 官方 IPv6 CIDR 並更新白名單。"""
+    global _CF_V6_NETWORKS
+    from pathlib import Path
+
+    fallback_file = Path(local_fallback_path) if local_fallback_path else (Path(__file__).resolve().parent.parent / "data" / "cf_ranges_v6.txt")
+    cidrs, nets = _fetch_xiu2_cidrs(XIU2_IPV6_URL, fallback_file, CF_OFFICIAL_V6_CIDRS, is_v6=True, timeout=timeout)
+    if nets:
+        _CF_V6_NETWORKS = list({str(n): n for n in (_CF_V6_NETWORKS + nets)}.values())
+    return cidrs
+
+
+def get_subnet_prefix(ip_str: str) -> str:
+    """萃取統一聚合網段前綴（IPv4 -> /24，IPv6 -> /48）。"""
+    cleaned = ip_str.strip().split("#", 1)[0].strip()
+    try:
+        ip_obj = ipaddress.ip_address(cleaned)
+        if isinstance(ip_obj, ipaddress.IPv4Address):
+            return str(ipaddress.IPv4Network(f"{cleaned}/24", strict=False))
+        return str(ipaddress.IPv6Network(f"{cleaned}/48", strict=False))
+    except Exception:
+        parts = cleaned.split(".")
+        if len(parts) >= 3:
+            return f"{parts[0]}.{parts[1]}.{parts[2]}.0/24"
+        return cleaned
 
 # 全局母體網段 -> 國家對照快取 (由種子庫與已知亞太段預載)
 _SUBNET_COUNTRY_MAP: list[tuple[ipaddress.IPv4Network, str]] = []
@@ -204,12 +252,14 @@ COUNTRY_NAMES: Dict[str, str] = {
 
 
 def is_cf_official_anycast(ip_str: str) -> bool:
-    """判斷是否屬於 Cloudflare 官方 Anycast 網段"""
+    """判斷是否屬於 Cloudflare 官方 IPv4 / IPv6 Anycast 網段"""
     try:
-        ip_obj = ipaddress.IPv4Address(ip_str.strip())
-        return any(ip_obj in net for net in _CF_NETWORKS)
+        ip_obj = ipaddress.ip_address(ip_str.strip())
+        if isinstance(ip_obj, ipaddress.IPv4Address):
+            return any(ip_obj in net for net in _CF_NETWORKS)
+        return any(ip_obj in net for net in _CF_V6_NETWORKS)
     except Exception:
-        return True
+        return False
 
 
 def get_country_by_colo(colo: str | None) -> str:
