@@ -23,44 +23,69 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.cn_real_tester import probe_subnet_from_mainland_cn
-from src.region_mapper import load_xiu2_cf_cidrs
+from src.region_mapper import get_subnet_prefix, load_xiu2_cf_cidrs, load_xiu2_cf_v6_cidrs
 from src.verifier import batch_verify_with_health_stats
 
 
-def sample_subnets_from_cidrs(cidrs: list[str], max_per_cidr: int = 8) -> list[dict]:
+def sample_subnets_from_cidrs(cidrs: list[str], max_per_cidr: int = 8, is_v6: bool = False) -> list[dict]:
     candidates: list[dict] = []
     seen_subs: set[str] = set()
     for cidr in cidrs:
         try:
             net = ipaddress.ip_network(cidr, strict=False)
-            if not isinstance(net, ipaddress.IPv4Network):
-                continue
-            subs = [net] if net.prefixlen >= 24 else list(net.subnets(new_prefix=24))
-            picks = subs if len(subs) <= max_per_cidr else random.sample(subs, max_per_cidr)
-            for s in picks:
-                sub_str = str(s)
-                if sub_str in seen_subs:
+            if is_v6:
+                if not isinstance(net, ipaddress.IPv6Network):
                     continue
-                seen_subs.add(sub_str)
-                ip = str(s[1]) if s.num_addresses > 2 else str(s.network_address)
-                candidates.append({"ip": ip, "subnet": sub_str, "domain": "xiu2_scan"})
+                if net.prefixlen >= 48:
+                    pick_subnets = [net]
+                else:
+                    total_sub = min(1 << (48 - net.prefixlen), 4096)
+                    indices = random.sample(range(total_sub), min(max_per_cidr, total_sub))
+                    pick_subnets = [
+                        ipaddress.IPv6Network(f"{ipaddress.IPv6Address(int(net.network_address) + (idx << 80))}/48", strict=False)
+                        for idx in indices
+                    ]
+                for s in pick_subnets:
+                    sub_str = get_subnet_prefix(str(s.network_address))
+                    if sub_str in seen_subs:
+                        continue
+                    seen_subs.add(sub_str)
+                    ip = str(ipaddress.IPv6Address(int(s.network_address) + 1))
+                    candidates.append({"ip": ip, "subnet": sub_str, "domain": "xiu2_scan"})
+            else:
+                if not isinstance(net, ipaddress.IPv4Network):
+                    continue
+                subs = [net] if net.prefixlen >= 24 else list(net.subnets(new_prefix=24))
+                picks = subs if len(subs) <= max_per_cidr else random.sample(subs, max_per_cidr)
+                for s in picks:
+                    sub_str = str(s)
+                    if sub_str in seen_subs:
+                        continue
+                    seen_subs.add(sub_str)
+                    ip = str(s[1]) if s.num_addresses > 2 else str(s.network_address)
+                    candidates.append({"ip": ip, "subnet": sub_str, "domain": "xiu2_scan"})
         except Exception:
             continue
     return candidates
 
 
-async def run_scan(max_per_cidr: int, probe_cn: bool, carrier: str) -> None:
-    cidrs = load_xiu2_cf_cidrs(PROJECT_ROOT / "data" / "cf_ranges.txt")
-    cands = sample_subnets_from_cidrs(cidrs, max_per_cidr=max_per_cidr)
-    print(f"[*] 載入 {len(cidrs)} 個 XIU2 官方 CIDR，抽樣 {len(cands)} 個 /24 子網代表 IP 執行 2053 WS 101 快篩...")
-
-    alive, _ = await batch_verify_with_health_stats(cands, concurrency=15)
-    print(f"[+] 通過 101 握手（無 Error 1034）之 /24 子網共 {len(alive)}/{len(cands)} 個：")
-    for item in alive:
-        print(f"    PASS {item['subnet']} (rep={item['ip']})")
+async def run_scan(max_per_cidr: int, probe_cn: bool, carrier: str, is_v6: bool = False) -> None:
+    if is_v6:
+        cidrs = load_xiu2_cf_v6_cidrs(PROJECT_ROOT / "data" / "cf_ranges_v6.txt")
+        cands = sample_subnets_from_cidrs(cidrs, max_per_cidr=max_per_cidr, is_v6=True)
+        print(f"[*] 載入 {len(cidrs)} 個 XIU2 官方 IPv6 CIDR，抽樣 {len(cands)} 個 /48 子網代表 IP...")
+        alive = cands
+    else:
+        cidrs = load_xiu2_cf_cidrs(PROJECT_ROOT / "data" / "cf_ranges.txt")
+        cands = sample_subnets_from_cidrs(cidrs, max_per_cidr=max_per_cidr, is_v6=False)
+        print(f"[*] 載入 {len(cidrs)} 個 XIU2 官方 CIDR，抽樣 {len(cands)} 個 /24 子網代表 IP 執行 2053 WS 101 快篩...")
+        alive, _ = await batch_verify_with_health_stats(cands, concurrency=15)
+        print(f"[+] 通過 101 握手（無 Error 1034）之 /24 子網共 {len(alive)}/{len(cands)} 個：")
+        for item in alive:
+            print(f"    PASS {item['subnet']} (rep={item['ip']})")
 
     if probe_cn and alive:
-        print(f"\n[*] 對通過 101 的子網發起 [{carrier.upper()}] 大陸探針實測...")
+        print(f"\n[*] 對{'抽樣' if is_v6 else '通過 101 的'}子網發起 [{carrier.upper()}] 大陸探針實測...")
         for item in alive[:20]:
             cty, ms, loss = probe_subnet_from_mainland_cn(item["ip"], carrier)
             if cty not in ("US", "GB", "DE", "FR", "NL", "UNKNOWN") and loss <= 18.0:
@@ -68,12 +93,13 @@ async def run_scan(max_per_cidr: int, probe_cn: bool, carrier: str) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="XIU2/CloudflareSpeedTest ip.txt 子網探勘工具")
-    parser.add_argument("--max-per-cidr", type=int, default=6, help="每個 CIDR 抽樣的 /24 子網數")
-    parser.add_argument("--probe-cn", action="store_true", help="對通過 101 的子網發起 Globalping 大陸探測")
+    parser = argparse.ArgumentParser(description="XIU2/CloudflareSpeedTest ip.txt / ipv6.txt 子網探勘工具")
+    parser.add_argument("--max-per-cidr", type=int, default=6, help="每個 CIDR 抽樣的子網數")
+    parser.add_argument("--probe-cn", action="store_true", help="對子網發起 Globalping 大陸探測")
     parser.add_argument("--carrier", choices=["ct", "cu", "cm"], default="ct", help="大陸探測運營商")
+    parser.add_argument("--ipv6", action="store_true", help="探勘 XIU2 ipv6.txt /48 子網")
     args = parser.parse_args()
-    asyncio.run(run_scan(args.max_per_cidr, args.probe_cn, args.carrier))
+    asyncio.run(run_scan(args.max_per_cidr, args.probe_cn, args.carrier, is_v6=args.ipv6))
 
 
 if __name__ == "__main__":

@@ -19,7 +19,12 @@ import requests
 
 from src.cn_real_tester import record_real_probe_observation
 from src.dns_extractor import exhaustive_resolve_domain_for_carrier
-from src.region_mapper import is_cf_official_anycast, load_xiu2_cf_cidrs
+from src.region_mapper import (
+    get_subnet_prefix,
+    is_cf_official_anycast,
+    load_xiu2_cf_cidrs,
+    load_xiu2_cf_v6_cidrs,
+)
 
 
 def _load_seeds_for_carrier(seed_path: Path) -> List[str]:
@@ -51,6 +56,56 @@ def _load_seeds_for_carrier(seed_path: Path) -> List[str]:
     return list(dict.fromkeys(ips))
 
 
+def _parse_wetest_html(html: str) -> Dict[str, List[Dict[str, Any]]]:
+    """解析 WeTest v4/v6 表格列，寫入真實觀測值並依運營商分組。"""
+    results: Dict[str, List[Dict[str, Any]]] = {"ct": [], "cu": [], "cm": []}
+    rows = re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.S)
+    for row in rows:
+        cols = [re.sub(r"<[^>]+>", "", c).strip() for c in re.findall(r"<td[^>]*>(.*?)</td>", row, re.S)]
+        if len(cols) >= 6:
+            line_name = cols[0]
+            ip = cols[1]
+            ms_str = cols[4]
+            colo = cols[5].upper()
+            m_ms = re.search(r"(\d+)", ms_str)
+            ms = float(m_ms.group(1)) if m_ms else 150.0
+            c_code = "cm" if "移动" in line_name else ("cu" if "联通" in line_name else ("ct" if "电信" in line_name else ""))
+            if c_code and is_cf_official_anycast(ip):
+                country = (
+                    "HK" if colo in ("HKG", "MFM") else (
+                        "SG" if colo == "SIN" else (
+                            "JP" if colo in ("NRT", "KIX") else (
+                                "TW" if colo in ("TPE", "KHH") else (
+                                    "US" if colo in ("LAX", "SJC", "SEA") else ""
+                                )
+                            )
+                        )
+                    )
+                )
+                if country:
+                    record_real_probe_observation(ip, c_code, country, ms, 0.0, source="wetest")
+                results[c_code].append({
+                    "ip": ip,
+                    "domain": "wetest.vip",
+                    "cn_latency_ms": ms,
+                    "colo": colo,
+                    "hit_ratio": 95.0,
+                    "score": 95.0,
+                })
+    return results
+
+
+def _fetch_wetest_v6_ips() -> Dict[str, List[Dict[str, Any]]]:
+    """抓取 WeTest IPv6 境內優選清單 (https://www.wetest.vip/page/cloudflare/address_v6.html)。"""
+    try:
+        r = requests.get("https://www.wetest.vip/page/cloudflare/address_v6.html", timeout=3.5)
+        if r.status_code == 200:
+            return _parse_wetest_html(r.text)
+    except Exception:
+        pass
+    return {"ct": [], "cu": [], "cm": []}
+
+
 def _fetch_external_feed_ips() -> Dict[str, List[Dict[str, Any]]]:
     """快速抓取外部境內測速平台的真實優選 IP (Fail-open，超時 3.0s)"""
     results: Dict[str, List[Dict[str, Any]]] = {"ct": [], "cu": [], "cm": []}
@@ -59,29 +114,9 @@ def _fetch_external_feed_ips() -> Dict[str, List[Dict[str, Any]]]:
     try:
         r = requests.get("https://www.wetest.vip/page/cloudflare/address_v4.html", timeout=3.0)
         if r.status_code == 200:
-            rows = re.findall(r"<tr[^>]*>(.*?)</tr>", r.text, re.S)
-            for row in rows:
-                cols = [re.sub(r"<[^>]+>", "", c).strip() for c in re.findall(r"<td[^>]*>(.*?)</td>", row, re.S)]
-                if len(cols) >= 6:
-                    line_name = cols[0]
-                    ip = cols[1]
-                    ms_str = cols[4]
-                    colo = cols[5].upper()
-                    m_ms = re.search(r"(\d+)", ms_str)
-                    ms = float(m_ms.group(1)) if m_ms else 150.0
-                    c_code = "cm" if "移动" in line_name else ("cu" if "联通" in line_name else ("ct" if "电信" in line_name else ""))
-                    if c_code and is_cf_official_anycast(ip):
-                        country = "HK" if colo in ("HKG", "MFM") else ("SG" if colo == "SIN" else ("JP" if colo in ("NRT", "KIX") else ("TW" if colo in ("TPE", "KHH") else ("US" if colo in ("LAX", "SJC", "SEA") else ""))))
-                        if country:
-                            record_real_probe_observation(ip, c_code, country, ms, 0.0, source="wetest")
-                        results[c_code].append({
-                            "ip": ip,
-                            "domain": "wetest.vip",
-                            "cn_latency_ms": ms,
-                            "colo": colo,
-                            "hit_ratio": 95.0,
-                            "score": 95.0
-                        })
+            parsed = _parse_wetest_html(r.text)
+            for k in results:
+                results[k].extend(parsed[k])
     except Exception:
         pass
 
@@ -115,16 +150,42 @@ def _sample_xiu2_extra_candidates(
     xiu2_cidrs: List[str],
     existing_ips: Set[str],
     max_subnets: int = 12,
+    is_v6: bool = False,
 ) -> List[str]:
-    """從 XIU2/CloudflareSpeedTest/ip.txt 官方 CIDR 池智慧抽樣未覆蓋的 /24 子網代表 IP。
-
-    只抽少量代表 IP 交由 Stage 2 (101) 過濾，不擠壓 Stage 3 既有黃金網段的 Globalping 配額。
-    """
-    existing_prefixes = {".".join(ip.split(".")[:3]) for ip in existing_ips if "." in ip}
+    """從 XIU2/CloudflareSpeedTest ip.txt / ipv6.txt 官方 CIDR 池智慧抽樣未覆蓋的 /24 或 /48 子網代表 IP。"""
+    existing_prefixes = {get_subnet_prefix(ip) for ip in existing_ips if ip}
     sampled_ips: List[str] = []
     seen_prefixes = set(existing_prefixes)
 
-    # 優先抽取常出現非 1034 亞太段的網段前綴，再隨機抽其他官方段
+    if is_v6:
+        ordered_cidrs = sorted(xiu2_cidrs, key=lambda _c: random.random())
+        for cidr in ordered_cidrs:
+            if len(sampled_ips) >= max_subnets:
+                break
+            try:
+                net = ipaddress.ip_network(cidr, strict=False)
+                if not isinstance(net, ipaddress.IPv6Network):
+                    continue
+                if net.prefixlen >= 48:
+                    pick_sub = net
+                else:
+                    num_sub48 = min(1 << (48 - net.prefixlen), 4096)
+                    sub_idx = random.randrange(num_sub48)
+                    sub_addr = ipaddress.IPv6Address(int(net.network_address) + (sub_idx << 80))
+                    pick_sub = ipaddress.IPv6Network(f"{sub_addr}/48", strict=False)
+                sub_prefix = get_subnet_prefix(str(pick_sub.network_address))
+                if sub_prefix in seen_prefixes:
+                    continue
+                host_offset = random.choice((1, 2, 10, 0x101))
+                cand_ip = str(ipaddress.IPv6Address(int(pick_sub.network_address) + host_offset))
+                if cand_ip not in existing_ips:
+                    sampled_ips.append(cand_ip)
+                    seen_prefixes.add(sub_prefix)
+            except Exception:
+                continue
+        return sampled_ips
+
+    # IPv4：優先抽取常出現非 1034 亞太段的網段前綴，再隨機抽其他官方段
     preferred_prefixes = ("172.64.", "172.66.", "104.18.", "104.21.", "162.159.", "141.101.")
     ordered_cidrs = sorted(
         xiu2_cidrs,
@@ -145,7 +206,7 @@ def _sample_xiu2_extra_candidates(
                 sub_idx = random.randrange(num_sub24)
                 sub_addr = ipaddress.IPv4Address(int(net.network_address) + (sub_idx * 256))
                 pick_sub = ipaddress.IPv4Network(f"{sub_addr}/24", strict=False)
-            sub_prefix = ".".join(str(pick_sub.network_address).split(".")[:3])
+            sub_prefix = get_subnet_prefix(str(pick_sub.network_address))
             if sub_prefix in seen_prefixes:
                 continue
             host_offset = random.choice((1, 10, 20, 50, 100))
@@ -308,3 +369,100 @@ def collect_carrier_candidates(
 ) -> Dict[str, List[Dict]]:
     results, _ = collect_carrier_candidates_with_domain_map(pool_path, matrix_path)
     return results
+
+
+def collect_carrier_v6_candidates(
+    pool_path: str = "data/cname_pool.json",
+    matrix_path: str = "data/cn_ecs_matrix.json",
+    xiu2_sample_subnets: int = 10,
+) -> Dict[str, List[Dict]]:
+    """收集三網 Cloudflare IPv6 (/48) 候選：ECS AAAA 解析 + WeTest IPv6 + XIU2 ipv6.txt 探索抽樣。"""
+    pool_file = Path(pool_path).resolve()
+    with open(pool_file, "r", encoding="utf-8") as f:
+        pool_cfg = json.load(f)
+    matrix_file_ecs = Path(matrix_path)
+    if not matrix_file_ecs.is_file():
+        matrix_file_ecs = pool_file.parent / matrix_file_ecs.name
+    with open(matrix_file_ecs, "r", encoding="utf-8") as f:
+        ecs_matrix = json.load(f)
+
+    data_dir = pool_file.parent
+    carriers_cfg = pool_cfg.get("carriers", {})
+    xiu2_v6_cidrs = load_xiu2_cf_v6_cidrs(data_dir / "cf_ranges_v6.txt")
+    print(f"[*] 已同步 XIU2/CloudflareSpeedTest 官方 IPv6 網段庫（共 {len(xiu2_v6_cidrs)} 個 CIDR）")
+
+    wetest_v6 = _fetch_wetest_v6_ips()
+    carrier_results: Dict[str, List[Dict]] = {"ct": [], "cu": [], "cm": []}
+
+    for c_code in ["ct", "cu", "cm"]:
+        c_domains = carriers_cfg.get(c_code, [])
+        c_anchors = ecs_matrix.get(c_code, [])
+        direct_map: Dict[str, Dict] = {}
+
+        for d_info in c_domains:
+            domain = d_info["domain"]
+            prefer_reg = (d_info.get("prefer_region") or "").strip().upper()
+            extracted = exhaustive_resolve_domain_for_carrier(domain, c_anchors, rounds=1, rdtype="AAAA")
+            for item in extracted:
+                ip = item["ip"]
+                if ":" not in ip or not is_cf_official_anycast(ip):
+                    continue
+                lat_val = float(d_info.get("cn_latency_ms", 999.0))
+                if ip not in direct_map:
+                    direct_map[ip] = {
+                        "ip": ip,
+                        "domain": domain,
+                        "carrier": c_code,
+                        "target_carrier": c_code,
+                        "cn_latency_ms": lat_val,
+                        "speed_mbs": float(d_info.get("speed_mbs", 12.0)),
+                        "score": float(d_info.get("score", 90.0)),
+                        "hit_ratio": item["hit_ratio"],
+                        "prefer_region": prefer_reg,
+                        "is_direct_cname": True,
+                    }
+                else:
+                    direct_map[ip]["hit_ratio"] = round(direct_map[ip]["hit_ratio"] + item["hit_ratio"], 2)
+
+        for ext in wetest_v6.get(c_code, []):
+            e_ip = ext["ip"]
+            if e_ip not in direct_map:
+                direct_map[e_ip] = {
+                    "ip": e_ip,
+                    "domain": ext.get("domain", "wetest.vip"),
+                    "carrier": c_code,
+                    "target_carrier": c_code,
+                    "cn_latency_ms": ext.get("cn_latency_ms", 120.0),
+                    "speed_mbs": 15.0,
+                    "score": ext.get("score", 95.0),
+                    "hit_ratio": ext.get("hit_ratio", 95.0),
+                    "prefer_region": "",
+                    "is_direct_cname": False,
+                }
+
+        xiu2_extra = _sample_xiu2_extra_candidates(
+            xiu2_v6_cidrs, set(direct_map.keys()), max_subnets=xiu2_sample_subnets, is_v6=True
+        )
+        for x_ip in xiu2_extra:
+            if x_ip not in direct_map:
+                direct_map[x_ip] = {
+                    "ip": x_ip,
+                    "domain": "xiu2_cf_cidr",
+                    "carrier": c_code,
+                    "target_carrier": c_code,
+                    "cn_latency_ms": 140.0 if c_code in ("ct", "cm") else 210.0,
+                    "speed_mbs": 10.0,
+                    "score": 70.0,
+                    "hit_ratio": 40.0,
+                    "prefer_region": "",
+                    "is_direct_cname": False,
+                }
+
+        direct_list = sorted(
+            direct_map.values(),
+            key=lambda x: (x["cn_latency_ms"], -x["hit_ratio"], -x["score"]),
+        )
+        carrier_results[c_code] = direct_list
+        print(f"[+] [{c_code.upper()}-v6] 整合 ECS AAAA + WeTest v6 + XIU2 v6 探索({len(xiu2_extra)})，共 {len(direct_list)} 個 IPv6 候選")
+
+    return carrier_results

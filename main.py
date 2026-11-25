@@ -12,15 +12,20 @@ from __future__ import annotations
 
 import asyncio
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import ipaddress
 import json
 import os
 import shutil
+import socket
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 from src import __version__
-from src.collector import collect_carrier_candidates_with_domain_map
+from src.collector import (
+    collect_carrier_candidates_with_domain_map,
+    collect_carrier_v6_candidates,
+)
 from src.cn_real_tester import (
     get_subnet_24,
     is_blacklisted_us_range,
@@ -34,9 +39,140 @@ from src.region_mapper import (
     lookup_carrier_landing_country,
     resolve_country_tag,
 )
+from src.scorer import load_subnet_history, save_subnet_history, update_subnet_ewma
+from src.speed_tester import batch_measure_bandwidth
 from src.verifier import batch_verify_with_health_stats
 
 PROJECT_ROOT = Path(__file__).resolve().parent
+
+BANNED_COUNTRIES = ("US", "GB", "FR", "NL", "CA", "DE", "UNKNOWN", "CF", "")
+
+
+def _runner_supports_ipv6() -> bool:
+    """檢測當前執行環境是否具備 IPv6 外網路由，無則僅依賴 Globalping 大陸探針實測 IPv6。"""
+    sock = None
+    try:
+        sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
+        sock.settimeout(1.0)
+        sock.connect(("2606:4700:4700::1111", 53))
+        return True
+    except OSError:
+        return False
+    finally:
+        if sock is not None:
+            try:
+                sock.close()
+            except Exception:
+                pass
+
+
+def select_target_subnets(
+    sorted_subnets: list[tuple[str, list[dict]]],
+    limit: int = 24,
+    xiu2_reserve: int = 3,
+) -> tuple[list[tuple[str, list[dict]]], list[tuple[str, list[dict]]]]:
+    """從已排序子網中選出探測配額，保留專屬於新 XIU2 子網的探索名額以防被既有種子擠光。"""
+    if len(sorted_subnets) <= limit:
+        return list(sorted_subnets), []
+
+    reserve_picks = [
+        pair
+        for pair in sorted_subnets
+        if pair[1] and all(it.get("domain") == "xiu2_cf_cidr" for it in pair[1])
+    ][:xiu2_reserve]
+    reserved_keys = {sub for sub, _ in reserve_picks}
+
+    primary_limit = limit - len(reserved_keys)
+    selected_keys = set(reserved_keys)
+    for sub, _ in sorted_subnets:
+        if sub in reserved_keys:
+            continue
+        if len(selected_keys) - len(reserved_keys) >= primary_limit:
+            break
+        selected_keys.add(sub)
+
+    selected = [pair for pair in sorted_subnets if pair[0] in selected_keys]
+    remaining = [pair for pair in sorted_subnets if pair[0] not in selected_keys]
+    return selected, remaining
+
+
+def filter_usable_nodes(
+    candidates: list[dict],
+    c_code: str,
+    min_speed_mbps: float = 2.0,
+) -> list[dict]:
+    """依三網亞太門檻、丟包上限 (<=18%)、非繞美國家與最小實測頻寬過濾可用節點。"""
+    max_allowed_ms = 120.0 if c_code in ("ct", "cm") else 228.0
+    max_allowed_loss = 18.0
+    usable = []
+    for it in candidates:
+        if it.get("unprobed", False):
+            continue
+        if it.get("country") in BANNED_COUNTRIES:
+            continue
+        if float(it.get("real_cn_loss", 100.0)) > max_allowed_loss:
+            continue
+        if float(it.get("real_cn_ms", 999.0)) > max_allowed_ms:
+            continue
+        if it.get("speed_mbps") is not None and float(it.get("speed_mbps", 0.0)) < min_speed_mbps:
+            continue
+        usable.append(it)
+    return usable
+
+
+def node_rank_key(item: dict) -> tuple:
+    """跨輪次 EWMA 穩定性混合排序鍵：(丟包, 0.7*當輪延遲 + 0.3*EWMA歷史延遲, -頻寬, -命中, -分數)。"""
+    cur_ms = float(item.get("real_cn_ms", 999.0))
+    ewma_ms = float(item.get("ewma_ms", cur_ms))
+    blended_ms = round((0.7 * cur_ms) + (0.3 * ewma_ms), 1)
+    return (
+        float(item.get("real_cn_loss", 0.0)),
+        blended_ms,
+        -float(item.get("speed_mbps", 0.0)),
+        -float(item.get("hit_ratio", 0.0)),
+        -float(item.get("score", 0.0)),
+    )
+
+
+def select_balanced_top_nodes(
+    usable_nodes: list[dict],
+    max_total: int = 50,
+    max_per_subnet: int = 3,
+    country_reserve: int = 5,
+) -> list[dict]:
+    """在保障國家多樣性 (#JP 等不被刷屏擠掉) 與子網打散上限前提下，挑出 Top N 優選節點。"""
+    ranked = sorted(usable_nodes, key=node_rank_key)
+    final_list: list[dict] = []
+    seen_ips: set[str] = set()
+    subnet_tracker: dict[str, int] = {}
+    country_buckets: dict[str, list[dict]] = {}
+    for it in ranked:
+        country_buckets.setdefault(it["country"], []).append(it)
+
+    for _cty, n_list in country_buckets.items():
+        taken = 0
+        for it in n_list:
+            if len(final_list) >= max_total:
+                break
+            sub = get_subnet_24(it["ip"])
+            if subnet_tracker.get(sub, 0) < max_per_subnet and taken < country_reserve:
+                final_list.append(it)
+                seen_ips.add(it["ip"])
+                subnet_tracker[sub] = subnet_tracker.get(sub, 0) + 1
+                taken += 1
+
+    for it in ranked:
+        if len(final_list) >= max_total:
+            break
+        if it["ip"] not in seen_ips:
+            sub = get_subnet_24(it["ip"])
+            if subnet_tracker.get(sub, 0) < max_per_subnet:
+                final_list.append(it)
+                seen_ips.add(it["ip"])
+                subnet_tracker[sub] = subnet_tracker.get(sub, 0) + 1
+
+    final_list.sort(key=node_rank_key)
+    return final_list
 
 if hasattr(sys.stdout, "reconfigure"):
     try:
@@ -129,8 +265,11 @@ async def run_pipeline():
     summary_json = {
         "version": f"v{__version__}",
         "updated_at": datetime.now(timezone.utc).isoformat(),
-        "carriers": {}
+        "carriers": {},
+        "ipv6": {},
     }
+    history_path = PROJECT_ROOT / "data" / "ip_history.json"
+    subnet_ewma_hist = load_subnet_history(history_path)
 
     # 階段 3 & 4：按 /24 網段分組實測大陸真實延遲/Colo，嚴格過濾、排序與限制 Top 50
     for c_code in ["ct", "cu", "cm"]:
@@ -213,9 +352,8 @@ async def run_pipeline():
             return (not is_bad_cached, not is_lax, is_gold, has_prefer, avg_hit, avg_score)
 
         sorted_subnets = sorted(subnets.items(), key=subnet_priority, reverse=True)
-        # 精選最高優先級的 24 個子網代表發起大陸多省探測 (已將確認繞美/高丟包段降級，自動騰出額度探索 XIU2 新段)
-        target_subnets = sorted_subnets[:24]
-        remaining_subnets = sorted_subnets[24:]
+        # 精選最高優先級的 24 個子網代表發起大陸多省探測（保留 3 席給 XIU2 未測新網段探索）
+        target_subnets, remaining_subnets = select_target_subnets(sorted_subnets, limit=24, xiu2_reserve=3)
 
         print(f"\n[*] 階段 3：對 [{c_code.upper()}] 共 {len(carrier_candidates)} 顆候選 IP (精選 {len(target_subnets)}/{len(subnets)} 個優質 /24 網段) 發起大陸境內 ASN 真機實測 (併發=2)...")
         def _probe_sub(sub_items):
@@ -223,21 +361,27 @@ async def run_pipeline():
             items.sort(key=lambda x: (-x.get("hit_ratio", 0.0), -x.get("score", 0.0)))
             rep_ip = items[0]["ip"]
             real_country, real_ms, real_loss = probe_subnet_from_mainland_cn(rep_ip, c_code)
-            return items, real_country, real_ms, real_loss
+            return sub, items, real_country, real_ms, real_loss
 
         with ThreadPoolExecutor(max_workers=2) as executor:
             futs = [executor.submit(_probe_sub, s_item) for s_item in target_subnets]
             for fut in as_completed(futs):
-                items, real_country, real_ms, real_loss = fut.result()
+                sub, items, real_country, real_ms, real_loss = fut.result()
+                ewma_val = (
+                    update_subnet_ewma(subnet_ewma_hist, sub, c_code, real_ms)
+                    if real_ms < 900.0
+                    else real_ms
+                )
                 for it in items:
                     it["country"] = real_country
                     it["real_cn_country"] = real_country
                     it["real_cn_ms"] = real_ms
+                    it["ewma_ms"] = ewma_val
                     it["real_cn_loss"] = real_loss
                     it["cn_latency_ms"] = real_ms
                     it["unprobed"] = False
 
-        # 針對超出前 20 個網段的剩餘節點標記為未實測 (嚴格拒絕偽造假延遲)
+        # 針對超出前 24 個網段的剩餘節點標記為未實測 (嚴格拒絕偽造假延遲)
         for sub, items in remaining_subnets:
             for it in items:
                 it["unprobed"] = True
@@ -248,17 +392,7 @@ async def run_pipeline():
                 it["cn_latency_ms"] = 999.0
 
         # 階段 4：嚴格品質過濾與子網打散（禁止任何偽造延遲或高丟包繞美節點進入榜單）
-        max_allowed_ms = 120.0 if c_code in ("ct", "cm") else 219.0
-        # 允許雙探針實測中最多單包偶發抖動 (1/6 丟包 = 16.7%)，嚴格攔截 >= 20% 持續丟包
-        max_allowed_loss = 18.0
-        banned_countries = ("US", "GB", "FR", "NL", "CA", "DE", "UNKNOWN", "CF", "")
-        usable_nodes = [
-            it for it in carrier_candidates
-            if not it.get("unprobed", False)
-            and it.get("country") not in banned_countries
-            and it.get("real_cn_loss", 100.0) <= max_allowed_loss
-            and it.get("real_cn_ms", 999.0) <= max_allowed_ms
-        ]
+        usable_nodes = filter_usable_nodes(carrier_candidates, c_code)
 
         # 階段 3.5：對實測勝出的亞太黃金 /24 子網進行同段擴充（零額外 Globalping 消耗，補齊至每段最多 3 顆）
         if usable_nodes:
@@ -320,56 +454,26 @@ async def run_pipeline():
                 if added_cnt:
                     print(f"    [+] [階段 3.5] 成功為 [{c_code.upper()}] 擴充 {added_cnt} 顆同段實測驗證 IP")
 
+        # 階段 4.5：對合格候選執行真實 Cloudflare TLS SNI (speed.cloudflare.com:443) 吞吐篩查，踢除限速/1034 節點
+        if usable_nodes:
+            measured_nodes = batch_measure_bandwidth(
+                usable_nodes,
+                port=443,
+                sni_host="speed.cloudflare.com",
+                duration_limit=1.6,
+                max_workers=12,
+            )
+            speed_filtered = filter_usable_nodes(measured_nodes, c_code, min_speed_mbps=2.0)
+            dropped_speed = len(measured_nodes) - len(speed_filtered)
+            if dropped_speed > 0:
+                print(f"    [*] [階段 4.5] TLS SNI 吞吐快篩踢除 {dropped_speed} 顆低頻寬 (<2 Mbps) 或異常節點")
+            if speed_filtered:
+                usable_nodes = speed_filtered
+
         if len(usable_nodes) < 3:
             print(f"    [!] [{c_code.upper()}] 警告：合格節點數僅 {len(usable_nodes)} 顆，維持高標準過濾，拒絕注入假節點！")
 
-        # 嚴格按 (丟包率, real_cn_ms, -hit_ratio, -score) 由優到劣排序
-        usable_nodes.sort(
-            key=lambda x: (
-                x.get("real_cn_loss", 0.0),
-                x.get("real_cn_ms", 999.0),
-                -x.get("hit_ratio", 0.0),
-                -x.get("score", 0.0)
-            )
-        )
-
-        # 第一輪：國家多樣性保障，為每個合法落地國家保底保留最多 5 顆優質節點 (防單一大國刷屏擠掉 #JP)
-        final_list = []
-        subnet_tracker: dict[str, int] = {}
-        country_buckets: dict[str, list[dict]] = {}
-        for it in usable_nodes:
-            country_buckets.setdefault(it["country"], []).append(it)
-
-        for cty, n_list in country_buckets.items():
-            taken = 0
-            for it in n_list:
-                sub = get_subnet_24(it["ip"])
-                if subnet_tracker.get(sub, 0) < 3 and taken < 5:
-                    final_list.append(it)
-                    subnet_tracker[sub] = subnet_tracker.get(sub, 0) + 1
-                    taken += 1
-                if len(final_list) >= 50:
-                    break
-
-        # 第二輪：嚴格同 /24 網段最多取 3 顆，依最優延遲補齊至最多 50 顆
-        for it in usable_nodes:
-            if len(final_list) >= 50:
-                break
-            if it not in final_list:
-                sub = get_subnet_24(it["ip"])
-                if subnet_tracker.get(sub, 0) < 3:
-                    final_list.append(it)
-                    subnet_tracker[sub] = subnet_tracker.get(sub, 0) + 1
-
-        # 確保輸出嚴格維持按 (丟包率, 大陸實測延遲) 升序排列
-        final_list.sort(
-            key=lambda x: (
-                x.get("real_cn_loss", 0.0),
-                x.get("real_cn_ms", 999.0),
-                -x.get("hit_ratio", 0.0),
-                -x.get("score", 0.0)
-            )
-        )
+        final_list = select_balanced_top_nodes(usable_nodes, max_total=50, max_per_subnet=3, country_reserve=5)
 
         out_path = out_dir / f"{c_code}.txt"
         if final_list:
@@ -385,10 +489,118 @@ async def run_pipeline():
 
         summary_json["carriers"][c_code] = final_list
 
+    # 階段 B：IPv6 雙棧優選子管線 (ECS AAAA + WeTest IPv6 + XIU2 ipv6.txt -> Globalping CN 實測)
+    print("\n==========================================================")
+    print("🌐 [Stage B] 啟動三網 Cloudflare IPv6 (/48) 雙棧探針實測...")
+    print("==========================================================")
+    has_local_v6 = _runner_supports_ipv6()
+    if not has_local_v6:
+        print("[*] 執行機為純 IPv4 環境，跳過本地 2053 IPv6 Socket，直接透過 Globalping 大陸探針實測 IPv6")
+
+    v6_pools = collect_carrier_v6_candidates(pool_path)
+    v6_alive_set: set[str] | None = None
+    if has_local_v6:
+        unique_v6 = {}
+        for c_code, items in v6_pools.items():
+            for it in items:
+                if it["ip"] not in unique_v6:
+                    unique_v6[it["ip"]] = it
+        v6_alive, _ = await batch_verify_with_health_stats(list(unique_v6.values()), concurrency=10)
+        v6_alive_set = {x["ip"] for x in v6_alive}
+        print(f"[+] [Stage B] 本地 IPv6 2053 測活通過 {len(v6_alive_set)} 個")
+
+    for c_code in ["ct", "cu", "cm"]:
+        v6_cands = [
+            dict(it)
+            for it in v6_pools.get(c_code, [])
+            if v6_alive_set is None or it["ip"] in v6_alive_set
+        ]
+        v6_subs: dict[str, list[dict]] = {}
+        for it in v6_cands:
+            v6_subs.setdefault(get_subnet_24(it["ip"]), []).append(it)
+
+        sorted_v6_subs = sorted(
+            v6_subs.items(),
+            key=lambda kv: (
+                not is_cached_bad_subnet(kv[0], c_code),
+                sum(x.get("hit_ratio", 0.0) for x in kv[1]) / max(1, len(kv[1])),
+            ),
+            reverse=True,
+        )[:12]
+
+        def _probe_v6_sub(sub_items):
+            sub, items = sub_items
+            rep_ip = items[0]["ip"]
+            real_country, real_ms, real_loss = probe_subnet_from_mainland_cn(rep_ip, c_code)
+            return sub, items, real_country, real_ms, real_loss
+
+        probed_v6_cands: list[dict] = []
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            futs = [executor.submit(_probe_v6_sub, pair) for pair in sorted_v6_subs]
+            for fut in as_completed(futs):
+                sub, items, real_country, real_ms, real_loss = fut.result()
+                ewma_val = (
+                    update_subnet_ewma(subnet_ewma_hist, sub, f"{c_code}_v6", real_ms)
+                    if real_ms < 900.0
+                    else real_ms
+                )
+                for it in items:
+                    it["country"] = real_country
+                    it["real_cn_country"] = real_country
+                    it["real_cn_ms"] = real_ms
+                    it["ewma_ms"] = ewma_val
+                    it["real_cn_loss"] = real_loss
+                    it["cn_latency_ms"] = real_ms
+                    it["unprobed"] = False
+                    probed_v6_cands.append(it)
+
+        usable_v6 = filter_usable_nodes(probed_v6_cands, c_code)
+        # 對勝出的 /48 補齊最多 3 顆實測同段 v6 IP (防單段僅 1 顆)
+        win_v6_subs: dict[str, list[dict]] = {}
+        for it in usable_v6:
+            win_v6_subs.setdefault(get_subnet_24(it["ip"]), []).append(it)
+        seen_v6_ips = {it["ip"] for it in usable_v6}
+        for sub, sub_list in win_v6_subs.items():
+            if len(sub_list) >= 3:
+                continue
+            rep = sub_list[0]
+            try:
+                net48 = ipaddress.ip_network(sub, strict=False)
+                for offset in (1, 2, 0x10):
+                    if len(sub_list) >= 3:
+                        break
+                    cand_v6 = str(ipaddress.IPv6Address(int(net48.network_address) + offset))
+                    if cand_v6 in seen_v6_ips:
+                        continue
+                    seen_v6_ips.add(cand_v6)
+                    exp_it = dict(rep)
+                    exp_it["ip"] = cand_v6
+                    exp_it["expanded_from_subnet"] = True
+                    usable_v6.append(exp_it)
+                    sub_list.append(exp_it)
+            except Exception:
+                continue
+
+        final_v6 = select_balanced_top_nodes(usable_v6, max_total=30, max_per_subnet=3, country_reserve=3)
+        v6_out_path = out_dir / f"{c_code}_v6.txt"
+        if final_v6:
+            with open(v6_out_path, "w", encoding="utf-8") as f:
+                for item in final_v6:
+                    f.write(f"{item['ip']}#{item['country']}\n")
+            print(
+                f"✅ [{c_code.upper()}-v6] 成功寫入 {len(final_v6)} 筆優選 IPv6 至 {v6_out_path.name} "
+                f"(延遲: {final_v6[0]['real_cn_ms']}ms ~ {final_v6[-1]['real_cn_ms']}ms, 最多 30 筆)"
+            )
+        else:
+            print(f"⚠️ [{c_code.upper()}-v6] 無合格亞太 IPv6 節點，保留既有 {v6_out_path.name}！")
+
+        summary_json["ipv6"][c_code] = final_v6
+
     best_json_path = out_dir / "best_ips.json"
     with open(best_json_path, "w", encoding="utf-8") as f:
         json.dump(summary_json, f, ensure_ascii=False, indent=2)
     print(f"✅ 結構化總表已寫入 {best_json_path.name}")
+    save_subnet_history(subnet_ewma_hist, history_path)
     save_probe_cache()
 
     ent_src = PROJECT_ROOT / "data" / "enterprise_domains.txt"
