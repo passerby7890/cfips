@@ -114,6 +114,44 @@ class TestPipelineHelpers(unittest.TestCase):
         ranked = sorted([n_volatile, n_steady], key=app_main.node_rank_key)
         self.assertEqual(ranked[0]["ip"], "104.21.82.10")
 
+        # Loss bucketing: 70.8ms with 10% single-ping jitter beats slower 79.4ms (ewma 34.9) 0% loss
+        n_fast_10pct = {
+            "ip": "172.66.141.10",
+            "country": "HK",
+            "real_cn_ms": 70.8,
+            "ewma_ms": 48.4,
+            "real_cn_loss": 10.0,
+            "hit_ratio": 90.0,
+            "score": 92.0,
+        }
+        n_slow_0pct = {
+            "ip": "104.21.83.80",
+            "country": "HK",
+            "real_cn_ms": 79.4,
+            "ewma_ms": 34.9,
+            "real_cn_loss": 0.0,
+            "hit_ratio": 90.0,
+            "score": 92.0,
+        }
+        ranked_loss_tier = sorted([n_slow_0pct, n_fast_10pct], key=app_main.node_rank_key)
+        self.assertEqual(ranked_loss_tier[0]["ip"], "172.66.141.10")
+
+    def test_select_target_subnets_reserves_ct_jp_slots(self):
+        sorted_subs = [
+            (f"104.18.{i}.0/24", [{"domain": "example.com", "prefer_region": "SG"}])
+            for i in range(34, 54)
+        ] + [
+            ("172.64.229.0/24", [{"domain": "seed_ct", "prefer_region": "JP"}]),
+            ("104.18.90.0/24", [{"domain": "xiu2_cf_cidr", "prefer_region": ""}]),
+            ("104.18.91.0/24", [{"domain": "xiu2_cf_cidr", "prefer_region": ""}]),
+        ]
+        selected, _remaining = app_main.select_target_subnets(
+            sorted_subs, limit=18, xiu2_reserve=2, prefer_regions=("JP",), region_reserve=2
+        )
+        selected_subs = {sub for sub, _ in selected}
+        self.assertIn("172.64.229.0/24", selected_subs)
+        self.assertEqual(len(selected), 18)
+
     def test_discover_xiu2_subnets_ipv6_sampling(self):
         cands = discover_tool.sample_subnets_from_cidrs(
             ["2606:4700:3030::/44"], max_per_cidr=2, is_v6=True

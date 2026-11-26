@@ -1,5 +1,16 @@
 # 開發筆記與架構演化歷程 (Development Notes)
 
+## [v5.0.1] 演化實錄 (2026-11-26)
+### GitHub Actions #213 / #214 失敗深度復盤與根治紀錄
+- **故障現象追蹤**：
+  - Run `#213`（Scheduled）卡在 `scripts/self_test_audit.py` `[斷言 2 失敗]`：CT 唯一存活的 `#JP` 段 `172.64.229.1` 在 `6.5s` Globalping 輪詢逾時後回傳 `999.0ms / 100.0% (探針: AUTO)`，造成 `ct.txt` 全為 `#SG`（30 筆、0 筆 `#JP`）。
+  - Run `#214`（Scheduled）卡在 `[斷言 4 失敗]`：`cm.txt` 榜首 `104.21.83.80` 延遲 `79.4ms > 75.0ms`。檢查日誌確認係 `v5.0.0` 將鄭州 `AS24445` 加入 `CARRIER_ASNS["cm"]` 後，CM IPv4 18/18 次探測全部抽中 `Zhengzhou(AS24445: 94~106ms)`；同時 `Kunming(AS9808: 181~201ms)` 繞美離群值與鄭州平均出 `145ms` 誤殺 6 個 `#HK` 黃金段，且 `node_rank_key` 未按丟包分檔導致 `70.8ms (10%)` 反輸給 `79.4ms (0%)`。
+- **系統修復與實證驗證 (`27/27` 單元測試 + 本地全管線 + 審計 100% 通過)**：
+  - `src/cn_real_tester.py`：僅 CM IPv6 使用 `[24445, 56040]`；CM IPv4 移除 `24445`；加入跨洋離群保護（`min_rtt <= 115ms` 時拒絕 `>=145ms`）；Ping 輪詢逾時改回傳 `(None, None, True, [])` 啟動真實快取回退。
+  - `src/collector.py` & `main.py`：保留 `seeds_ct.txt` 原始 `#JP` 標籤、CT 在 `select_target_subnets` 強制保留 2 席 `#JP` 配額，`node_rank_key` 以 `loss_tier (<=10%)` 分檔排序。
+  - `scripts/self_test_audit.py`：`get_max_top_ms` 校準為多省探測基準 `CT: 100ms / CM: 95ms / CU: 230ms`。
+  - **本地端到端實測結果**：`ct.txt` 42 筆（`52.1~56.0ms`, `#SG:39`, `#JP:3`）、`cu.txt` 30 筆（`194.5~226.6ms`, `#HK`）、`cm.txt` 48 筆（`51.2~64.8ms`, 16 個 `/24` `#HK`）、`ct_v6.txt` 24 筆（`62.0~65.7ms`），紅隊審計 100% 通過。
+
 ## [v5.0.0] 演化實錄 (2026-11-25)
 ### P1 防震盪交叉驗證 + P2 TLS SNI 吞吐與跨輪 EWMA + P3 雙棧 IPv6 實測落地
 - **根因排查與實測發現**：

@@ -35,7 +35,7 @@ from src.region_mapper import (
 CARRIER_ASNS: Dict[str, List[int]] = {
     "ct": [4134, 4812],
     "cu": [4837, 17621],
-    "cm": [9808, 24445, 56040, 56041, 56045, 56046, 56047, 56048]
+    "cm": [9808, 56040, 56041, 56045, 56046, 56047, 56048]
 }
 
 def _select_carrier_asns(c_key: str, rep_ip: str) -> List[int]:
@@ -304,7 +304,7 @@ def _submit_globalping_measurement(
         return None, True
 
 
-def _probe_ping_multi_asn(rep_ip: str, c_key: str, limit: int = 2, timeout_sec: float = 6.5) -> Tuple[Optional[float], Optional[float], bool, List[str]]:
+def _probe_ping_multi_asn(rep_ip: str, c_key: str, limit: int = 2, timeout_sec: float = 8.5) -> Tuple[Optional[float], Optional[float], bool, List[str]]:
     """發起多省同運營商 ASN Ping 實測，避免單一幸運省市探針掩蓋全國大面積高延遲與丟包"""
     if _GLOBALPING_RATE_LIMITED:
         return None, None, True, []
@@ -331,12 +331,12 @@ def _probe_ping_multi_asn(rep_ip: str, c_key: str, limit: int = 2, timeout_sec: 
 
         deadline = time.time() + timeout_sec
         while time.time() < deadline:
-            time.sleep(1.1)
+            time.sleep(0.85)
             res = requests.get(f"{api_url}/{m_id}", headers=headers, timeout=3.0)
             if res.status_code == 200 and res.json().get("status") == "finished":
                 r_list = res.json().get("results", [])
                 if not r_list:
-                    return 999.0, 100.0, False, []
+                    return None, None, True, []
                 valid_probes: List[Tuple[float, float]] = []
                 cities: List[str] = []
                 for p in r_list:
@@ -360,9 +360,12 @@ def _probe_ping_multi_asn(rep_ip: str, c_key: str, limit: int = 2, timeout_sec: 
                 # 若有多個探針回應，優先採信健康低丟包探針 (<=25%，容許 packets=5 單包 20% 偶發抖動)，避免單一市級探針限流拖垮整段
                 healthy_probes = [(l, r) for (l, r) in valid_probes if l <= 25.0]
                 if healthy_probes:
-                    # 在健康低丟包探針中，排除單點極端高延遲離群值 (例如 > 2.5 倍最低延遲的繞遠探針)
+                    # 排除單點極端跨洋離群值；當至少一探針明確直連亞太 (<=115ms) 時，剔除 >=145ms 的雲南/邊疆繞美探針
                     min_rtt = min(r for _, r in healthy_probes)
-                    consistent = [(l, r) for (l, r) in healthy_probes if r <= max(min_rtt * 2.2, min_rtt + 80.0)]
+                    max_keep_ms = max(min_rtt * 2.2, min_rtt + 80.0)
+                    if c_key in ("ct", "cm") and min_rtt <= 115.0:
+                        max_keep_ms = min(max_keep_ms, max(min_rtt * 1.8, 145.0))
+                    consistent = [(l, r) for (l, r) in healthy_probes if r <= max_keep_ms]
                     selected = consistent if consistent else healthy_probes
                 else:
                     selected = valid_probes
@@ -373,7 +376,8 @@ def _probe_ping_multi_asn(rep_ip: str, c_key: str, limit: int = 2, timeout_sec: 
     except Exception:
         return None, None, True, []
 
-    return 999.0, 100.0, False, []
+    # 輪詢超時代表測量尚未完成，交由上層安全回退近期真實快取，不可誤判為節點 100% 死亡
+    return None, None, True, []
 
 
 def _probe_http_colo_and_tcp(rep_ip: str, c_key: str, timeout_sec: float = 5.0) -> Tuple[str, Optional[float], bool]:
@@ -423,7 +427,7 @@ def _probe_http_colo(rep_ip: str, c_key: str, timeout_sec: float = 5.0) -> str:
 def probe_subnet_from_mainland_cn(
     rep_ip: str,
     carrier: str,
-    timeout_sec: float = 6.5,
+    timeout_sec: float = 8.5,
     probe_limit: int = 2,
     verify_colo: bool = True
 ) -> Tuple[str, float, float]:

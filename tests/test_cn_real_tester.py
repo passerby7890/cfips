@@ -119,6 +119,53 @@ class TestCnRealTester(unittest.TestCase):
         v4_asns = crt._select_carrier_asns("cm", "172.66.132.1")
         self.assertEqual(v4_asns[0], 9808)
         self.assertIn(56040, v4_asns)
+        self.assertNotIn(24445, v4_asns)
+
+    def test_ping_timeout_triggers_fresh_cache_fallback_for_ct_jp(self):
+        crt._DISK_CACHE["172.64.229.0/24|ct"] = {
+            "country": "JP",
+            "ms": 63.0,
+            "loss": 0.0,
+            "ts": 1000000.0 - 7200.0,  # 2h old (> 5400s fresh TTL, < 48h fallback)
+            "source": "globalping",
+            "colo": "NRT",
+        }
+        post_resp = MagicMock(status_code=202)
+        post_resp.json.return_value = {"id": "m-timeout"}
+        get_resp = MagicMock(status_code=200)
+        get_resp.json.return_value = {"status": "in-progress", "results": []}
+
+        ticks = iter([1000000.0, 1000000.0, 1000001.0, 1000010.0])
+        with patch("src.cn_real_tester.requests.post", return_value=post_resp), patch(
+            "src.cn_real_tester.requests.get", return_value=get_resp
+        ), patch("src.cn_real_tester.time.sleep", return_value=None), patch(
+            "src.cn_real_tester.time.time", side_effect=lambda: next(ticks, 1000015.0)
+        ):
+            country, real_ms, real_loss = crt.probe_subnet_from_mainland_cn("172.64.229.1", "ct", timeout_sec=5.0)
+
+        self.assertEqual(country, "JP")
+        self.assertEqual(real_ms, 63.0)
+        self.assertEqual(real_loss, 0.0)
+
+    def test_cm_rejects_kunming_transpacific_outlier_alongside_apac(self):
+        post_resp = MagicMock(status_code=202)
+        post_resp.json.return_value = {"id": "m-kunming"}
+        get_resp = MagicMock(status_code=200)
+        get_resp.json.return_value = {
+            "status": "finished",
+            "results": [
+                {"probe": {"city": "Zhengzhou", "asn": 56040}, "result": {"stats": {"avg": 100.0, "loss": 0.0}}},
+                {"probe": {"city": "Kunming", "asn": 9808}, "result": {"stats": {"avg": 190.0, "loss": 0.0}}},
+            ],
+        }
+        with patch("src.cn_real_tester.requests.post", return_value=post_resp), patch(
+            "src.cn_real_tester.requests.get", return_value=get_resp
+        ), patch("src.cn_real_tester.time.sleep", return_value=None):
+            avg_ms, avg_loss, rate_limited, _cities = crt._probe_ping_multi_asn("172.66.132.1", "cm")
+
+        self.assertFalse(rate_limited)
+        self.assertEqual(avg_ms, 100.0)
+        self.assertEqual(avg_loss, 0.0)
 
 
 if __name__ == "__main__":

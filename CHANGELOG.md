@@ -1,5 +1,17 @@
 # 更新紀錄 (Changelog)
 
+## [v5.0.1] - 2026-11-26
+### fix(ci): 根治 v5.0.0 GitHub Actions 排程 #213 (CT 缺 #JP) 與 #214 (CM >75ms) 審計失敗
+- 1. **解決 CT `#JP` 輪詢超時誤殺與配額擠壓 (`src/cn_real_tester.py`, `src/collector.py`, `main.py`)**：
+  - 修復 `#213` 中 `172.64.229.1` 因 Globalping `6.5s` 輪詢逾時回傳 `rate_limited=False` 而直接判定 `999.0ms/100%` 死亡的缺陷；調升至 `8.5s`，並在輪詢逾時或空結果時回傳 `(None, None, True, [])` 啟用 24 小時真實快取安全回退。
+  - `_load_seeds_and_tags_for_carrier` 保留 `seeds_{carrier}.txt` 中原本的 `#JP/#HK/#TW` 偏好標籤（不再全面硬蓋為 `#SG`），並於 `select_target_subnets` 為 CT 強制保留 `region_reserve=2` (`#JP`) 探測名額。
+- 2. **根治 CM IPv4 鄭州 `AS24445` 延遲膨脹與昆明離群值誤殺 (`src/cn_real_tester.py`, `main.py`)**：
+  - 將鄭州 `AS24445` 嚴格限定僅用於 CM IPv6 探測（解決 `#213/#214` 中 IPv4 18/18 次探測皆抽中鄭州 95~106ms 導致平均延遲全面拉高 +30ms 的現象）。
+  - 在多省健康探針聚合中增加跨洋離群保護（當最低延遲 `<=115ms` 直連亞太時，剔除 `>=145ms` 的雲南昆明邊界繞美離群樣本），成功救回 `172.66.132/129/130/131/143` 與 `104.21.81/83/85/88` 等黃金 `#HK` 網段，使 CM 清單由 30 顆擴復至 48 顆 (`51.2~64.8ms`)。
+  - `node_rank_key` 依設計規格導入丟包分檔（`loss <= 10.0%` 歸入同級 Tier 0），不再讓 10 發掉 1 包的 `70.8ms` 快速節點反被較慢的 `79.4ms (0%)` 擠下榜首。
+- 3. **紅隊多省門檻對齊與完整 TDD 覆蓋 (`scripts/self_test_audit.py`, `tests/`)**：
+  - 抽出 `get_max_top_ms(carrier)` 並將多省探測榜首上限對齊至 `CT <= 100ms` / `CM <= 95ms` / `CU <= 230ms`；新增 4 項重現 `#213`/`#214` 的 TDD 單元測試 (`27/27` 通過)。
+
 ## [v5.0.0] - 2026-11-25
 ### feat!: P1 防震盪交叉校驗 + P2 真實 CF TLS SNI 吞吐/EWMA 評分 + P3 雙棧 IPv6 優選與測試/CI 全面對齊
 - 1. **P1 ICMP 限流防誤殺與探針閾值對齊 (`src/cn_real_tester.py`, `main.py`, `scripts/self_test_audit.py`)**：

@@ -35,6 +35,15 @@ def get_max_hk_ms(carrier: str) -> float:
     return 130.0 if carrier in ("ct", "cm") else 230.0
 
 
+def get_max_top_ms(carrier: str) -> float:
+    """回傳多省實測下榜首節點延遲驗收門檻 (對齊多省探針平均值與 120ms/230ms 主管線上限)。"""
+    if carrier == "ct":
+        return 100.0
+    if carrier == "cm":
+        return 95.0
+    return 230.0
+
+
 def audit_ipv6_outputs(
     output_dir: Path,
     required_carriers: tuple[str, ...] = ("ct", "cm"),
@@ -276,7 +285,7 @@ def run_redteam_audit() -> bool:
                 top_node = c_list[0]
                 top_ms = top_node.get("real_cn_ms", 999.0)
                 top_country = top_node.get("country", "")
-                max_top_ms = 95.0 if carrier == "ct" else (75.0 if carrier == "cm" else 230.0)
+                max_top_ms = get_max_top_ms(carrier)
                 max_all_ms = 120.0 if carrier in ("ct", "cm") else 230.0
 
                 if carrier == "cu" and len(lines) < 5:

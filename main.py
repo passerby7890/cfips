@@ -70,24 +70,36 @@ def select_target_subnets(
     sorted_subnets: list[tuple[str, list[dict]]],
     limit: int = 24,
     xiu2_reserve: int = 3,
+    prefer_regions: tuple[str, ...] = (),
+    region_reserve: int = 0,
 ) -> tuple[list[tuple[str, list[dict]]], list[tuple[str, list[dict]]]]:
-    """從已排序子網中選出探測配額，保留專屬於新 XIU2 子網的探索名額以防被既有種子擠光。"""
+    """從已排序子網中選出探測配額，保留專屬於新 XIU2 子網與稀缺地區 (#JP) 的探索名額以防被既有種子擠光。"""
     if len(sorted_subnets) <= limit:
         return list(sorted_subnets), []
+
+    selected_keys: set[str] = set()
+    if prefer_regions and region_reserve > 0:
+        reg_set = {r.upper() for r in prefer_regions}
+        region_picks = [
+            pair
+            for pair in sorted_subnets
+            if pair[1] and any((it.get("prefer_region") or "").upper() in reg_set for it in pair[1])
+        ][:region_reserve]
+        selected_keys.update(sub for sub, _ in region_picks)
 
     reserve_picks = [
         pair
         for pair in sorted_subnets
-        if pair[1] and all(it.get("domain") == "xiu2_cf_cidr" for it in pair[1])
+        if pair[0] not in selected_keys
+        and pair[1]
+        and all(it.get("domain") == "xiu2_cf_cidr" for it in pair[1])
     ][:xiu2_reserve]
-    reserved_keys = {sub for sub, _ in reserve_picks}
+    selected_keys.update(sub for sub, _ in reserve_picks)
 
-    primary_limit = limit - len(reserved_keys)
-    selected_keys = set(reserved_keys)
     for sub, _ in sorted_subnets:
-        if sub in reserved_keys:
+        if sub in selected_keys:
             continue
-        if len(selected_keys) - len(reserved_keys) >= primary_limit:
+        if len(selected_keys) >= limit:
             break
         selected_keys.add(sub)
 
@@ -121,13 +133,16 @@ def filter_usable_nodes(
 
 
 def node_rank_key(item: dict) -> tuple:
-    """跨輪次 EWMA 穩定性混合排序鍵：(丟包, 0.7*當輪延遲 + 0.3*EWMA歷史延遲, -頻寬, -命中, -分數)。"""
+    """跨輪次 EWMA 穩定性混合排序鍵：(丟包分檔 <=10%, 0.7*當輪延遲 + 0.3*EWMA歷史延遲, 實測丟包, -頻寬, -命中, -分數)。"""
     cur_ms = float(item.get("real_cn_ms", 999.0))
     ewma_ms = float(item.get("ewma_ms", cur_ms))
     blended_ms = round((0.7 * cur_ms) + (0.3 * ewma_ms), 1)
+    loss_val = float(item.get("real_cn_loss", 0.0))
+    loss_tier = 0 if loss_val <= 10.0 else 1
     return (
-        float(item.get("real_cn_loss", 0.0)),
+        loss_tier,
         blended_ms,
+        loss_val,
         -float(item.get("speed_mbps", 0.0)),
         -float(item.get("hit_ratio", 0.0)),
         -float(item.get("score", 0.0)),
@@ -352,8 +367,14 @@ async def run_pipeline():
             return (not is_bad_cached, not is_lax, is_gold, has_prefer, avg_hit, avg_score)
 
         sorted_subnets = sorted(subnets.items(), key=subnet_priority, reverse=True)
-        # 精選最高優先級的 18 個子網代表發起大陸多省探測（保留 2 席給 XIU2 未測新網段探索，並為雙棧 IPv6 保留 Globalping 配額）
-        target_subnets, remaining_subnets = select_target_subnets(sorted_subnets, limit=18, xiu2_reserve=2)
+        # 精選最高優先級的 18 個子網代表發起大陸多省探測（電信強制預留 #JP 席次防單段擠壓，並保留 XIU2 新網段探索名額）
+        target_subnets, remaining_subnets = select_target_subnets(
+            sorted_subnets,
+            limit=18,
+            xiu2_reserve=2,
+            prefer_regions=("JP",) if c_code == "ct" else (),
+            region_reserve=2 if c_code == "ct" else 0,
+        )
 
         print(f"\n[*] 階段 3：對 [{c_code.upper()}] 共 {len(carrier_candidates)} 顆候選 IP (精選 {len(target_subnets)}/{len(subnets)} 個優質 /24 網段) 發起大陸境內 ASN 真機實測 (併發=2)...")
         def _probe_sub(sub_items):

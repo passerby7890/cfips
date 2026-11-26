@@ -20,6 +20,12 @@ class TestAuditV5Rules(unittest.TestCase):
         self.assertEqual(audit.get_max_hk_ms("ct"), 130.0)
         self.assertEqual(audit.get_max_hk_ms("cm"), 130.0)
 
+    def test_top_node_thresholds_support_multi_province_probes(self):
+        self.assertGreaterEqual(audit.get_max_top_ms("cm"), 85.0)
+        self.assertLessEqual(audit.get_max_top_ms("cm"), 105.0)
+        self.assertGreaterEqual(audit.get_max_top_ms("ct"), 95.0)
+        self.assertEqual(audit.get_max_top_ms("cu"), 230.0)
+
     def test_audit_ipv6_outputs_valid_and_catches_violations(self):
         good_v6 = (
             "2606:4700:3033::1#HK\n"

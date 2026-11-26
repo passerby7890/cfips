@@ -28,33 +28,52 @@ from src.region_mapper import (
 )
 
 
-def _load_seeds_for_carrier(seed_path: Path) -> List[str]:
-    """從 seeds 檔案載入單 IP 與 CIDR 網段採樣代表 IP"""
+def _load_seeds_and_tags_for_carrier(seed_path: Path) -> Tuple[List[str], Dict[str, str]]:
+    """從 seeds 檔案載入單 IP 與 CIDR 網段採樣代表 IP，並保留 #COUNTRY 地區偏好標籤。"""
     if not seed_path.is_file():
-        return []
+        return [], {}
     ips: List[str] = []
+    tags: Dict[str, str] = {}
     try:
         with open(seed_path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
                     continue
-                target = line.split("#")[0].strip()
+                tag = ""
+                if "#" in line:
+                    target_part, tag_part = line.split("#", 1)
+                    target = target_part.strip()
+                    cand_tag = tag_part.strip().upper()
+                    if len(cand_tag) == 2 and cand_tag.isalpha():
+                        tag = cand_tag
+                else:
+                    target = line
                 if "/" in target:
                     try:
                         net = ipaddress.ip_network(target, strict=False)
-                        # 對 CIDR 網段抽取有代表性的主機
                         sample_hosts = [1, 2, 10, 20, 32, 50, 80, 100, 150, 200, 250]
                         for h in sample_hosts:
                             if h < net.num_addresses - 1:
-                                ips.append(str(net[h]))
+                                sip = str(net[h])
+                                ips.append(sip)
+                                if tag:
+                                    tags[sip] = tag
                     except Exception:
                         pass
                 elif re.match(r"^\d{1,3}(?:\.\d{1,3}){3}$", target):
                     ips.append(target)
+                    if tag:
+                        tags[target] = tag
     except Exception:
         pass
-    return list(dict.fromkeys(ips))
+    return list(dict.fromkeys(ips)), tags
+
+
+def _load_seeds_for_carrier(seed_path: Path) -> List[str]:
+    """從 seeds 檔案載入單 IP 與 CIDR 網段採樣代表 IP"""
+    ips, _ = _load_seeds_and_tags_for_carrier(seed_path)
+    return ips
 
 
 def _parse_wetest_html(html: str) -> Dict[str, List[Dict[str, Any]]]:
@@ -313,9 +332,10 @@ def collect_carrier_candidates_with_domain_map(
                     if prefer_reg and not direct_map[ip].get("prefer_region"):
                         direct_map[ip]["prefer_region"] = prefer_reg
 
-        # B. 注入該運營商專屬種子庫 (含實測 sub-100ms 亞太直連 IP/CIDR，解決移動缺乏高質量候選問題)
+        # B. 注入該運營商專屬種子庫 (含實測 sub-100ms 亞太直連 IP/CIDR，並保留 #COUNTRY 地區偏好標籤)
         seed_path = data_dir / f"seeds_{c_code}.txt"
-        seed_ips = _load_seeds_for_carrier(seed_path)
+        seed_ips, seed_tags = _load_seeds_and_tags_for_carrier(seed_path)
+        default_region = "HK" if c_code == "cm" else ("SG" if c_code == "ct" else "HK")
         for s_ip in seed_ips:
             if not is_cf_official_anycast(s_ip):
                 continue
@@ -329,7 +349,7 @@ def collect_carrier_candidates_with_domain_map(
                     "speed_mbs": 15.0,
                     "score": 92.0,
                     "hit_ratio": 90.0,
-                    "prefer_region": "HK" if c_code == "cm" else ("SG" if c_code == "ct" else "HK"),
+                    "prefer_region": seed_tags.get(s_ip, default_region),
                     "is_direct_cname": False
                 }
 
